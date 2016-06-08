@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- © 2016 Comunitea
+     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
+
+<openerp>
+    <data>
+
+        <record id="stock_picking_add_carrier_send_shipment_form" model="ir.ui.view">
+            <field name="name">stock.picking.form</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="delivery.view_picking_withcarrier_out_form"/>
+            <field name="arch" type="xml">
+                <field name="carrier_tracking_ref" position="before">
+                    <field name="carrier_service"/>
+                    <field name="carrier_delivery"/>
+                    <field name="carrier_printed"/>
+                    <field name="carrier_notes"/>
+                    <field name="carrier_send_employee"/>
+                    <field name="carrier_send_date"/>
+                </field>
+            </field>
+        </record>
+
+    </data>
+</openerp>

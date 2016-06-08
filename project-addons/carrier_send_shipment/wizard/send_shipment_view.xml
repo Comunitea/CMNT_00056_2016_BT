@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- © 2016 Comunitea
+     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
+
+<openerp>
+    <data>
+
+        <record id="send_shipment_form" model="ir.ui.view">
+            <field name="name">carrier.send.shipment.form</field>
+            <field name="model">carrier.send.shipment</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Send shipment">
+                    <group>
+                        <field name="labels" readonly="True"/>
+                    </group>
+                    <footer>
+                        <button name="action_send" string="Send shipments" type="object" class="oe_highlight"/>
+                        or
+                        <button string="Cancel" class="oe_link" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <act_window name="Send Shipment"
+            res_model="carrier.send.shipment"
+            src_model="stock.picking"
+            view_id="send_shipment_form"
+            view_mode="form"
+            target="new"
+            key2="client_action_multi"
+            multi="True"
+            id="send_shipment_action"/>
+
+    </data>
+</openerp>
