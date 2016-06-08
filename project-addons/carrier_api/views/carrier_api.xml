@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- © 2013 Zikzakmedia SL.
+     © 2016 Comunitea
+     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
+
+<openerp>
+    <data>
+
+        <record id="carrier_api_view_tree" model="ir.ui.view">
+            <field name="name">carrier.api.tree</field>
+            <field name="model">carrier.api</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="Carrier API">
+                    <field name="method"/>
+                    <field name="reference"/>
+                    <field name="debug"/>
+                    <field name="company"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="carrier_api_view_form" model="ir.ui.view">
+            <field name="name">carrier.api.form</field>
+            <field name="model">carrier.api</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Carrier API">
+                    <sheet>
+                        <group>
+                            <field name="method"/>
+                        </group>
+                        <notebook>
+                            <page string="Carriers" id="carriers">
+                                <field name="carriers"/>
+                            </page>
+                            <page string="API" id="api">
+                                <group>
+                                    <group>
+                                        <field name="username"/>
+                                        <field name="password"  password="True"/>
+                                    </group>
+                                    <group>
+                                        <field name="debug"/>
+                                    </group>
+                                    <separator string="Test" colspan="6" id="test"/>
+                                    <button name="test_connection" type="object" string="Test connection" colspan="6"/>
+                                </group>
+                            </page>
+                            <page string="General" id="general">
+                                <group>
+                                    <group>
+                                        <field name="reference"/>
+                                        <field name="reference_origin"/>
+                                        <field name="vat"/>
+                                        <field name="phone"/>
+                                    </group>
+                                    <group>
+                                        <field name="company"/>
+                                        <field name="weight"/>
+                                        <field name="weight_unit"/>
+                                        <field name="weight_api_unit"/>
+                                    </group>
+                                </group>
+                            </page>
+                            <page string="Services" id="services">
+                                <field name="services" colspan="6"/>
+                            </page>
+                            <page string="Zip" id="zips">
+                                <field name="zips"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="carrier_api_view_search" model="ir.ui.view">
+            <field name="name">carrier.api.form</field>
+            <field name="model">carrier.api</field>
+            <field name="type">search</field>
+            <field name="arch" type="xml">
+                <search string="Carrier API">
+                    <field name="method"/>
+                    <field name="reference"/>
+               </search>
+            </field>
+        </record>
+
+        <record id="carrier_api_action" model="ir.actions.act_window">
+            <field name="name">Carrier API</field>
+            <field name="res_model">carrier.api</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="carrier_api_view_tree"/>
+            <field name="search_view_id" ref="carrier_api_view_search"/>
+        </record>
+
+        <menuitem name="Carrier API" parent="delivery.menu_delivery" action="carrier_api_action" id="carrier_api_menu"/>
+
+    </data>
+</openerp>

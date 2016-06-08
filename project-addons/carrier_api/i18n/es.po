@@ -1,0 +1,243 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#   * carrier_api
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 8.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-05-24 15:57+0000\n"
+"PO-Revision-Date: 2016-05-24 15:57+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: carrier_api
+#: view:carrier.api:carrier_api.carrier_api_view_form
+#: field:carrier.api.service,carrier_api:0
+msgid "API"
+msgstr "API"
+
+#. module: carrier_api
+#: code:addons/carrier_api/models/carrier_api.py:50
+#, python-format
+msgid "API doesn't have default service"
+msgstr "La API no tiene un servicio por defecto"
+
+#. module: carrier_api
+#: model:ir.model,name:carrier_api.model_delivery_carrier
+msgid "Carrier"
+msgstr "Transportista"
+
+#. module: carrier_api
+#: view:carrier.api:carrier_api.carrier_api_view_form
+#: view:carrier.api:carrier_api.carrier_api_view_search
+#: view:carrier.api:carrier_api.carrier_api_view_tree
+#: model:ir.actions.act_window,name:carrier_api.carrier_api_action
+#: model:ir.ui.menu,name:carrier_api.carrier_api_menu
+msgid "Carrier API"
+msgstr "API transportista"
+
+#. module: carrier_api
+#: view:carrier.api:carrier_api.carrier_api_view_form
+#: field:carrier.api,carriers:0
+msgid "Carriers"
+msgstr "Transportistas"
+
+#. module: carrier_api
+#: field:carrier.api.service,code:0
+msgid "Code"
+msgstr "Código"
+
+#. module: carrier_api
+#: field:carrier.api,company:0
+msgid "Company"
+msgstr "Compañía"
+
+#. module: carrier_api
+#: field:carrier.api,create_uid:0
+#: field:carrier.api.service,create_uid:0
+msgid "Created by"
+msgstr "Created by"
+
+#. module: carrier_api
+#: field:carrier.api,create_date:0
+#: field:carrier.api.service,create_date:0
+msgid "Created on"
+msgstr "Created on"
+
+#. module: carrier_api
+#: field:carrier.api,debug:0
+msgid "Debug"
+msgstr "Depuración"
+
+#. module: carrier_api
+#: field:carrier.api.service,default:0
+msgid "Default"
+msgstr "Por defecto"
+
+#. module: carrier_api
+#: help:carrier.api,weight_api_unit:0
+msgid "Default API unit"
+msgstr "La unidad API por defecto"
+
+#. module: carrier_api
+#: help:carrier.api,weight_unit:0
+msgid "Default shipments unit"
+msgstr "La unidad de los albaranes por defecto"
+
+#. module: carrier_api
+#: field:carrier.api,display_name:0
+#: field:carrier.api.service,display_name:0
+msgid "Display Name"
+msgstr "Display Name"
+
+#. module: carrier_api
+#: view:carrier.api:carrier_api.carrier_api_view_form
+msgid "General"
+msgstr "General"
+
+#. module: carrier_api
+#: field:carrier.api,id:0
+#: field:carrier.api.service,id:0
+msgid "ID"
+msgstr "ID"
+
+#. module: carrier_api
+#: field:carrier.api,__last_update:0
+#: field:carrier.api.service,__last_update:0
+msgid "Last Modified on"
+msgstr "Last Modified on"
+
+#. module: carrier_api
+#: field:carrier.api,write_uid:0
+#: field:carrier.api.service,write_uid:0
+msgid "Last Updated by"
+msgstr "Last Updated by"
+
+#. module: carrier_api
+#: field:carrier.api,write_date:0
+#: field:carrier.api.service,write_date:0
+msgid "Last Updated on"
+msgstr "Last Updated on"
+
+#. module: carrier_api
+#: field:carrier.api,method:0
+msgid "Method"
+msgstr "Método"
+
+#. module: carrier_api
+#: field:carrier.api.service,name:0
+msgid "Name"
+msgstr "Nombre"
+
+#. module: carrier_api
+#: field:carrier.api,password:0
+msgid "Password"
+msgstr "Contraseña"
+
+#. module: carrier_api
+#: field:carrier.api,phone:0
+msgid "Phone"
+msgstr "Teléfono"
+
+#. module: carrier_api
+#: field:carrier.api,reference:0
+msgid "Reference"
+msgstr "Reference"
+
+#. module: carrier_api
+#: field:carrier.api,reference_origin:0
+msgid "Reference origin"
+msgstr "Referencia origen"
+
+#. module: carrier_api
+#: help:carrier.api,weight:0
+msgid "Send shipments with weight"
+msgstr "Envia los albarans con el peso"
+
+#. module: carrier_api
+#: field:delivery.carrier,service:0
+msgid "Service"
+msgstr "Servicio"
+
+#. module: carrier_api
+#: code:addons/carrier_api/models/carrier_api.py:50
+#, python-format
+msgid "Service error"
+msgstr "Error en servicio"
+
+#. module: carrier_api
+#: view:carrier.api:carrier_api.carrier_api_view_form
+#: field:carrier.api,services:0
+msgid "Services"
+msgstr "Servicios"
+
+#. module: carrier_api
+#: view:carrier.api:carrier_api.carrier_api_view_form
+msgid "Test"
+msgstr "Probar"
+
+#. module: carrier_api
+#: view:carrier.api:carrier_api.carrier_api_view_form
+msgid "Test connection"
+msgstr "Probar conexión"
+
+#. module: carrier_api
+#: field:carrier.api,url:0
+msgid "URL"
+msgstr "URL"
+
+#. module: carrier_api
+#: help:carrier.api,reference_origin:0
+msgid "Use origin field as the reference record"
+msgstr "Utilitza el campo origen como referencia"
+
+#. module: carrier_api
+#: help:carrier.api,reference:0
+msgid "Use reference from carrier"
+msgstr "Utiliza la referencia del transportista"
+
+#. module: carrier_api
+#: field:carrier.api,username:0
+msgid "Username"
+msgstr "Nombre de usuario"
+
+#. module: carrier_api
+#: field:carrier.api,vat:0
+msgid "Vat"
+msgstr "CIF/NIF"
+
+#. module: carrier_api
+#: field:carrier.api,weight:0
+msgid "Weight"
+msgstr "Peso"
+
+#. module: carrier_api
+#: field:carrier.api,weight_api_unit:0
+msgid "Weight api unit"
+msgstr "Unidad API peso"
+
+#. module: carrier_api
+#: field:carrier.api,weight_unit:0
+msgid "Weight unit"
+msgstr "Unidad peso"
+
+#. module: carrier_api
+#: view:carrier.api:carrier_api.carrier_api_view_form
+#: field:carrier.api,zips:0
+msgid "Zip"
+msgstr "Código postal"
+
+#. module: carrier_api
+#: help:carrier.api,zips:0
+msgid "Zip codes not send to carrier, separated by comma"
+msgstr "Códigos postales no cubiertos por el transportista, separados por coma"
+
+#. module: carrier_api
+#: selection:carrier.api,method:0
+msgid "test"
+msgstr "Prueba"
