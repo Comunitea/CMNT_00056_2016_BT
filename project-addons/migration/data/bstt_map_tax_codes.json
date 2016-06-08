@@ -1,0 +1,52 @@
+{
+    # select * from account_tax_code where id in (select distinct code from (select code from account_tax_line
+    # union select tax_code as code from account_invoice_tax union select base_code as code from account_invoice_tax) as t)
+    "6": 59, # Régimen general IVA Devengado. Base Imponible 10%
+    "9": 60, # Régimen general IVA Devengado. Base Imponible 21%
+    "10": 62, # Adquisiciones intracomunitarias. Base Imponible
+    "13": 67, # Recargo Equivalencia Base Imponible 1.4%
+    "15": 68, # Recargo Equivalencia Base Imponible 5.2%
+    "16": 116, # Base adquisiciones exentas
+    "17": 115, # Base ventas exentas
+    "25": 79, # Base operaciones interiores corrientes (4%)
+    "28": 80, # Base operaciones interiores corrientes (10%)
+    "31": 81, # Base operaciones interiores corrientes (21%)
+    "39": 88, # Base operaciones interiores bienes inversión (21%)
+    "40": 89, # Base importaciones bienes corrientes
+    "44": 91, # Base importaciones bienes corrientes (10%)
+    "47": 92, # Base importaciones bienes corrientes (21%)
+    "48": 93, # Base importaciones bienes inversión
+    "60": 102, # Base adquisiciones intracomunitarias bienes corrientes (10%)
+    "63": 105, # Base adquisiciones intracomunitarias bienes corrientes (21%)
+    "76": 5, # Régimen general IVA Devengado. Cuota 10%
+    "79": 6, # Régimen general IVA Devengado. Cuota 21%
+    "80": 8, # Adquisiciones intracomunitarias. Cuota
+    "83": 13, # Recargo Equivalencia. Cuota 1.4%
+    "85": 14, # Recargo Equivalencia. Cuota 5.2%
+    "93": 18, # Cuotas soportadas operaciones interiores corrientes (4%)
+    "96": 19, # Cuotas soportadas operaciones interiores corrientes (10%)
+    "99": 20, # Cuotas soportadas operaciones interiores corrientes (21%)
+    "107": 27, # Cuotas soportadas operaciones interiores bienes inversión (21%)
+    "108": 28, # Cuotas devengadas importaciones bienes corrientes
+    "112": 30, # Cuotas devengadas importaciones bienes corrientes (10%)
+    "115": 31, # Cuotas devengadas importaciones bienes corrientes (21%)
+    "116": 32, # Cuotas devengadas importaciones bienes inversión
+    "127": 41, # En adquisiciones intracomunitarias bienes corrientes (8%)
+    "128": 41, # En adquisiciones intracomunitarias bienes corrientes (10%)
+    "131": 44, # En adquisiciones intracomunitarias bienes corrientes (21%)
+    "140": 71, # Entregas Intracomunitarias
+    "145": 145, # IRPF Retenciones practicadas Base Imponible 15%
+    "165": 126, # IRPF Retenciones practicadas Cuota 15%
+    "147": 147, # IRPF Retenciones practicadas Base Imponible 19%
+    "167": 128, # IRPF Retenciones practicadas Cuota 19%
+    "150": 150, # IRPF Retenciones practicadas Base Imponible 21%
+    "170": 131, # IRPF Retenciones practicadas Cuota 21%
+    "200": 193, # Base imponible vendes a Canàries
+    "201": 199, # Base imponible vendes a Ceuta i Melilla
+    "202": 197, # Base imponible exportació a Andorra
+    "203": 105, # Base adquisiciones intracomunitarias bienes corrientes (21%)
+    "204": 105, # Base adquisiciones intracomunitarias bienes corrientes (21%)
+    "206": 44, # En adquisiciones intracomunitarias bienes corrientes (21%)
+    "207": 194, # Base imponible compres a Ceuta i Melilla
+    "208": 196, # Base imponible compres a Canàries
+}
