@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record id="view_partner_property_form_add_custom_fields" model="ir.ui.view">
+            <field name="name">res.partner.carrier.property.form.inherit.add_custom_fields</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="delivery.view_partner_property_form" />
+            <field name="arch" type="xml">
+                <field name="property_delivery_carrier" position="after">
+                    <field name="carrier_service_id"/>
+                    <field name="asm_return"/>
+                    <separator string="Carrier notes" colspan="2"/>
+                    <field name="carrier_notes" nolabel="1" colspan="2"/>
+                </field>
+                <field name="ref" position="after">
+                    <field name="medical_code"/>
+                    <separator string="Timetable" colspan="2"/>
+                    <field name="timetable" nolabel="1" colspan="2"/>
+                </field>
+            </field>
+        </record>
+
+    </data>
+</openerp>

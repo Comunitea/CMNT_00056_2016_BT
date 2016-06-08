@@ -1,0 +1,48 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#       * custom_partner
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 8.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-06-08 15:30+0000\n"
+"PO-Revision-Date: 2016-06-08 15:30+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: custom_partner
+#: field:res.partner,asm_return:0
+msgid "Asm return"
+msgstr "Devolución Asm"
+
+#. module: custom_partner
+#: view:res.partner:custom_partner.view_partner_property_form_add_custom_fields
+#: field:res.partner,carrier_notes:0
+msgid "Carrier notes"
+msgstr "Notas transportista"
+
+#. module: custom_partner
+#: field:res.partner,carrier_service_id:0
+msgid "Carrier service"
+msgstr "Servicio transporte"
+
+#. module: custom_partner
+#: field:res.partner,medical_code:0
+msgid "Medical code"
+msgstr "Código médico"
+
+#. module: custom_partner
+#: model:ir.model,name:custom_partner.model_res_partner
+msgid "Partner"
+msgstr "Empresa"
+
+#. module: custom_partner
+#: view:res.partner:custom_partner.view_partner_property_form_add_custom_fields
+#: field:res.partner,timetable:0
+msgid "Timetable"
+msgstr "Horario"
