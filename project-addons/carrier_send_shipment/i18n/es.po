@@ -1,0 +1,311 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#   * carrier_send_shipment
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 8.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-06-09 16:49+0000\n"
+"PO-Revision-Date: 2016-06-09 16:49+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: carrier_send_shipment
+#: code:addons/carrier_send_shipment/models/stock.py:74
+#: code:addons/carrier_send_shipment/wizard/carrier_print.py:54
+#, python-format
+msgid "%s label %s.pdf"
+msgstr "%s etiqueta %s.pdf"
+
+#. module: carrier_send_shipment
+#: help:stock.picking,carrier_notes:0
+msgid "Add notes when send API shipment"
+msgstr "Añadir notas para el envío"
+
+#. module: carrier_send_shipment
+#: code:addons/carrier_send_shipment/models/stock.py:68
+#, python-format
+msgid "Address error"
+msgstr "Error dirección"
+
+#. module: carrier_send_shipment
+#: view:carrier.get.label:carrier_send_shipment.carrier_get_label_form_view
+#: view:carrier.print.shipment:carrier_send_shipment.carrier_print_form_view
+#: view:carrier.send.shipment:carrier_send_shipment.send_shipment_form
+msgid "Cancel"
+msgstr "Cancelar"
+
+#. module: carrier_send_shipment
+#: code:addons/carrier_send_shipment/models/stock.py:63
+#, python-format
+msgid "Carrier \"%s\" not have API"
+msgstr "El transportista \"%s\" no tiene API"
+
+#. module: carrier_send_shipment
+#: field:stock.picking,carrier_service:0
+msgid "Carrier API Service"
+msgstr "Servicio API transportista"
+
+#. module: carrier_send_shipment
+#: field:stock.picking,carrier_notes:0
+msgid "Carrier Notes"
+msgstr "Notas transportista"
+
+#. module: carrier_send_shipment
+#: code:addons/carrier_send_shipment/wizard/carrier_print.py:35
+#: code:addons/carrier_send_shipment/wizard/get_label.py:41
+#: code:addons/carrier_send_shipment/wizard/send_shipment.py:90
+#, python-format
+msgid "Carrier error"
+msgstr "Error transportista"
+
+#. module: carrier_send_shipment
+#: model:ir.actions.act_window,name:carrier_send_shipment.carrier_get_label_action
+#: model:ir.ui.menu,name:carrier_send_shipment.carrier_get_label_menu
+msgid "Carrier labels"
+msgstr "Etiquetas transportista"
+
+#. module: carrier_send_shipment
+#: field:stock.picking,carrier_send_date:0
+msgid "Carrier send date"
+msgstr "Fecha envío transportista"
+
+#. module: carrier_send_shipment
+#: field:stock.picking,carrier_send_employee:0
+msgid "Carrier send employee"
+msgstr "Empleado envío transportista"
+
+#. module: carrier_send_shipment
+#: field:carrier.get.label,codes:0
+msgid "Codes"
+msgstr "Códigos"
+
+#. module: carrier_send_shipment
+#: field:carrier.get.label,create_uid:0
+#: field:carrier.print.shipment,create_uid:0
+#: field:carrier.send.shipment,create_uid:0
+msgid "Created by"
+msgstr "Created by"
+
+#. module: carrier_send_shipment
+#: field:carrier.get.label,create_date:0
+#: field:carrier.print.shipment,create_date:0
+#: field:carrier.send.shipment,create_date:0
+msgid "Created on"
+msgstr "Created on"
+
+#. module: carrier_send_shipment
+#: field:stock.picking,carrier_delivery:0
+msgid "Delivered"
+msgstr "Enviado"
+
+#. module: carrier_send_shipment
+#: field:carrier.get.label,display_name:0
+#: field:carrier.print.shipment,display_name:0
+#: field:carrier.send.shipment,display_name:0
+msgid "Display Name"
+msgstr "Display Name"
+
+#. module: carrier_send_shipment
+#: field:carrier.get.label,file_name:0
+#: field:carrier.print.shipment,file_name:0
+#: field:carrier.send.shipment,file_name:0
+msgid "File Name"
+msgstr "File Name"
+
+#. module: carrier_send_shipment
+#: field:carrier.get.label,id:0
+#: field:carrier.print.shipment,id:0
+#: field:carrier.send.shipment,id:0
+msgid "ID"
+msgstr "ID"
+
+#. module: carrier_send_shipment
+#: help:carrier.get.label,codes:0
+msgid "Introduce codes or tracking reference of shipments separated by commas."
+msgstr "Introduzca códigos o referencias de envíos separados por comas."
+
+#. module: carrier_send_shipment
+#: field:carrier.get.label,labels:0
+#: field:carrier.print.shipment,labels:0
+#: field:carrier.send.shipment,labels:0
+msgid "Labels"
+msgstr "Etiquetas"
+
+#. module: carrier_send_shipment
+#: field:carrier.get.label,__last_update:0
+#: field:carrier.print.shipment,__last_update:0
+#: field:carrier.send.shipment,__last_update:0
+msgid "Last Modified on"
+msgstr "Last Modified on"
+
+#. module: carrier_send_shipment
+#: field:carrier.get.label,write_uid:0
+#: field:carrier.print.shipment,write_uid:0
+#: field:carrier.send.shipment,write_uid:0
+msgid "Last Updated by"
+msgstr "Last Updated by"
+
+#. module: carrier_send_shipment
+#: field:carrier.get.label,write_date:0
+#: field:carrier.print.shipment,write_date:0
+#: field:carrier.send.shipment,write_date:0
+msgid "Last Updated on"
+msgstr "Last Updated on"
+
+#. module: carrier_send_shipment
+#: field:stock.picking,weight_net_edit:0
+msgid "Net weight"
+msgstr "Peso neto"
+
+#. module: carrier_send_shipment
+#: code:addons/carrier_send_shipment/models/stock.py:63
+#, python-format
+msgid "No api"
+msgstr "No api"
+
+#. module: carrier_send_shipment
+#: code:addons/carrier_send_shipment/models/stock.py:58
+#, python-format
+msgid "No carrier"
+msgstr "No carrier"
+
+#. module: carrier_send_shipment
+#: code:addons/carrier_send_shipment/wizard/carrier_print.py:26
+#, python-format
+msgid "Picking \"%s\" was not sended"
+msgstr "El albarán \"%s\" no ha sido enviado"
+
+#. module: carrier_send_shipment
+#: code:addons/carrier_send_shipment/wizard/get_label.py:32
+#, python-format
+msgid "Picking %s was not sended"
+msgstr "El albarán %s no ha sido enviado"
+
+#. module: carrier_send_shipment
+#: model:ir.model,name:carrier_send_shipment.model_stock_picking
+msgid "Picking List"
+msgstr "Albarán"
+
+#. module: carrier_send_shipment
+#: help:stock.picking,carrier_printed:0
+msgid "Picking is already printed"
+msgstr "El albarán ya ha sido impreso"
+
+#. module: carrier_send_shipment
+#: code:addons/carrier_send_shipment/wizard/send_shipment.py:74
+#, python-format
+msgid "Picking state"
+msgstr "Picking state"
+
+#. module: carrier_send_shipment
+#: code:addons/carrier_send_shipment/wizard/send_shipment.py:76
+#, python-format
+msgid "Picking was sended"
+msgstr "El albarán ya ha sido enviado"
+
+#. module: carrier_send_shipment
+#: view:carrier.get.label:carrier_send_shipment.carrier_get_label_form_view
+#: view:carrier.print.shipment:carrier_send_shipment.carrier_print_form_view
+msgid "Print"
+msgstr "Imprimir"
+
+#. module: carrier_send_shipment
+#: model:ir.actions.act_window,name:carrier_send_shipment.carrier_print_action
+msgid "Print carrier labels"
+msgstr "Imprimir etiquetas transportista"
+
+#. module: carrier_send_shipment
+#: view:carrier.get.label:carrier_send_shipment.carrier_get_label_form_view
+#: view:carrier.print.shipment:carrier_send_shipment.carrier_print_form_view
+msgid "Print labels"
+msgstr "Imprimir etiquetas"
+
+#. module: carrier_send_shipment
+#: field:stock.picking,carrier_printed:0
+msgid "Printed"
+msgstr "Printed"
+
+#. module: carrier_send_shipment
+#: code:addons/carrier_send_shipment/wizard/carrier_print.py:35
+#: code:addons/carrier_send_shipment/wizard/get_label.py:41
+#: code:addons/carrier_send_shipment/wizard/send_shipment.py:90
+#, python-format
+msgid "Select only pickings of the same carrier"
+msgstr "Seleccione unicamente albaranes del mismo transportista"
+
+#. module: carrier_send_shipment
+#: model:ir.actions.act_window,name:carrier_send_shipment.send_shipment_action
+msgid "Send Shipment"
+msgstr "Enviar a transportista"
+
+#. module: carrier_send_shipment
+#: view:carrier.send.shipment:carrier_send_shipment.send_shipment_form
+msgid "Send shipment"
+msgstr "Enviar a transportista"
+
+#. module: carrier_send_shipment
+#: view:carrier.send.shipment:carrier_send_shipment.send_shipment_form
+msgid "Send shipments"
+msgstr "Enviar a transportista"
+
+#. module: carrier_send_shipment
+#: field:carrier.get.label,sended:0
+#: field:carrier.print.shipment,sended:0
+#: field:carrier.send.shipment,sended:0
+msgid "Sended"
+msgstr "Enviado"
+
+#. module: carrier_send_shipment
+#: code:addons/carrier_send_shipment/models/stock.py:69
+#, python-format
+msgid "Shipment \"%s\" not have address details: street, zip, city or country."
+msgstr "Shipment \"%s\" not have address details: street, zip, city or country."
+
+#. module: carrier_send_shipment
+#: code:addons/carrier_send_shipment/models/stock.py:58
+#, python-format
+msgid "Shipment \"%s\" not have carrier"
+msgstr "Shipment \"%s\" not have carrier"
+
+#. module: carrier_send_shipment
+#: code:addons/carrier_send_shipment/wizard/send_shipment.py:84
+#, python-format
+msgid "Shipment %s not available to send zip %s"
+msgstr "Shipment %s not available to send zip %s"
+
+#. module: carrier_send_shipment
+#: code:addons/carrier_send_shipment/wizard/carrier_print.py:26
+#: code:addons/carrier_send_shipment/wizard/get_label.py:32
+#: code:addons/carrier_send_shipment/wizard/send_shipment.py:76
+#, python-format
+msgid "Shipment error"
+msgstr "Shipment error"
+
+#. module: carrier_send_shipment
+#: help:stock.picking,carrier_delivery:0
+msgid "The package has been delivered"
+msgstr "El albarán ha sido enviado"
+
+#. module: carrier_send_shipment
+#: code:addons/carrier_send_shipment/wizard/send_shipment.py:74
+#, python-format
+msgid "The picking %s is not in done state"
+msgstr "El albarán %s no está finalizado"
+
+#. module: carrier_send_shipment
+#: field:stock.picking,weight_edit:0
+msgid "Weight"
+msgstr "Peso"
+
+#. module: carrier_send_shipment
+#: view:carrier.get.label:carrier_send_shipment.carrier_get_label_form_view
+#: view:carrier.print.shipment:carrier_send_shipment.carrier_print_form_view
+#: view:carrier.send.shipment:carrier_send_shipment.send_shipment_form
+msgid "or"
+msgstr "o"

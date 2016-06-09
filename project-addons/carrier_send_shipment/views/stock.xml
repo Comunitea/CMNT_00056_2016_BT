@@ -18,6 +18,12 @@
                     <field name="carrier_send_employee"/>
                     <field name="carrier_send_date"/>
                 </field>
+                <field name="weight_net" position="replace">
+                    <field name="weight_net_edit"/>
+                </field>
+                <field name="weight" position="replace">
+                    <field name="weight_edit" class="oe_inline"/>
+                </field>
             </field>
         </record>
 

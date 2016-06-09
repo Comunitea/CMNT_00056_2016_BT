@@ -16,10 +16,13 @@
         "delivery",
         "carrier_api",
         "stock",
-        "hr"
+        "hr",
+        "stock_cashondelivery"
     ],
     "data": [
         'views/stock.xml',
-        'wizard/send_shipment_view.xml'
+        'wizard/send_shipment_view.xml',
+        'wizard/carrier_print.xml',
+        'wizard/get_label.xml'
     ],
 }

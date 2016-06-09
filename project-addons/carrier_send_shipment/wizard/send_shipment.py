@@ -12,6 +12,7 @@ class CarrierSendShipment(models.TransientModel):
     _name = 'carrier.send.shipment'
 
     labels = fields.Binary('Labels', filename='file_name')
+    sended = fields.Boolean()
     file_name = fields.Text('File Name')
 
     @api.multi
@@ -48,6 +49,18 @@ class CarrierSendShipment(models.TransientModel):
             file_name = None
         self.labels = carrier_labels
         self.file_name = file_name
+        self.sended = True
+
+        return {
+            'context': self.env.context,
+            'view_type': 'form',
+            'view_mode': 'form',
+            'res_model': 'carrier.send.shipment',
+            'res_id': self.id,
+            'view_id': False,
+            'type': 'ir.actions.act_window',
+            'target': 'new',
+        }
 
     @api.model
     def default_get(self, field_list):
@@ -60,7 +73,7 @@ class CarrierSendShipment(models.TransientModel):
             if picking.state != 'done':
                 raise exceptions.Warning(_('Picking state'), _("The picking %s is not in done state"))
             if picking.carrier_tracking_ref:
-                raise exceptions.Warning(_('Shipment error'), _('Picking "%s" was sended'))
+                raise exceptions.Warning(_('Shipment error'), _('Picking was sended'))
             carrier = picking.carrier_id.name
             apis = self.env['carrier.api'].search([('carriers', 'in', [picking.carrier_id.id])], limit=1)
             api = apis and apis[0] or False

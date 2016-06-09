@@ -2,91 +2,83 @@
 # © 2016 Comunitea
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 from openerp import models, fields, api, exceptions, _
+import base64
+import tempfile
+import tarfile
 
+class CarrierGetLabel(models.TransientModel):
 
-class CarrierGetLabel(Wizard):
+    _name = 'carrier.get.label'
 
     codes = fields.Char('Codes', required=True,
         help='Introduce codes or tracking reference of shipments separated by commas.')
 
-    attachments = fields.One2Many('ir.attachment', None, 'Attachments',
-        states={
-            'invisible': Not(Bool(Eval('attachments'))),
-            'readonly': True,
-            })
+    sended = fields.Boolean()
+    labels = fields.Binary('Labels', filename='file_name')
+    file_name = fields.Char('File Name')
 
-    'Carrier Get Label'
-    __name__ = "carrier.get.label"
-    start = StateView('carrier.get.label.start',
-        'carrier_send_shipments.carrier_get_label_start_view_form', [
-            Button('Cancel', 'end', 'tryton-cancel'),
-            Button('Get', 'get', 'tryton-ok', default=True),
-            ])
-    get = StateTransition()
-    result = StateView('carrier.get.label.result',
-        'carrier_send_shipments.carrier_get_label_result_view_form', [
-            Button('Close', 'end', 'tryton-close'),
-            ])
 
-    def transition_get(self):
-        pool = Pool()
-        Attachment = pool.get('ir.attachment')
-        Shipment = pool.get('stock.shipment.out')
-        API = pool.get('carrier.api')
+    @api.multi
+    def action_print(self):
+        dbname = self.env.cr.dbname
+        labels = []
+        codes = [l.strip() for l in self.codes.split(',')]
+        pickings = self.env['stock.picking'].search(
+            [('state', '=', 'done'), '|',
+             ('name', 'in', codes), ('carrier_tracking_ref', 'in', codes)])
+        methods = []
+        for picking in pickings:
+            if not picking.carrier_tracking_ref:
+                raise exceptions.Warning(_('Shipment error'), _('Picking %s was not sended') % picking.name)
+            carrier = picking.carrier_id.name
+            apis = self.env['carrier.api'].search([('carriers', 'in', [picking.carrier_id.id])], limit=1)
+            api = apis and apis[0] or False
 
-        codes = [l.strip() for l in self.start.codes.split(',')]
-        shipments = Shipment.search([
-                ('state', 'in', _SHIPMENT_STATES),
-                ['OR',
-                    ('code', 'in', codes),
-                    ('carrier_tracking_ref', 'in', codes),
-                ]])
+            if not api.method in methods:
+                methods.append(api.method)
 
-        if not shipments:
-            return 'result'
+        if len(methods) > 1:
+            raise exceptions.Warning(_('Carrier error'), _('Select only pickings of the same carrier'))
 
-        apis = {}
-        for shipment in shipments:
-            if not shipment.carrier:
+        for picking in pickings:
+            apis = self.env['carrier.api'].search([('carriers', 'in', [picking.carrier_id.id])], limit=1)
+            if not apis:
                 continue
-            carrier_apis = API.search([('carriers', 'in', [shipment.carrier.id])],
-                limit=1)
-            if not carrier_apis:
-                continue
-            api, = carrier_apis
+            api = apis[0]
 
-            if apis.get(api.method):
-                shipments = apis.get(api.method)
-                shipments.append(shipment)
-            else:
-                shipments = [shipment]
-            apis[api.method] = shipments
+            print_label = getattr(picking, 'print_labels_%s' % api.method)
+            labs = print_label(api)
 
-        attachments = []
-        for method, shipments in apis.iteritems():
-            api, = API.search([('method', '=', method)],
-                limit=1)
-            print_label = getattr(Shipment, 'print_labels_%s' % method)
-            labels = print_label(api, shipments)
+            labels += labs
 
-            for label, shipment in zip(labels, shipments):
-                attach = {
-                    'name': datetime.now().strftime("%y/%m/%d %H:%M:%S"),
-                    'type': 'data',
-                    'data': fields.Binary.cast(open(label, "rb").read()),
-                    'description': '%s - %s' % (shipment.code, method),
-                    'resource': '%s' % str(shipment),
-                    }
+        #  Save file label in labels field
+        if len(labels) == 1:  # A label generate simple file
+            carrier_labels =  base64.b64encode(open(labels[0], "rb").read())
+            file_name = labels[0].split('/')[2]
+        elif len(labels) > 1:  # Multiple labels generate tgz
+            temp = tempfile.NamedTemporaryFile(prefix='%s-carrier-' % dbname,
+                delete=False)
+            temp.close()
+            with tarfile.open(temp.name, "w:gz") as tar:
+                for path_label in labels:
+                    tar.add(path_label)
+            tar.close()
+            carrier_labels = base64.b64encode(open(temp.name, "rb").read())
+            file_name = '%s.tgz' % temp.name.split('/')[2]
+        else:
+            carrier_labels = None
+            file_name = None
+        self.labels = carrier_labels
+        self.file_name = file_name
+        self.sended = True
 
-                attachments.append(attach)
-
-        attachments = Attachment.create(attachments)
-        self.result.attachments = attachments
-
-        return 'result'
-
-    def default_result(self, fields):
         return {
-            'attachments': [a.id
-                for a in getattr(self.result, 'attachments', [])],
-            }
+            'context': self.env.context,
+            'view_type': 'form',
+            'view_mode': 'form',
+            'res_model': 'carrier.get.label',
+            'res_id': self.id,
+            'view_id': False,
+            'type': 'ir.actions.act_window',
+            'target': 'new',
+        }
