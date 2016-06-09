@@ -1,0 +1,33 @@
+{
+    # select id,active,name from account_tax where id in (select distinct tax from account_invoice_line_account_tax)
+    "44": [48], # IVA 10% Intracomunitario. Bienes corrientes
+    "68": [5], # IVA 21% Intracomunitario. Servicios
+    "73": [73], # IVA Soportado exento (operaciones corrientes)
+    "74": [62], # 4% IVA Soportado (operaciones corrientes)
+    "77": [61], # 10% IVA Soportado (operaciones corrientes)
+    "86": [60], # 21% IVA Soportado (bienes de inversión)
+    "91": [67], # IVA 10%
+    "346": [1,25], # Retenciones IRPF 15% + 21% IVA Soportado (operaciones corrientes)
+    "439": [73,80], # Retenciones IRPF 19% + IVA Soportado exento (operaciones corrientes)
+    "460": [1,80], # Retenciones IRPF 19% + 21% IVA Soportado (operaciones corrientes)
+    "574": [1,32], # Retenciones IRPF 21% + 21% IVA Soportado (operaciones corrientes)
+    "916": [67,71], # IVA 10% + 1.4% Recargo Equivalencia Ventas
+    "925": [2,72], # IVA 21% + 5.2% Recargo Equivalencia Ventas
+    "980": [115], # IVA 0% Importaciones bienes de inversión (creado desactivado)
+    "2": [1], # 21% IVA Soportado (operaciones corrientes)
+    "4": [2], # IVA 21%
+    "62": [38], # IVA 21% Intracomunitario. Bienes corrientes
+    "87": [64], # IVA Exento
+    "325": [25,73], # Retenciones IRPF 15% + IVA Soportado exento (operaciones corrientes)
+    "970": [116], # IVA 0% Canarias (creado desactivado)
+    "976": [117], # IVA soportado 0% Ceuta y Melilla (creado desactivado)
+    "8": [115], # IVA 0% Importaciones bienes de inversión
+    "978": [118], "IVA soportado 0% Canarias" (creado desactivado)
+    "971": [121], # IVA 0% Ceuta y Melilla
+    "71": [], # Suplido
+    "975": [119], # IVA a recuperar Portugal a 23% IVA (creado desactivado)
+    "25": [15], # IVA 0% Intracomunitario
+    "972": [120], # IVA 0% Exportación Andorra (creado desactivado)
+    "15": [55], # IVA 10% Importaciones bienes corrientes
+    "21": [40], # IVA 21% Importaciones bienes corrientes
+}
