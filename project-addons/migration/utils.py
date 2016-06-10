@@ -22,3 +22,13 @@ def loadTaxes():
 def loadTaxCodes():
     json_data=open(Config.TAX_CODES_FILE).read()
     return commentjson.loads(json_data)
+
+
+def loadPaymentModes():
+    json_data=open(Config.PAYMENT_MODES_FILE).read()
+    return commentjson.loads(json_data)
+
+
+def loadProductUoms():
+    json_data=open(Config.PRODUCT_UOM_FILE).read()
+    return commentjson.loads(json_data)

@@ -22,12 +22,12 @@
     "970": [116], # IVA 0% Canarias (creado desactivado)
     "976": [117], # IVA soportado 0% Ceuta y Melilla (creado desactivado)
     "8": [115], # IVA 0% Importaciones bienes de inversión
-    "978": [118], "IVA soportado 0% Canarias" (creado desactivado)
+    "978": [118], # IVA soportado 0% Canarias (creado desactivado)
     "971": [121], # IVA 0% Ceuta y Melilla
     "71": [], # Suplido
     "975": [119], # IVA a recuperar Portugal a 23% IVA (creado desactivado)
     "25": [15], # IVA 0% Intracomunitario
     "972": [120], # IVA 0% Exportación Andorra (creado desactivado)
     "15": [55], # IVA 10% Importaciones bienes corrientes
-    "21": [40], # IVA 21% Importaciones bienes corrientes
+    "21": [40] # IVA 21% Importaciones bienes corrientes
 }

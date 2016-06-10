@@ -1,0 +1,26 @@
+{
+    "1": 1, # Transferencia Bancaria receivable
+    "2": 7, # Transferencia Bancaria payable
+    "3": 3, # Recibo domiciliado payable
+    "4": 5, # Efectivo payable
+    "5": 8, # TARJETA DE CRÉDITO (desactivado)
+    "6": 9, # CONTRA REEMBOLSO (desactivado)
+    "7": 10, # Tarjeta de crédito
+    "8": 5, # Efectivo receivable
+    "9": 11, # Contra reembolso
+    "10": 3, # Recibo domiciliado receivable
+    "11": 12, # Otros
+    "12": 3, # Recibo domiciliado payable
+    "13": 6, # Transferencia Bancaria receivable
+    "14": 10, # Tarjeta de crédito
+    "15": 7, # Recibo domiciliado payable
+    "16": 11, # Contra reembolso
+    "17": 13, # Paypal
+    "18": 10, # Tarjeta de crédito
+    "19": 6, # Transferencia Bancaria receivable
+    "20": 3, # Recibo domiciliado receivable
+    "21": 11, # Contra reembolso
+    "22": 11, # Contra reembolso
+    "23": 12, # Otros
+    "24": 10 # Tarjeta de crédito
+}
