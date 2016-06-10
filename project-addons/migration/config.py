@@ -21,3 +21,4 @@ class Config(object):
     TAX_CODES_FILE = "data/bstt_map_tax_codes.json"
     PAYMENT_MODES_FILE = "data/bstt_map_payment_type.json"
     PRODUCT_UOM_FILE = "data/bstt_map_product_uom.json"
+    PAYMENT_TERMS_FILE = "data/bstt_map_payment_terms.json"
