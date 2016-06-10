@@ -17,6 +17,7 @@
         "stock",
         "sale_stock",
         "account_payment",
+        "account_payment_sale",
         "stock_picking_valued"
     ],
     "data": [

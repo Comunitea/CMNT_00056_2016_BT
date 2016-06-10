@@ -3,6 +3,7 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 from openerp import models, fields, api, exceptions, _
+from datetime import datetime
 import base64
 
 
@@ -21,6 +22,16 @@ class StockPicking(models.Model):
         help='Add notes when send API shipment')
     carrier_send_employee = fields.Many2one('hr.employee', readonly=True)
     carrier_send_date = fields.Datetime(readonly=True)
+    weight_edit = fields.Float('Weight', compute='compute_weight', store=True,
+                               readonly=False)
+    weight_net_edit = fields.Float('Net weight', compute='compute_weight',
+                                   store=True, readonly=False)
+
+    @api.one
+    @api.depends('weight', 'weight_net')
+    def compute_weight(self):
+        self.weight_edit = self.weight
+        self.weight_net_edit = self.weight_net
 
     @api.onchange('carrier_id')
     def on_change_carrier(self):
@@ -60,7 +71,7 @@ class StockPicking(models.Model):
         refs, labs = send_shipment(api)
 
         if labs:
-            fname = _('%s label %s.pdf') % (api.method, datetime.now().strftime("%d/%m/%y %H:%M:%S")),
+            fname = _('%s label %s.pdf') % (api.method, datetime.now().strftime("%d/%m/%y %H:%M:%S"))
             self.env['ir.attachment'].create({
                 'name': fname,
                 'datas': base64.b64encode(open(labs[0], "rb").read()),

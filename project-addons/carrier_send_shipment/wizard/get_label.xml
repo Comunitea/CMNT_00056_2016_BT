@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- © 2016 Comunitea
+     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
+
+<openerp>
+    <data>
+
+        <record id="carrier_get_label_form_view" model="ir.ui.view">
+            <field name="name">carrier.get.label.form</field>
+            <field name="model">carrier.get.label</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Print labels">
+                    <field name="sended" invisible="1"/>
+                    <group>
+                        <field name="codes" attrs="{'invisible': [('sended', '=', True)]}"/>
+                        <field name="labels" readonly="True" filename='file_name' attrs="{'invisible': [('sended', '=', False)]}"/>
+                        <field name="file_name" invisible="1"/>
+                    </group>
+                    <footer>
+                        <button name="action_print" string="Print" type="object" class="oe_highlight" attrs="{'invisible': [('sended', '=', True)]}"/>
+                        or
+                        <button string="Cancel" class="oe_link" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <act_window name="Carrier labels"
+            res_model="carrier.get.label"
+            view_id="carrier_get_label_form_view"
+            view_mode="form"
+            target="new"
+            id="carrier_get_label_action"/>
+
+        <menuitem id="carrier_get_label_menu" name="Carrier labels" string="Carrier labels" action="carrier_get_label_action" parent="stock.menu_stock_warehouse_mgmt"/>
+
+    </data>
+</openerp>

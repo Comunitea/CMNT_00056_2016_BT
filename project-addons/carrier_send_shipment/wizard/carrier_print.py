@@ -3,10 +3,14 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 from openerp import models, fields, api, exceptions, _
 from datetime import datetime
+import base64
+import tempfile
+import tarfile
 
-class CarrierPrintShipment(Models.TransientModel):
+class CarrierPrintShipment(models.TransientModel):
     _name = "carrier.print.shipment"
 
+    sended = fields.Boolean()
     labels = fields.Binary('Labels', filename='file_name')
     file_name = fields.Char('File Name')
 
@@ -33,7 +37,6 @@ class CarrierPrintShipment(Models.TransientModel):
 
     @api.multi
     def action_print(self):
-
         dbname = self.env.cr.dbname
         labels = []
 
@@ -44,11 +47,11 @@ class CarrierPrintShipment(Models.TransientModel):
                 continue
             api = apis[0]
 
-            print_label = getattr(Shipment, 'print_labels_%s' % api.method)
-            labs = print_label(api, [shipment])
+            print_label = getattr(picking, 'print_labels_%s' % api.method)
+            labs = print_label(api)
 
             if labs:
-                fname = _('%s label %s.pdf') % (api.method, datetime.now().strftime("%d/%m/%y %H:%M:%S")),
+                fname = _('%s label %s.pdf') % (api.method, datetime.now().strftime("%d/%m/%y %H:%M:%S"))
                 self.env['ir.attachment'].create({
                     'name': fname,
                     'datas': base64.b64encode(open(labs[0], "rb").read()),
@@ -79,3 +82,15 @@ class CarrierPrintShipment(Models.TransientModel):
             file_name = None
         self.labels = carrier_labels
         self.file_name = file_name
+        self.sended = True
+
+        return {
+            'context': self.env.context,
+            'view_type': 'form',
+            'view_mode': 'form',
+            'res_model': 'carrier.print.shipment',
+            'res_id': self.id,
+            'view_id': False,
+            'type': 'ir.actions.act_window',
+            'target': 'new',
+        }

@@ -5,19 +5,19 @@
 <openerp>
     <data>
 
-        <record id="send_shipment_form" model="ir.ui.view">
-            <field name="name">carrier.send.shipment.form</field>
-            <field name="model">carrier.send.shipment</field>
+        <record id="carrier_print_form_view" model="ir.ui.view">
+            <field name="name">carrier.print.form</field>
+            <field name="model">carrier.print.shipment</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-                <form string="Send shipment">
+                <form string="Print labels">
                     <field name="sended" invisible="1"/>
                     <group>
-                        <field name="labels" readonly="True" filename='file_name'  attrs="{'invisible': [('sended', '=', False)]}"/>
+                        <field name="labels" readonly="True" filename='file_name' attrs="{'invisible': [('sended', '=', False)]}"/>
                         <field name="file_name" invisible="1"/>
                     </group>
                     <footer>
-                        <button name="action_send" string="Send shipments" type="object" class="oe_highlight" attrs="{'invisible': [('sended', '=', True)]}"/>
+                        <button name="action_print" string="Print" type="object" class="oe_highlight" attrs="{'invisible': [('sended', '=', True)]}"/>
                         or
                         <button string="Cancel" class="oe_link" special="cancel"/>
                     </footer>
@@ -25,14 +25,14 @@
             </field>
         </record>
 
-        <act_window name="Send Shipment"
-            res_model="carrier.send.shipment"
+        <act_window name="Print carrier labels"
+            res_model="carrier.print.shipment"
             src_model="stock.picking"
-            view_id="send_shipment_form"
+            view_id="carrier_print_form_view"
             view_mode="form"
             target="new"
             key2="client_action_multi"
-            id="send_shipment_action"/>
+            id="carrier_print_action"/>
 
     </data>
 </openerp>

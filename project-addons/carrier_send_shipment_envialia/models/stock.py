@@ -3,7 +3,14 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 from openerp import models, fields, api, exceptions, _
+from openerp.addons.carrier_send_shipment.tools import unaccent, unspaces
 from datetime import datetime, date
+from envialia.picking import Picking
+from base64 import decodestring
+import logging
+import tempfile
+logger = logging.getLogger(__name__)
+
 
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
@@ -33,16 +40,16 @@ class StockPicking(models.Model):
                 if not service:
                     raise exceptions.Warning(_('Api service error'), _('Select a service or default service in Envialia API'))
 
-                if carrier_api.reference_origin and hasattr(shipment, 'origin'):
+                if carrier_api.reference_origin and hasattr(picking, 'origin'):
                     code = picking.origin  or picking.name
                 else:
                     code = picking.name
 
                 notes = ''
                 if picking.carrier_notes:
-                    notes = '%s\n' % shipment.carrier_notes
+                    notes = '%s\n' % picking.carrier_notes
 
-                packages = shipment.number_of_packages
+                packages = picking.number_of_packages
                 if not packages:
                     packages = 1
 
@@ -53,17 +60,19 @@ class StockPicking(models.Model):
                     data['reference'] = code
                 data['picking_date'] = date.today()
                 data['service_code'] = str(service.code)
-                data['company_name'] = unaccent(carrier_api.company.rec_name)
+                data['company_name'] = unaccent(carrier_api.company.name)
                 data['company_code'] = customer
-                data['company_phone'] = carrier_api.phone
+                if carrier_api.phone:
+                    data['company_phone'] = unspaces(carrier_api.phone)
                 data['customer_name'] = unaccent(picking.partner_id.name)
                 data['customer_contact_name'] = unaccent(picking.partner_id.name)
                 data['customer_street'] = unaccent(picking.partner_id.street)
                 data['customer_city'] = unaccent(picking.partner_id.city)
                 data['customer_zip'] = picking.partner_id.zip
-                data['customer_phone'] = unspaces(picking.partner_id.phone)
+                if picking.partner_id.phone:
+                    data['customer_phone'] = unspaces(picking.partner_id.phone)
                 data['document'] = packages
-                if picking.carrier_cashondelivery:
+                if picking.cash_on_delivery:
                     price_ondelivery = picking.amount_total
                     if not price_ondelivery:
                         raise exceptions.Warning(_('Picking error'), _('Picking "%s" not have price and send cashondelivery') % picking.name)
@@ -71,17 +80,17 @@ class StockPicking(models.Model):
                     data['cash_ondelivery'] = str(price_ondelivery)
                 data['ref'] = code
                 data['notes'] = unaccent(notes)
-                if carrier_api.weight and hasattr(shipment, 'weight_func'):
-                    weight = shipment.weight_func
-                    if weight == 0:
-                        weight = 1
+                if carrier_api.weight:
+                    weight = picking.weight_edit
                     if carrier_api.weight_api_unit:
-                        if shipment.weight_uom:
-                            weight = Uom.compute_qty(
-                                shipment.weight_uom, weight, carrier_api.weight_api_unit)
+                        if picking.weight_uom_id:
+                            weight = self.env['product.uom']._compute_qty_obj(
+                                picking.weight_uom_id, weight,
+                                carrier_api.weight_api_unit)
                         elif carrier_api.weight_unit:
-                            weight = Uom.compute_qty(
-                                carrier_api.weight_unit, weight, carrier_api.weight_api_unit)
+                            weight = self.env['product.uom']._compute_qty_obj(
+                                carrier_api.weight_unit, weight,
+                                carrier_api.weight_api_unit)
                     data['weight'] = str(weight)
 
                 # Send shipment data to carrier
@@ -93,10 +102,10 @@ class StockPicking(models.Model):
                     reference = envialia.get('reference')
                     picking.write({
                         'carrier_tracking_ref': reference,
-                        'carrier_service': service,
+                        'carrier_service': service.id,
                         'carrier_delivery': True,
-                        'carrier_send_date': datetime.now,
-                        'carrier_send_employee': self.env.user.employee_ids and self.env.user.employee_ids[0] or False,
+                        'carrier_send_date': datetime.now(),
+                        'carrier_send_employee': self.env.user.employee_ids and self.env.user.employee_ids[0].id or False,
                         })
                     logger.info('Send Picking %s' % (picking.name))
                     references.append(picking.name)
