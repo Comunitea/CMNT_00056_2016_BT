@@ -1,0 +1,18 @@
+{
+    "1": 1, # Unit
+    "2": 3, # kg
+    "3": 4, # Gram
+    "5": 12, # Pound
+    "6": 13, # Ounce
+    "9": 5, # Hour
+    "10": 6, # Work Day
+    "11": 6, # Day
+    "12": 8, # Meter
+    "13": 9, # Kilometer
+    "14": 10, # centimeter
+    "16": 15, # Foot
+    "18": 14, # Inch
+    "19": 16, # Mile
+    "21": 11, # Liter
+    "25": 19, # Gallon
+}

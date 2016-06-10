@@ -48,5 +48,5 @@
     "204": 105, # Base adquisiciones intracomunitarias bienes corrientes (21%)
     "206": 44, # En adquisiciones intracomunitarias bienes corrientes (21%)
     "207": 194, # Base imponible compres a Ceuta i Melilla
-    "208": 196, # Base imponible compres a Canàries
+    "208": 196 # Base imponible compres a Canàries
 }

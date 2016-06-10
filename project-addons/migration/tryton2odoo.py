@@ -33,9 +33,19 @@ class Tryton2Odoo(object):
             #self.migrate_account_fiscalyears()
             #self.migrate_account_period()
             #self.migrate_new_accounts()
-            self.migrate_party_party()
-            #self.TAXES_MAP = loadTaxes()
-            #self.TAX_CODES_MAP = loadTaxCodes()
+            #self.migrate_party_party()
+            #self.migrate_party_category()
+            #self.migrate_account_journal()
+            #self.sync_banks()
+            #self.migrate_bank_accounts()
+            self.TAXES_MAP = loadTaxes()
+            self.TAX_CODES_MAP = loadTaxCodes()
+            self.PAYMENT_MODES_MAP = loadPaymentModes()
+            #self.migrate_account_moves()
+            self.migrate_account_reconciliation()
+            self.migrate_product_category()
+            self.migrate_product_uom()
+            #self.migrate_product_product()
 
             self.d.close()
             print ("Successfull migration")
@@ -151,22 +161,29 @@ class Tryton2Odoo(object):
         data = self.crT.fetchall()
         pp = "party_party"
         pa = "party_address"
-        self.d[getKey(pp, 1)] = 1 # res_company
+        self.d[getKey(pp, 1)] = 1  # res_company
 
         for part_data in data:
-            vals = {'ref': part_data['code'],
+            vals = {'ref': part_data['code'] or False,
                     'active': part_data['active'],
                     'name': part_data['name'],
-                    'comercial': part_data['trade_name'],
-                    'email': part_data['esale_email'] or part_data['email'],
+                    'comercial': part_data['trade_name'] or False,
+                    'email': part_data['esale_email'] or part_data['email']
+                    or False,
                     'not_in_mod347': not part_data['include_347'] and True
                     or False,
-                    'vat': part_data['vat'],
-                    'phone': part_data['phone'],
-                    'fax': part_data['fax'],
-                    'website': part_data['website'],
-                    'comment': part_data['comment'],
+                    'phone': part_data['phone'] or False,
+                    'fax': part_data['fax'] or False,
+                    'website': part_data['website'] or False,
+                    'comment': part_data['comment'] or False,
                     'is_company': True}
+
+            if part_data['attributes']:
+                attributes = eval(part_data['attributes'])
+                if attributes.get('medical_code', False):
+                    vals['medical_code'] = attributes['medical_code']
+                if attributes.get('timetable', False):
+                    vals['timetable'] = attributes['timetable']
 
             self.crT.execute("select count(*) from sale_sale where party = %s"
                              % (part_data["id"]))
@@ -180,7 +197,14 @@ class Tryton2Odoo(object):
             if result and result["count"]:
                 vals['supplier'] = True
 
+            print "vals: ", vals
             partner_id = self.odoo.create("res.partner", vals)
+            if part_data.get('vat', False):
+                try:
+                    self.odoo.write("res.partner", [partner_id],
+                                    {'vat': part_data['vat']})
+                except:
+                    print "VAT not valid: ", part_data['vat']
             self.d[getKey(pp, part_data["id"])] = partner_id
 
             self.crT.\
@@ -206,11 +230,10 @@ class Tryton2Odoo(object):
             add_data = self.crT.fetchall()
             partner_address = False
             for add in add_data:
-                vals = {'street': add['street'],
-                        'streetbis': add['street2'],
-                        'zip': add['zip'],
-                        'city': add['city']
-                }
+                vals = {'street': add['street'] or False,
+                        'street2': add['streetbis'] or False,
+                        'zip': add['zip'] or False,
+                        'city': add['city'] or False}
                 if add['code']:
                     country_ids = self.odoo.search("res.country",
                                                    [('code', '=',
@@ -230,9 +253,450 @@ class Tryton2Odoo(object):
                     partner_address = True
                     self.d[getKey(pa, add["id"])] = partner_id
                 else:
+                    vals.update({'parent_id': partner_id,
+                                 'name': add['name'],
+                                 'active': add['active'],
+                                 'carrier_notes': add['comment_shipment']
+                                 or False,
+                                 'phone': part_data['phone'] or False,
+                                 'fax': part_data['fax'] or False,
+                                 'website': part_data['website'] or False,
+                                 'email': part_data['email'] or False,
+                                 'use_parent_address': False})
+                    if add['delivery']:
+                        vals['type'] = 'delivery'
+                    print "vals: ", vals
+                    add_id = self.odoo.create('res.partner', vals)
+                    self.d[getKey(pa, add["id"])] = add_id
 
+        return True
 
+    def migrate_party_category(self):
+        self.crT.execute("select id,name, parent,active from party_category "
+                         "order by parent desc")
+        data = self.crT.fetchall()
+        pc = "party_category"
+        pp = "party_party"
+        for cat_data in data:
+            vals = {'name': cat_data['name'],
+                    'active': cat_data['active']}
+            if cat_data.get('parent', False):
+                vals['parent_id'] = self.d[getKey(pc, cat_data["parent"])]
+            cat_id = self.odoo.create("res.partner.category", vals)
+            self.d[getKey(pc, cat_data["id"])] = cat_id
 
+        self.crT.execute("select category,party from party_category_rel")
+        partner_data = self.crT.fetchall()
+        for part_data in partner_data:
+            partner_id = self.d[getKey(pp, part_data["party"])]
+            category_id = self.d[getKey(pc, part_data["category"])]
+            self.odoo.write("res.partner", [partner_id],
+                            {'category_id': [(4, category_id)]})
 
+        return True
+
+    def migrate_account_journal(self):
+        BY_DEFAULT_JOURNALS = {'sale': ["VEN"],
+                               'cash': ["BAN1"],
+                               'bank': ["BAN2"],
+                               'purchase': ["COMPR"],
+                               #'general': ['Vario'],
+                               'general': [],
+                               'situation': [],
+                               'sale_refund': ["AVENT"]}
+        JOURNAL_TYPE_MAP = {'revenue': ['sale', 'sale_refund'],
+                            'expense': ['purchase'],
+                            'cash': ['bank'],
+                            'commission': ['general'],
+                            'general': ['general'],
+                            'situation': ['situation'],
+                            'write-off': ['general']}
+        self.crT.execute("select id,update_posted,code,type,name "
+                         "from account_journal")
+        data = self.crT.fetchall()
+        aj = "account_journal"
+        ajr = "account_journal_refund"
+        tt = "account_fiscalyear"
+        first_journal_id = self.odoo.search("account.journal", [])[0]
+        first_journal_data = self.odoo.read("account.journal",
+                                            first_journal_id,
+                                            ['sequence_id'])
+        journal_seq_id = first_journal_data['sequence_id'][0]
+
+        for journal_data in data:
+            journal_id = False
+            vals = {
+                'name': journal_data['name'],
+                'update_posted': journal_data['update_posted'],
+                'sequence_id': journal_seq_id,
+                'code': journal_data['code'],
+            }
+            if journal_data['name'] == "Cash":
+                vals['type'] = "cash"
+            elif len(JOURNAL_TYPE_MAP[journal_data['type']]) == 1:
+                vals['type'] = JOURNAL_TYPE_MAP[journal_data['type']][0]
+
+            if vals.get('type', False):
+                if BY_DEFAULT_JOURNALS[vals['type']]:
+                    journal_code = \
+                        BY_DEFAULT_JOURNALS[vals['type']].pop()
+                    journal_id = self.odoo.search("account.journal",
+                                                  [('code', '=',
+                                                    journal_code)])[0]
+                if journal_id:
+                    print "write vals: ", vals
+                    self.odoo.write("account.journal", [journal_id],
+                                    vals)
+                    self.d[getKey(aj, journal_data["id"])] = journal_id
+                else:
+                    print "create vals: ", vals
+                    journal_id = self.odoo.create("account.journal", vals)
+                    self.d[getKey(aj, journal_data["id"])] = journal_id
+            else:
+                self.crT.\
+                    execute("select fiscalyear,out_iss.name "
+                            "as out_name,out_iss.number_next_internal as "
+                            "out_number_next,out_iss.padding as out_padding,"
+                            "out_iss.number_increment as out_increment,"
+                            "out_iss.prefix as out_prefix,ref_iss.name as "
+                            "ref_name,ref_iss.number_next_internal as "
+                            "ref_number_next,ref_iss.padding as ref_padding,"
+                            "ref_iss.number_increment as ref_increment,"
+                            "ref_iss.prefix as ref_prefix from "
+                            "account_journal_invoice_sequence inner join "
+                            "ir_sequence_strict out_iss on out_iss.id = "
+                            "out_invoice_sequence inner join "
+                            "ir_sequence_strict ref_iss on ref_iss.id = "
+                            "out_credit_note_sequence where journal = %s "
+                            "order by fiscalyear asc"
+                            % (journal_data["id"]))
+                seq_data = self.crT.fetchall()
+                out_invoice_seq = False
+                out_refund_seq = False
+                for jtype in JOURNAL_TYPE_MAP[journal_data['type']]:
+                    vals['type'] = jtype
+                    journal_id = False
+                    if jtype == "sale":
+                        m = aj
+                        if out_invoice_seq:
+                            vals['invoice_sequence_id'] = out_invoice_seq
+                        else:
+                            for seq in seq_data:
+                                svals = {'name': seq['out_name'],
+                                         'implementation': 'no_gap',
+                                         'prefix': seq['out_prefix'],
+                                         'padding': seq['out_padding'],
+                                         'number_next_actual':
+                                         seq['out_number_next'],
+                                         'number_increment':
+                                         seq['out_increment']}
+
+                                seq_id = self.odoo.\
+                                    create("ir.sequence", svals)
+                                if not out_invoice_seq:
+                                    out_invoice_seq = seq_id
+                                    vals['invoice_sequence_id'] = \
+                                        out_invoice_seq
+                                else:
+                                    year_seq = self.odoo.\
+                                        create("ir.sequence", svals)
+                                    self.odoo.\
+                                        create("account.sequence.fiscalyear",
+                                               {'sequence_id': year_seq,
+                                                'fiscalyear_id':
+                                                self.
+                                                d[getKey(tt,
+                                                         seq["fiscalyear"])],
+                                                'sequence_main_id':
+                                                out_invoice_seq})
+                    elif jtype == "sale_refund":
+                        m = ajr
+                        vals['code'] = u"A" + vals['code']
+                        vals['name'] = u"Ab. " + vals['name']
+                        if out_refund_seq:
+                            vals['invoice_sequence_id'] = out_refund_seq
+                        else:
+                            for seq in seq_data:
+                                svals = {'name': seq['ref_name'],
+                                         'implementation': 'no_gap',
+                                         'prefix': seq['ref_prefix'],
+                                         'padding': seq['ref_padding'],
+                                         'number_next_actual':
+                                         seq['ref_number_next'],
+                                         'number_increment':
+                                         seq['ref_increment']}
+
+                                seq_id = self.odoo.\
+                                    create("ir.sequence", svals)
+                                if not out_refund_seq:
+                                    out_refund_seq = seq_id
+                                    vals['invoice_sequence_id'] = \
+                                        out_refund_seq
+                                else:
+                                    year_seq = self.odoo.\
+                                        create("ir.sequence", svals)
+                                    self.odoo.\
+                                        create("account.sequence.fiscalyear",
+                                               {'sequence_id': year_seq,
+                                                'fiscalyear_id':
+                                                self.
+                                                d[getKey(tt,
+                                                         seq["fiscalyear"])],
+                                                'sequence_main_id':
+                                                out_refund_seq})
+                    if BY_DEFAULT_JOURNALS[vals['type']]:
+                        journal_code = \
+                            BY_DEFAULT_JOURNALS[vals['type']].pop()
+                        journal_id = self.odoo.search("account.journal",
+                                                      [('code', '=',
+                                                        journal_code)])[0]
+                    if journal_id:
+                        print "write vals: ", vals
+                        self.odoo.write("account.journal", [journal_id],
+                                        vals)
+                        self.d[getKey(m, journal_data["id"])] = journal_id
+                    else:
+                        print "create vals: ", vals
+                        journal_id = self.odoo.create("account.journal", vals)
+                        self.d[getKey(m, journal_data["id"])] = journal_id
+        return True
+
+    def sync_banks(self):
+        self.crT.execute("select id,bank_code,bic,party from bank")
+        data = self.crT.fetchall()
+        pp = "party_party"
+        bnk = "bank"
+        for bnk_data in data:
+            bank_ids = self.odoo.search("res.bank", [('code', '=',
+                                                      bnk_data['bank_code'])])
+            if bank_ids:
+                self.d[getKey(bnk, bnk_data["id"])] = bank_ids[0]
+            else:
+                partner_id = self.d[getKey(pp, bnk_data["party"])]
+                if partner_id:
+                    partner_data = self.odoo.\
+                        read("res.partner", partner_id,
+                             ['name', 'street', 'street2', 'zip', 'city',
+                              'state_id', 'country_id', 'phone', 'fax',
+                              'email', 'website', 'vat'])
+                    vals = {
+                        'name': partner_data['name'],
+                        'street': partner_data['street'],
+                        'street2': partner_data['street2'],
+                        'zip': partner_data['zip'],
+                        'city': partner_data['city'],
+                        'state': partner_data['state_id'] and
+                        partner_data['state_id'][0] or False,
+                        'country': partner_data['country_id'] and
+                        partner_data['country_id'][0] or False,
+                        'phone': partner_data['phone'],
+                        'fax': partner_data['fax'],
+                        'email': partner_data['email'],
+                        'vat': partner_data['vat'],
+                        'code': bnk_data['bank_code'],
+                        'bic': (bnk_data['bic'] and bnk_data['bic'] != "")
+                        and bnk_data['bic'] or False}
+                    bank_id = self.odoo.create("res.bank", vals)
+                    self.d[getKey(bnk, bnk_data["id"])] = bank_id
+
+        return True
+
+    def migrate_bank_accounts(self):
+        self.crT.execute("select bank_account.id,bank,active,owner,type,"
+                         "number from \"bank_account-party_party\" bapp "
+                         "inner join bank_account on bapp.account = "
+                         "bank_account.id inner join bank_account_number on "
+                         "bank_account_number.account = bank_account.id")
+        data = self.crT.fetchall()
+        pp = "party_party"
+        bnk = "bank"
+        ba = "bank_account"
+        for acc_data in data:
+            bank_id = self.d[getKey(bnk, acc_data["bank"])]
+            bank_data = self.odoo.read("res.bank", bank_id,
+                                       ['country', 'name', 'bic'])
+            owner_id = self.d[getKey(pp, acc_data["owner"])]
+            owner_data = self.odoo.read("res.partner", owner_id,
+                                        ['name', 'street', 'zip', 'city',
+                                         'state_id', 'country_id'])
+            vals = {
+                'state': acc_data['type'] == 'other' and 'bank' or
+                acc_data['type'],
+                'acc_number': acc_data['number'],
+                'acc_country_id': bank_data['country'] and
+                bank_data['country'][0] or False,
+                'bank': bank_id,
+                'bank_name': bank_data['name'],
+                'bank_bic': bank_data['bic'] or False,
+                'active': acc_data['active'],
+                'partner_id': owner_id,
+                'owner_name': owner_data['name'],
+                'street': owner_data['street'],
+                'zip': owner_data['zip'],
+                'city': owner_data['city'],
+                'state_id': owner_data['state_id'] and
+                owner_data['state_id'][0] or False,
+                'country_id': owner_data['country_id'] and
+                owner_data['country_id'][0] or False,
+            }
+            acc_id = self.odoo.create("res.partner.bank", vals)
+            self.d[getKey(ba, acc_data["id"])] = acc_id
+
+        return True
+
+    def migrate_account_moves(self):
+        self.crT.execute("select id,post_number,journal,period,date,state,"
+                         "description from account_move")
+        data = self.crT.fetchall()
+        am = "account_move"
+        aml = "account_move_line"
+        aj = "account_journal"
+        ap = "account_period"
+        pp = "party_party"
+        aa = "account_account"
+        for move_data in data:
+            if self.d.has_key(getKey(am, move_data["id"])):
+                move_ids = self.odoo.\
+                    search("account.move",
+                           [('id', '=', self.d[getKey(am, move_data["id"])])])
+                if move_ids:
+                    continue
+            period_id = self.d[getKey(ap, move_data["period"])]
+            journal_id = self.d[getKey(aj, move_data["journal"])]
+            vals = {
+                'journal_id': journal_id,
+                'period_id': period_id,
+                'ref': move_data['description'] or "",
+                'date': format_date(move_data['date']),
+                'name': move_data['post_number'] or "/"
+            }
+            print "vals: ", vals
+            move_id = self.odoo.create("account.move", vals)
+            self.d[getKey(am, move_data["id"])] = move_id
+            self.crT.execute("select aml.id,debit,description,account,credit,"
+                             "party,maturity_date,payment_type,"
+                             "atl.code as tax_code,atl.amount as tax_amount "
+                             "from account_move_line aml left join "
+                             "account_tax_line atl on atl.move_line = "
+                             "aml.id where move = %s"
+                             % (move_data["id"]))
+            line_data = self.crT.fetchall()
+            for line in line_data:
+                partner_id = False
+                if line['party']:
+                    partner_id = self.d[getKey(pp, line["party"])]
+                account_id = self.d[getKey(aa, line["account"])]
+                tax_code_id = False
+                if line['tax_code']:
+                    tax_code_id = self.TAX_CODES_MAP[str(line['tax_code'])]
+
+                lines_vals = {'name': line['description'] or "-",
+                              'journal_id': journal_id,
+                              'period_id': period_id,
+                              'partner_id': partner_id,
+                              'account_id': account_id,
+                              'debit': float(line['debit']),
+                              'credit': float(line['credit']),
+                              'date': format_date(move_data['date']),
+                              'date_maturity': line['maturity_date'] and
+                              format_date(line['maturity_date']) or False,
+                              'move_id': move_id,
+                              'tax_code_id': tax_code_id,
+                              'tax_amount': line['tax_amount'] and
+                              float(line['tax_amount']) or 0.0}
+                if lines_vals['debit'] and lines_vals['debit'] < 0:
+                    lines_vals['credit'] = abs(lines_vals['debit'])
+                    lines_vals['debit'] = 0.0
+                elif lines_vals['credit'] and lines_vals['credit'] < 0:
+                    lines_vals['debit'] = abs(lines_vals['credit'])
+                    lines_vals['credit'] = 0.0
+                update = True
+                if self.d.has_key(getKey(aml, line["id"])):
+                    line_ids = self.odoo.\
+                        search("account.move.line",
+                               [('id', '=', self.d[getKey(aml, line["id"])])])
+                    if line_ids:
+                        lines_vals['debit'] = 0.0
+                        lines_vals['credit'] = 0.0
+                        update = False
+                print "lines_vals: ", lines_vals
+                move_line_id = self.odoo.create("account.move.line",
+                                                lines_vals)
+                if update:
+                    self.d[getKey(aml, line["id"])] = move_line_id
+
+            if move_data['state'] == "posted":
+                self.odoo.execute("account.move", "post", [move_id])
+                print "POST"
+        return True
+
+    def migrate_account_reconciliation(self):
+        self.crT.execute("select id,name from account_move_reconciliation")
+        data = self.crT.fetchall()
+        amr = "account_move_reconciliation"
+        aml = "account_move_line"
+        for rec in data:
+            vals = {
+                'name': rec['name'],
+                'type': 'auto'
+            }
+            rec_id = self.odoo.create("account.move.reconcile", vals)
+            self.d[getKey(amr, rec["id"])] = rec_id
+
+            self.crT.execute("select id from account_move_line where "
+                             "reconciliation = %s" % (rec['id']))
+            lines_data = self.crT.fetchall()
+            for line in lines_data:
+                move_line_id = self.d[getKey(aml, line["id"])]
+                self.odoo.write("account.move.line", [move_line_id],
+                                {'reconcile_id': rec_id})
+        return True
+
+    def migrate_product_category(self):
+        self.crT.execute("select id,name,parent from product_category order "
+                         "by parent asc nulls first")
+        data = self.crT.fetchall()
+        pc = "product_category"
+        for cat in data:
+            parent_id = False
+            if cat['parent']:
+                parent_id = self.d[getKey(pc, cat["id"])]
+            vals = {'name': cat['name'],
+                    'parent_id': parent_id,
+                    'type': 'normal'}
+            cat_id = self.odoo.create("product.category", vals)
+            self.d[getKey(pc, cat["id"])] = cat_id
+        return True
+
+    def migrate_product_uom(self):
+        UOM_CAT_MAP = {'1': 1,  # Unidades
+                       '2': 2,  # Peso
+                       '3': 3,  # Horario
+                       '4': 4,  # Longitud
+                       '5': 5,  # Volumen
+                       '6': 6}  # Superficie (Hay que crearla)
+        UOM_MAP = loadProductUoms()
+        self.crT.execute("select id,name,category,rounding,rate,active from "
+                         "product_uom")
+        data = self.crT.fetchall()
+        pu = "product_uom"
+        for uom_data in data:
+            if str(uom_data['id']) in UOM_MAP:
+                self.d[getKey(pu, uom_data["id"])] = \
+                    UOM_MAP[str(uom_data['id'])]
+            else:
+                vals = {
+                    'name': uom_data['name'],
+                    'category_id': UOM_CAT_MAP[str(uom_data['category'])],
+                    'rounding': float(uom_data['rounding']),
+                    'factor': float(uom_data['rate']),
+                    'active': uom_data['active'],
+                    'uom_type': uom_data['rate'] > 1 and 'smaller' or
+                    (uom_data['rate'] == 1 and 'reference' or
+                     uom_data['rate'] < 1 and 'bigger' or 'reference')
+                }
+                uom_id = self.odoo.create("product.uom", vals)
+                self.d[getKey(pu, uom_data["id"])] = uom_id
+        return True
 
 Tryton2Odoo()

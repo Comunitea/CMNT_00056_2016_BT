@@ -13,7 +13,8 @@
     "installable": True,
     "depends": [
         "base",
-        "carrier_api"
+        "carrier_api",
+        "account"
     ],
     "data": [
         "views/partner_view.xml"

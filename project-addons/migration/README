@@ -1,6 +1,11 @@
 1. Borramos los periodos y años fiscales creado en la base de datos si lo hay.
 2. Creamos el mapeo de impuetos, los impuestos que no hay, se crean a mano pero desactivados
 3. Creamos el mapeo de cód. de impuestos, los códigos que no hay, se crean a mano.
-4. Ponemos las cuentas en Odoo a 8 dígitos si no lo están: update account_account set code=substring(code from 1 for 4) || '00'|| substring(code from 5 for 2) where char_length(code) = 6;
-5. Se revisa el fichero de configuración: config.py
-6. Ejcutamos la migración; ./tryton2odoo.py
+4. Ponemos las cuentas en Odoo a 8 dígitos si no lo están: update account_account set code=substring(code from 1 for 4) || '00'|| substring(code from 5 for 2) where char_length(code) = 6;ç
+5. Migrar usuarios a mano y crear un mapeo si hace falta.
+6. Elminiar el diario de apertura.
+7. Creamos el mapeo de modos de pago.
+8. Creamos la categoría de udm Superficie y el mapeo de las udm que podamos.
+9. Se revisa el fichero de configuración: config.py
+10. Ejecutamos la migración; ./tryton2odoo.py (Una vez se hayan importado los periodos asegurarse de que estén abiertos los que tengan asientos)
+11. Poner las cuentas contables a los diarios de banco y caja y los diarios analíticos en los de facturas
