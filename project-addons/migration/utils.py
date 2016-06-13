@@ -32,3 +32,8 @@ def loadPaymentModes():
 def loadProductUoms():
     json_data=open(Config.PRODUCT_UOM_FILE).read()
     return commentjson.loads(json_data)
+
+
+def loadPaymentTerms():
+    json_data=open(Config.PAYMENT_TERMS_FILE).read()
+    return commentjson.loads(json_data)

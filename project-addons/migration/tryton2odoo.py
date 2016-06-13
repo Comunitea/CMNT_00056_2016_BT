@@ -41,11 +41,13 @@ class Tryton2Odoo(object):
             self.TAXES_MAP = loadTaxes()
             self.TAX_CODES_MAP = loadTaxCodes()
             self.PAYMENT_MODES_MAP = loadPaymentModes()
-            #self.migrate_account_moves()
-            self.migrate_account_reconciliation()
-            self.migrate_product_category()
-            self.migrate_product_uom()
+            self.migrate_account_moves()
+            #self.migrate_account_reconciliation()
+            #self.migrate_product_category()
+            #self.migrate_product_uom()
             #self.migrate_product_product()
+            #self.migrate_kits()
+            self.PAYMENT_TERM_MAP = loadPaymentTerms()
 
             self.d.close()
             print ("Successfull migration")
@@ -697,6 +699,182 @@ class Tryton2Odoo(object):
                 }
                 uom_id = self.odoo.create("product.uom", vals)
                 self.d[getKey(pu, uom_data["id"])] = uom_id
+        return True
+
+    def migrate_product_product(self):
+        self.crT.\
+            execute("select pp.id,category,name,default_uom,pp.active,"
+                    "consumable,type,purchasable,purchase_uom,salable,"
+                    "sale_uom,delivery_time,base_code,weight_uom,"
+                    "kit_fixed_list_price,kit,pt.id as template_id,"
+                    "stock_depends_on_kit_components,number,taxes_category "
+                    "from product_product pp inner join product_template pt "
+                    "on pt.id = pp.template left join product_code pc on "
+                    "pc.product = pp.id and barcode='EAN' and "
+                    "pc.active = true")
+        data = self.crT.fetchall()
+        pc = "product_category"
+        pp = "product_product"
+        pu = "product_uom"
+        at = "account_tax"
+        aa = "account_account"
+        account_expense_field = False
+        account_incoming_field = False
+        cost_method_field = False
+        list_price_field = False
+        cost_price_field = False
+        for prod in data:
+            categ_id = self.d[getKey(pc, prod["category"])]
+            default_uom_id = self.d[getKey(pu, prod["default_uom"])]
+            purchase_uom_id = self.d[getKey(pu, prod["purchase_uom"])]
+            vals = {'name': prod['name'],
+                    'uom_id': default_uom_id,
+                    'active': prod['active'],
+                    'type': prod['type'] != "goods" and prod['type'] or
+                    (prod['consumable'] and 'consu' or 'product'),
+                    'purchase_ok': prod['purchasable'],
+                    'uom_po_id': purchase_uom_id,
+                    'sale_ok': prod['salable'],
+                    'pack_fixed_price': prod['kit_fixed_list_price'],
+                    'sale_delay': prod['delivery_time'] and
+                    float(prod['delivery_time']) or 0,
+                    'default_code': prod['base_code'],
+                    'weight': prod['weight_uom'] and float(prod['weight_uom'])
+                    or 0.0,
+                    'stock_depends': prod['stock_depends_on_kit_components'],
+                    'ean13': prod['number'] or False,
+                    'categ_id': categ_id}
+            if prod['taxes_category']:
+                self.crT.execute("select tax from "
+                                 "product_category_customer_taxes_rel "
+                                 "where category = %s" % (prod["category"]))
+                tax_data = self.crT.fetchall()
+                taxes_ids = []
+                for tax in tax_data:
+                    tax_id = self.d[getKey(at, tax["tax"])]
+                    taxes_ids.append(tax_id)
+                if taxes_ids:
+                    vals['taxes_id'] = [(6, 0, taxes_ids)]
+                self.crT.execute("select tax from "
+                                 "product_category_supplier_taxes_rel "
+                                 "where category = %s" % (prod["category"]))
+                tax_data = self.crT.fetchall()
+                taxes_ids = []
+                for tax in tax_data:
+                    tax_id = self.d[getKey(at, tax["tax"])]
+                    taxes_ids.append(tax_id)
+                if taxes_ids:
+                    vals['supplier_taxes_id'] = [(6, 0, taxes_ids)]
+            else:
+                self.crT.execute("select tax from "
+                                 "product_customer_taxes_rel "
+                                 "where product = %s" % (prod["template_id"]))
+                tax_data = self.crT.fetchall()
+                taxes_ids = []
+                for tax in tax_data:
+                    tax_id = self.d[getKey(at, tax["tax"])]
+                    taxes_ids.append(tax_id)
+                if taxes_ids:
+                    vals['taxes_id'] = [(6, 0, taxes_ids)]
+                self.crT.execute("select tax from "
+                                 "product_supplier_taxes_rel "
+                                 "where product = %s" % (prod["template_id"]))
+                tax_data = self.crT.fetchall()
+                taxes_ids = []
+                for tax in tax_data:
+                    tax_id = self.d[getKey(at, tax["tax"])]
+                    taxes_ids.append(tax_id)
+                if taxes_ids:
+                    vals['supplier_taxes_id'] = [(6, 0, taxes_ids)]
+
+            #Propiedades
+            #Cost method
+            if not cost_method_field:
+                self.crT.execeute("select id from ir_model_field where name = "
+                                  "'cost_price_method' and module = 'product'")
+                field = self.crT.fetchone()
+                cost_method_field = field['id']
+            self.crT.execute("select value from ir_property where field = %s "
+                             "and res = 'product.template,%s' limit 1"
+                             % (cost_method_field, prod["template_id"]))
+            field_value = self.crT.fetchone()
+            if field_value:
+                field_value = field_value.replace(",", "")
+                vals['cost_method'] = field_value == 'fixed' and 'standard' \
+                    or field_value
+            # list_price
+            if not list_price_field:
+                self.crT.execeute("select id from ir_model_field where name = "
+                                  "'list_price' and module = 'product'")
+                field = self.crT.fetchone()
+                list_price_field = field['id']
+            self.crT.execute("select value from ir_property where field = %s "
+                             "and res = 'product.template,%s' limit 1"
+                             % (list_price_field, prod["template_id"]))
+            field_value = self.crT.fetchone()
+            if field_value:
+                field_value = field_value.replace(",", "")
+                vals['list_price'] = float(field_value)
+            # cost_price
+            if not cost_price_field:
+                self.crT.execeute("select id from ir_model_field where name = "
+                                  "'cost_price' and module = 'product'")
+                field = self.crT.fetchone()
+                cost_price_field = field['id']
+            self.crT.execute("select value from ir_property where field = %s "
+                             "and res = 'product.template,%s' limit 1"
+                             % (cost_price_field, prod["template_id"]))
+            field_value = self.crT.fetchone()
+            if field_value:
+                field_value = field_value.replace(",", "")
+                vals['standard_price'] = float(field_value)
+            # account_expense
+            if not account_expense_field:
+                self.crT.execeute("select id from ir_model_field where name = "
+                                  "'account_expense' and module = "
+                                  "'account_product'")
+                field = self.crT.fetchone()
+                account_expense_field = field['id']
+            self.crT.execute("select value from ir_property where field = %s "
+                             "and res = 'product.template,%s' limit 1"
+                             % (account_expense_field, prod["template_id"]))
+            field_value = self.crT.fetchone()
+            if field_value:
+                field_value = field_value.split(",")[1]
+                account_id = self.d[getKey(aa, int(field_value))]
+                vals['property_account_expense'] = account_id
+            # account_revenue
+            if not account_incoming_field:
+                self.crT.execeute("select id from ir_model_field where name = "
+                                  "'account_revenue' and module = "
+                                  "'account_product'")
+                field = self.crT.fetchone()
+                account_incoming_field = field['id']
+            self.crT.execute("select value from ir_property where field = %s "
+                             "and res = 'product.template,%s' limit 1"
+                             % (account_incoming_field, prod["template_id"]))
+            field_value = self.crT.fetchone()
+            if field_value:
+                field_value = field_value.split(",")[1]
+                account_id = self.d[getKey(aa, int(field_value))]
+                vals['property_account_income'] = account_id
+
+            prod_id = self.odoo.create("product.product", vals)
+            self.d[getKey(pp, prod["id"])] = prod_id
+        return True
+
+    def migrate_kits(self):
+        self.crT.execute("select parent,product,quantity from "
+                         "product_kit_line")
+        kit_data = self.crT.fetchall()
+        pp = "product_product"
+        for kit_line in kit_data:
+            lin_prod_id = self.d[getKey(pp, kit_line["product"])]
+            kit_prod_id = self.d[getKey(pp, kit_line["parent"])]
+            vals = {'quantity': float(kit_data['quantity']),
+                    'product_id': lin_prod_id,
+                    'parent_product_id': kit_prod_id}
+            self.odoo.create("product.pack.line", vals)
         return True
 
 Tryton2Odoo()
