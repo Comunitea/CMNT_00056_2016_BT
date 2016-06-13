@@ -41,13 +41,13 @@ class Tryton2Odoo(object):
             self.TAXES_MAP = loadTaxes()
             self.TAX_CODES_MAP = loadTaxCodes()
             self.PAYMENT_MODES_MAP = loadPaymentModes()
-            self.migrate_account_moves()
+            #self.migrate_account_moves()
             #self.migrate_account_reconciliation()
             #self.migrate_product_category()
             #self.migrate_product_uom()
             #self.migrate_product_product()
-            #self.migrate_kits()
-            self.PAYMENT_TERM_MAP = loadPaymentTerms()
+            self.migrate_kits()
+            #self.PAYMENT_TERM_MAP = loadPaymentTerms()
 
             self.d.close()
             print ("Successfull migration")
@@ -662,7 +662,7 @@ class Tryton2Odoo(object):
         for cat in data:
             parent_id = False
             if cat['parent']:
-                parent_id = self.d[getKey(pc, cat["id"])]
+                parent_id = self.d[getKey(pc, cat["parent"])]
             vals = {'name': cat['name'],
                     'parent_id': parent_id,
                     'type': 'normal'}
@@ -716,7 +716,6 @@ class Tryton2Odoo(object):
         pc = "product_category"
         pp = "product_product"
         pu = "product_uom"
-        at = "account_tax"
         aa = "account_account"
         account_expense_field = False
         account_incoming_field = False
@@ -725,24 +724,30 @@ class Tryton2Odoo(object):
         cost_price_field = False
         for prod in data:
             categ_id = self.d[getKey(pc, prod["category"])]
-            default_uom_id = self.d[getKey(pu, prod["default_uom"])]
-            purchase_uom_id = self.d[getKey(pu, prod["purchase_uom"])]
+            if prod["default_uom"]:
+                default_uom_id = self.d[getKey(pu, prod["default_uom"])]
+            else:
+                default_uom_id = 1
+            if prod["purchase_uom"]:
+                purchase_uom_id = self.d[getKey(pu, prod["purchase_uom"])]
+            else:
+                purchase_uom_id = 1
             vals = {'name': prod['name'],
                     'uom_id': default_uom_id,
                     'active': prod['active'],
                     'type': prod['type'] != "goods" and prod['type'] or
                     (prod['consumable'] and 'consu' or 'product'),
-                    'purchase_ok': prod['purchasable'],
+                    'purchase_ok': prod['purchasable'] or False,
                     'uom_po_id': purchase_uom_id,
-                    'sale_ok': prod['salable'],
-                    'pack_fixed_price': prod['kit_fixed_list_price'],
+                    'sale_ok': prod['salable'] or False,
+                    'pack_fixed_price': prod['kit_fixed_list_price'] or False,
                     'sale_delay': prod['delivery_time'] and
                     float(prod['delivery_time']) or 0,
-                    'default_code': prod['base_code'],
+                    'default_code': prod['base_code'] or "",
                     'weight': prod['weight_uom'] and float(prod['weight_uom'])
                     or 0.0,
-                    'stock_depends': prod['stock_depends_on_kit_components'],
-                    'ean13': prod['number'] or False,
+                    'stock_depends': prod['stock_depends_on_kit_components']
+                    or False,
                     'categ_id': categ_id}
             if prod['taxes_category']:
                 self.crT.execute("select tax from "
@@ -751,8 +756,8 @@ class Tryton2Odoo(object):
                 tax_data = self.crT.fetchall()
                 taxes_ids = []
                 for tax in tax_data:
-                    tax_id = self.d[getKey(at, tax["tax"])]
-                    taxes_ids.append(tax_id)
+                    tax_id = self.TAXES_MAP[str(tax["tax"])]
+                    taxes_ids.extend(tax_id)
                 if taxes_ids:
                     vals['taxes_id'] = [(6, 0, taxes_ids)]
                 self.crT.execute("select tax from "
@@ -761,8 +766,8 @@ class Tryton2Odoo(object):
                 tax_data = self.crT.fetchall()
                 taxes_ids = []
                 for tax in tax_data:
-                    tax_id = self.d[getKey(at, tax["tax"])]
-                    taxes_ids.append(tax_id)
+                    tax_id = self.TAXES_MAP[str(tax["tax"])]
+                    taxes_ids.extend(tax_id)
                 if taxes_ids:
                     vals['supplier_taxes_id'] = [(6, 0, taxes_ids)]
             else:
@@ -772,8 +777,8 @@ class Tryton2Odoo(object):
                 tax_data = self.crT.fetchall()
                 taxes_ids = []
                 for tax in tax_data:
-                    tax_id = self.d[getKey(at, tax["tax"])]
-                    taxes_ids.append(tax_id)
+                    tax_id = self.TAXES_MAP[str(tax["tax"])]
+                    taxes_ids.extend(tax_id)
                 if taxes_ids:
                     vals['taxes_id'] = [(6, 0, taxes_ids)]
                 self.crT.execute("select tax from "
@@ -782,16 +787,16 @@ class Tryton2Odoo(object):
                 tax_data = self.crT.fetchall()
                 taxes_ids = []
                 for tax in tax_data:
-                    tax_id = self.d[getKey(at, tax["tax"])]
-                    taxes_ids.append(tax_id)
+                    tax_id = self.TAXES_MAP[str(tax["tax"])]
+                    taxes_ids.extend(tax_id)
                 if taxes_ids:
                     vals['supplier_taxes_id'] = [(6, 0, taxes_ids)]
 
             #Propiedades
             #Cost method
             if not cost_method_field:
-                self.crT.execeute("select id from ir_model_field where name = "
-                                  "'cost_price_method' and module = 'product'")
+                self.crT.execute("select id from ir_model_field where name = "
+                                 "'cost_price_method' and module = 'product'")
                 field = self.crT.fetchone()
                 cost_method_field = field['id']
             self.crT.execute("select value from ir_property where field = %s "
@@ -799,13 +804,13 @@ class Tryton2Odoo(object):
                              % (cost_method_field, prod["template_id"]))
             field_value = self.crT.fetchone()
             if field_value:
-                field_value = field_value.replace(",", "")
+                field_value = field_value['value'].replace(",", "")
                 vals['cost_method'] = field_value == 'fixed' and 'standard' \
                     or field_value
             # list_price
             if not list_price_field:
-                self.crT.execeute("select id from ir_model_field where name = "
-                                  "'list_price' and module = 'product'")
+                self.crT.execute("select id from ir_model_field where name = "
+                                 "'list_price' and module = 'product'")
                 field = self.crT.fetchone()
                 list_price_field = field['id']
             self.crT.execute("select value from ir_property where field = %s "
@@ -813,12 +818,12 @@ class Tryton2Odoo(object):
                              % (list_price_field, prod["template_id"]))
             field_value = self.crT.fetchone()
             if field_value:
-                field_value = field_value.replace(",", "")
+                field_value = field_value['value'].replace(",", "")
                 vals['list_price'] = float(field_value)
             # cost_price
             if not cost_price_field:
-                self.crT.execeute("select id from ir_model_field where name = "
-                                  "'cost_price' and module = 'product'")
+                self.crT.execute("select id from ir_model_field where name = "
+                                 "'cost_price' and module = 'product'")
                 field = self.crT.fetchone()
                 cost_price_field = field['id']
             self.crT.execute("select value from ir_property where field = %s "
@@ -826,13 +831,13 @@ class Tryton2Odoo(object):
                              % (cost_price_field, prod["template_id"]))
             field_value = self.crT.fetchone()
             if field_value:
-                field_value = field_value.replace(",", "")
+                field_value = field_value['value'].replace(",", "")
                 vals['standard_price'] = float(field_value)
             # account_expense
             if not account_expense_field:
-                self.crT.execeute("select id from ir_model_field where name = "
-                                  "'account_expense' and module = "
-                                  "'account_product'")
+                self.crT.execute("select id from ir_model_field where name = "
+                                 "'account_expense' and module = "
+                                 "'account_product'")
                 field = self.crT.fetchone()
                 account_expense_field = field['id']
             self.crT.execute("select value from ir_property where field = %s "
@@ -840,14 +845,14 @@ class Tryton2Odoo(object):
                              % (account_expense_field, prod["template_id"]))
             field_value = self.crT.fetchone()
             if field_value:
-                field_value = field_value.split(",")[1]
+                field_value = field_value['value'].split(",")[1]
                 account_id = self.d[getKey(aa, int(field_value))]
                 vals['property_account_expense'] = account_id
             # account_revenue
             if not account_incoming_field:
-                self.crT.execeute("select id from ir_model_field where name = "
-                                  "'account_revenue' and module = "
-                                  "'account_product'")
+                self.crT.execute("select id from ir_model_field where name = "
+                                 "'account_revenue' and module = "
+                                 "'account_product'")
                 field = self.crT.fetchone()
                 account_incoming_field = field['id']
             self.crT.execute("select value from ir_property where field = %s "
@@ -855,11 +860,18 @@ class Tryton2Odoo(object):
                              % (account_incoming_field, prod["template_id"]))
             field_value = self.crT.fetchone()
             if field_value:
-                field_value = field_value.split(",")[1]
+                field_value = field_value['value'].split(",")[1]
                 account_id = self.d[getKey(aa, int(field_value))]
                 vals['property_account_income'] = account_id
 
+            print "vals: ", vals
             prod_id = self.odoo.create("product.product", vals)
+            if prod.get('number', False):
+                try:
+                    self.odoo.write("product.product", [prod_id],
+                                    {'ean13': prod['number']})
+                except:
+                    pass
             self.d[getKey(pp, prod["id"])] = prod_id
         return True
 
@@ -871,9 +883,10 @@ class Tryton2Odoo(object):
         for kit_line in kit_data:
             lin_prod_id = self.d[getKey(pp, kit_line["product"])]
             kit_prod_id = self.d[getKey(pp, kit_line["parent"])]
-            vals = {'quantity': float(kit_data['quantity']),
+            vals = {'quantity': float(kit_line['quantity']),
                     'product_id': lin_prod_id,
                     'parent_product_id': kit_prod_id}
+            print "vals: ", vals
             self.odoo.create("product.pack.line", vals)
         return True
 
