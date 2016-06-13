@@ -44,7 +44,6 @@ class SaleOrderStoreImportMapper(SaleOrderImportMapper):
     # Cambios de metodo de pago
     @mapping
     def payment(self, record):
-        import ipdb; ipdb.set_trace()
         record_method = record['payment']['method']
         method = self.env['payment.method.code'].search(
             [['code', '=', record_method], ['connector', '=', 'magento']],
