@@ -6,6 +6,9 @@
 6. Elminiar el diario de apertura.
 7. Creamos el mapeo de modos de pago.
 8. Creamos la categoría de udm Superficie y el mapeo de las udm que podamos.
-9. Se revisa el fichero de configuración: config.py
-10. Ejecutamos la migración; ./tryton2odoo.py (Una vez se hayan importado los periodos asegurarse de que estén abiertos los que tengan asientos)
-11. Poner las cuentas contables a los diarios de banco y caja y los diarios analíticos en los de facturas
+9. Configuramos entrada en dos pasos.
+10. Creamos el mapeo de códigos de ubicaciones
+11. Se instala el móudlo product_expiry sino está.
+12. Se revisa el fichero de configuración: config.py
+13. Ejecutamos la migración; ./tryton2odoo.py (Una vez se hayan importado los periodos asegurarse de que estén abiertos los que tengan asientos)
+14. Poner las cuentas contables a los diarios de banco y caja y los diarios analíticos en los de facturas

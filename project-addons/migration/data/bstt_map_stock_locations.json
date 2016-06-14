@@ -1,0 +1,9 @@
+{
+    "1": 13, # Input Zone
+    "2": 15, # Output Zone
+    "3": 12, # Storage Zone
+    "4": 11, # Warehouse
+    "5": 8, # Supplier
+    "6": 9, # Customer
+    "7": 5 # Lost and Found
+}

@@ -22,3 +22,4 @@ class Config(object):
     PAYMENT_MODES_FILE = "data/bstt_map_payment_type.json"
     PRODUCT_UOM_FILE = "data/bstt_map_product_uom.json"
     PAYMENT_TERMS_FILE = "data/bstt_map_payment_terms.json"
+    LOCATIONS_FILE = "data/bstt_map_stock_locations.json"
