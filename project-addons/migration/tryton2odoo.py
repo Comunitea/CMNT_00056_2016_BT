@@ -46,7 +46,9 @@ class Tryton2Odoo(object):
             #self.migrate_product_category()
             #self.migrate_product_uom()
             #self.migrate_product_product()
-            self.migrate_kits()
+            #self.migrate_kits()
+            #self.migrate_magento_metadata()
+            #self.migrate_magento_payment_mode()
             #self.PAYMENT_TERM_MAP = loadPaymentTerms()
 
             self.d.close()
@@ -889,5 +891,84 @@ class Tryton2Odoo(object):
             print "vals: ", vals
             self.odoo.create("product.pack.line", vals)
         return True
+
+
+
+
+    def _get_magento_id(self, model_name, tryton_id):
+        self.crT.execute("select id from ir_model where model = '%s'" % model_name)
+        ir_model_id = self.crT.fetchall()
+        self.crT.execute("select mgn_id from magento_external_referential where try_id=%s and model=%s" % (tryton_id, ir_model_id[0][0]))
+        return self.crT.fetchall()[0][0]
+
+    def migrate_magento_metadata(self):
+        self.crT.execute("select id,name,username,uri,password from magento_app")
+        backend_data = self.crT.fetchall()
+        ma = "magento_app"
+        msv = "magento_storeview"
+        mw = "magento_website"
+        mer = "magento_external_referential"
+        msg = "magento_storegroup"
+        for backend_line in backend_data:
+            vals = {
+                'version': '1.7',
+                'name': backend_line["name"],
+                'location': backend_line["uri"],
+                'username': backend_line["username"],
+                'password': backend_line["password"],
+                'warehouse_id': self.odoo.search('stock.warehouse', [], limit=1)[0],
+            }
+            backend_id = self.odoo.create("magento.backend", vals)
+            self.d[getKey(ma, backend_line["id"])] = backend_id
+
+        self.crT.execute("select id,magento_app,code,name from magento_website")
+        website_data = self.crT.fetchall()
+        for website_line in website_data:
+            mag_id = self._get_magento_id('magento.website', website_line["id"])
+            vals = {
+                'code': website_line['code'],
+                'name': website_line['name'],
+                'backend_id': self.d[getKey(ma, website_line["magento_app"])],
+                'magento_id': mag_id
+            }
+            website_id = self.odoo.create("magento.website", vals)
+            self.d[getKey(mw, website_line["id"])] = website_id
+
+        self.crT.execute("select id,magento_website,name from magento_storegroup")
+        storegroup_data = self.crT.fetchall()
+        for storegroup_line in storegroup_data:
+            mag_id = self._get_magento_id('magento.storegroup', storegroup_line["id"])
+            vals = {
+                'website_id':self.d[getKey(mw, storegroup_line['magento_website'])],
+                'name': storegroup_line['name'],
+                'magento_id': mag_id
+            }
+            store_id = self.odoo.create("magento.store", vals)
+            self.d[getKey(msg, storegroup_line["id"])] = store_id
+
+        self.crT.execute("select id,code,name,magento_storegroup from magento_storeview")
+        storeview_data = self.crT.fetchall()
+        for storeview_line in storeview_data:
+            mag_id = self._get_magento_id('magento.storeview', storeview_line["id"])
+            vals = {
+                'store_id':self.d[getKey(msg, storeview_line['magento_storegroup'])],
+                'name': storeview_line['name'],
+                'code': storeview_line['code'],
+                'magento_id': mag_id
+            }
+            store_id = self.odoo.create("magento.storeview", vals)
+            self.d[getKey(msv, storeview_line["id"])] = store_id
+        return True
+
+    def migrate_magento_payment_mode(self):
+        self.crT.execute("SELECT id,code,payment_type FROM esale_payment")
+        epayment_data = self.crT.fetchall()
+        for epayment_line in epayment_data:
+            vals = {
+                'name': epayment_line['code'],
+                'payment_mode_id': self.PAYMENT_MODES_MAP[str(epayment_line['payment_type'])]
+            }
+            method_id = self.odoo.create("payment.method", vals)
+            self.d[getKey('esale_payment', epayment_line["id"])] = method_id
 
 Tryton2Odoo()

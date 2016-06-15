@@ -40,16 +40,3 @@ class SaleOrderStoreImportMapper(SaleOrderImportMapper):
         magento_store = binder.to_openerp(record['store_id'])
         sale_store = self.env['magento.store'].browse(magento_store).store_id
         return {'sale_store_id': sale_store.id}
-
-    # Cambios de metodo de pago
-    @mapping
-    def payment(self, record):
-        record_method = record['payment']['method']
-        method = self.env['payment.method.code'].search(
-            [['code', '=', record_method], ['connector', '=', 'magento']],
-            limit=1,
-        )
-        assert method, ("method %s should exist because the import fails "
-                        "in SaleOrderImporter._before_import when it is "
-                        " missing" % record['payment']['method'])
-        return {'payment_method_id': method.payment_method_id.id}
