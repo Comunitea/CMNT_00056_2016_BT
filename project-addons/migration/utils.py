@@ -37,3 +37,8 @@ def loadProductUoms():
 def loadPaymentTerms():
     json_data=open(Config.PAYMENT_TERMS_FILE).read()
     return commentjson.loads(json_data)
+
+
+def loadStockLocations():
+    json_data=open(Config.LOCATIONS_FILE).read()
+    return commentjson.loads(json_data)

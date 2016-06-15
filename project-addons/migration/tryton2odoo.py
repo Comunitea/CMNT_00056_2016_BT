@@ -27,7 +27,7 @@ class Tryton2Odoo(object):
                         "' host='" + Config.TRYTON_DB_HOST +
                         "' password='" + Config.TRYTON_DB_PASSWORD + "'")
             self.crT = self.connTryton.cursor(cursor_factory=DictCursor)
-            self.d = shelve.open("devel_cache_file")
+            self.d = shelve.open("devel_cache_file_recover")
 
             # Proceso
             #self.migrate_account_fiscalyears()
@@ -49,7 +49,14 @@ class Tryton2Odoo(object):
             #self.migrate_kits()
             #self.migrate_magento_metadata()
             #self.migrate_magento_payment_mode()
-            #self.PAYMENT_TERM_MAP = loadPaymentTerms()
+            self.PAYMENT_TERM_MAP = loadPaymentTerms()
+            #self.migrate_invoices()
+            #self.migrate_account_bank_statements()
+            self.LOCATIONS_MAP = loadStockLocations()
+            #self.migrate_stock_lots()
+            #self.migrate_inventories()
+            self.migrate_moves()
+            #self.migrate_pickings()
 
             self.d.close()
             print ("Successfull migration")
@@ -892,9 +899,6 @@ class Tryton2Odoo(object):
             self.odoo.create("product.pack.line", vals)
         return True
 
-
-
-
     def _get_magento_id(self, model_name, tryton_id):
         self.crT.execute("select id from ir_model where model = '%s'" % model_name)
         ir_model_id = self.crT.fetchall()
@@ -970,5 +974,386 @@ class Tryton2Odoo(object):
             }
             method_id = self.odoo.create("payment.method", vals)
             self.d[getKey('esale_payment', epayment_line["id"])] = method_id
+
+    def migrate_invoices(self):
+        self.crT.execute("select comment,reference,payment_term,move,number,"
+                         "description,state,party,type,journal,account,"
+                         "invoice_date,invoice_address,payment_type,id,"
+                         "bank_account from account_invoice")
+        data = self.crT.fetchall()
+        ai = "account_invoice"
+        aa = "account_account"
+        am = "account_move"
+        pa = "party_address"
+        aj = "account_journal"
+        ba = "bank_account"
+        pt = "product_product"
+        ail = "account_invoice_line"
+        pu = "product_uom"
+        INV_TYPE_MAP = {"in_invoice": "in_invoice",
+                        "out_credit_note": "out_refund",
+                        "in_credit_note": "in_refund",
+                        "out_invoice": "out_invoice"}
+        for invoice in data:
+            journal_id = self.d[getKey(aj, invoice["journal"])]
+            bank_account_id = False
+            if invoice['bank_account'] and \
+                    self.d.has_key(getKey(ba, invoice['bank_account'])):
+                bank_account_id = self.d[getKey(ba, invoice['bank_account'])]
+            account_id = self.d[getKey(aa, invoice["account"])]
+            move_id = False
+            if invoice['move']:
+                move_id = self.d[getKey(am, invoice["move"])]
+            partner_id = self.d[getKey(pa, invoice['invoice_address'])]
+            payment_type_id = False
+            if invoice['payment_type']:
+                payment_type_id = self.\
+                    PAYMENT_MODES_MAP[str(invoice['payment_type'])]
+            payment_term_id = False
+            if invoice['payment_term']:
+                payment_term_id = self.\
+                    PAYMENT_TERM_MAP[str(invoice['payment_term'])]
+
+            vals = {'comment': (invoice['comment'] and
+                                invoice['comment'] != "''") and
+                    invoice['comment'] or False,
+                    'reference': (invoice['reference'] and
+                                  invoice['reference'] != "''") and
+                    invoice['reference'] or False,
+                    'payment_term': payment_term_id,
+                    'move_id': move_id,
+                    'number': invoice['number'] or False,
+                    'invoice_number': invoice['number'] or False,
+                    'supplier_invoice_number': invoice['description'] or False,
+                    'partner_id': partner_id,
+                    'type': INV_TYPE_MAP[invoice['type']],
+                    'journal_id': journal_id,
+                    'account_id': account_id,
+                    'date_invoice': invoice['invoice_date'] and
+                    format_date(invoice['invoice_date']) or False,
+                    'payment_mode_id': payment_type_id,
+                    'partner_bank_id': bank_account_id}
+            print "vals: ", vals
+            invoice_id = self.odoo.create("account.invoice", vals)
+            self.d[getKey(ai, invoice["id"])] = invoice_id
+
+            self.crT.execute("select id,sequence,unit,gross_unit_price,note,"
+                             "product,description,account,quantity,"
+                             "discount from account_invoice_line where "
+                             "invoice = %s" % (invoice['id']))
+            lines_data = self.crT.fetchall()
+            for line in lines_data:
+                product_id = False
+                if line['product']:
+                    product_id = self.d[getKey(pt, line['product'])]
+                account_id = self.d[getKey(aa, line["account"])]
+                uos_id = 1  # Unidad
+                if line['unit']:
+                    uos_id = self.d[getKey(pu, line["unit"])]
+                line_vals = {
+                    'product_id': product_id,
+                    'account_id': account_id,
+                    'name': line['description'] +
+                    ((line['note'] and line['note'] != "''")
+                     and ("\n" + line['note']) or ""),
+                    'quantity': float(line['quantity']),
+                    'sequence': line['sequence'] or 0.0,
+                    'discount': line['discount'] and float(line['discount'])
+                    or 0.0,
+                    'price_unit': float(line['gross_unit_price']),
+                    'invoice_id': invoice_id,
+                    'uos_id': uos_id}
+                self.crT.\
+                    execute("select tax from account_invoice_line_account_tax "
+                            "where line = %s" % (line['id']))
+                taxes_data = self.crT.fetchall()
+                taxes_ids = []
+                for tax in taxes_data:
+                    tax_id = self.TAXES_MAP[str(tax["tax"])]
+                    taxes_ids.extend(tax_id)
+                if taxes_ids:
+                    line_vals['invoice_line_tax_id'] = [(6, 0, taxes_ids)]
+                print "line_vals: ", line_vals
+                line_id = self.odoo.create("account.invoice.line", line_vals)
+                self.d[getKey(ail, line["id"])] = line_id
+
+            self.odoo.execute("account.invoice", "button_reset_taxes",
+                              [invoice_id])
+            if invoice["state"] not in ('draft', 'cancel'):
+                self.odoo.exec_workflow("account.invoice", "invoice_open",
+                                        invoice_id)
+            elif invoice['state'] == 'cancel' and not move_id:
+                self.odoo.exec_workflow("account.invoice", "invoice_cancel",
+                                        invoice_id)
+        return True
+
+    def migrate_account_bank_statements(self):
+        self.crT.execute("select abs.id,end_date,absj.journal,start_balance,"
+                         "date,end_balance,state from account_bank_statement "
+                         "abs inner join account_bank_statement_journal absj "
+                         "on absj.id = abs.journal")
+        data = self.crT.fetchall()
+        bs = "account_bank_statement"
+        bsl = "account_bank_statement_line"
+        aj = "account_journal"
+        pp = "party_party"
+        aa = "account_account"
+        am = "account_move"
+        aml = "account_move_line"
+        STATE_MAP = {'confirmed': 'confirm'}
+        for statement in data:
+            journal_id = self.d[getKey(aj, statement["journal"])]
+            acc_date = format_date(statement['date'])
+            period_id = self.odoo.execute("account.period", "find", acc_date)
+            vals = {'journal_id': journal_id,
+                    'period_id': period_id[0],
+                    'state': STATE_MAP[statement['state']],
+                    'balance_end_real': statement['end_balance'] and
+                    float(statement['end_balance']) or 0.0,
+                    'balance_start': statement['start_balance'] and
+                    float(statement['start_balance']) or 0.0,
+                    'date': acc_date}
+            bs_id = self.odoo.create("account.bank.statement", vals)
+            self.d[getKey(bs, statement["id"])] = bs_id
+            move_line_ids = []
+            self.crT.execute("select account,absml.description,move,"
+                             "coalesce(absml.amount,absl.amount) as amount,"
+                             "absl.date,party,notes,absl.id "
+                             "from account_bank_statement_line absl left "
+                             "join account_bank_statement_move_line absml on "
+                             "absl.id = absml.line where statement = %s"
+                             % (statement['id']))
+            lines_data = self.crT.fetchall()
+            for line in lines_data:
+                account_id = False
+                if line['account']:
+                    account_id = self.d[getKey(aa, line['account'])]
+                partner_id = False
+                if line['party']:
+                    partner_id = self.d[getKey(pp, line['party'])]
+                journal_entry_id = False
+                if line['move']:
+                    journal_entry_id = self.d[getKey(am, line['move'])]
+                line_vals = {'name': line['description'] or "-",
+                             'date': format_date(line['date']),
+                             'amount': line['amount'] and
+                             float(line['amount']) or 0.0,
+                             'partner_id': partner_id,
+                             'account_id': account_id,
+                             'statement_id': bs_id,
+                             'note': line['notes'] or "",
+                             'journal_entry_id': journal_entry_id}
+                absl_id = self.odoo.create("account.bank.statement.line",
+                                           line_vals)
+                self.d[getKey(bsl, line["id"])] = absl_id
+                self.crT.execute("select move_line from "
+                                 "account_bank_reconciliation where "
+                                 "bank_statement_line = %s"
+                                 % (line["id"]))
+                reconcile_data = self.crT.fetchall()
+                for reconcile in reconcile_data:
+                    move_line_id = self.d[getKey(aml, reconcile['move_line'])]
+                    move_line_ids.append(move_line_id)
+            if move_line_ids:
+                self.odoo.write("account.move.line", move_line_ids,
+                                {'statement_id': bs_id})
+        return True
+
+    def migrate_stock_lots(self):
+        self.crT.execute("select id,product,number,life_date,removal_date,"
+                         "expiry_date,alert_date,lot_date,active from "
+                         "stock_lot")
+        data = self.crT.fetchall()
+        pp = "product_product"
+        sl = "stock_lot"
+        for lot in data:
+            product_id = self.d[getKey(pp, lot["product"])]
+            vals = {'name': lot['number'],
+                    'product_id': product_id,
+                    'create_date': format_date(lot['lot_date']),
+                    'life_date': lot['life_date'] and
+                    format_date(lot['life_date']) or False,
+                    'removal_date': lot['removal_date'] and
+                    format_date(lot['removal_date']) or False,
+                    'alert_date': lot['alert_date'] and
+                    format_date(lot['alert_date']) or False,
+                    'use_date': lot['expiry_date'] and
+                    format_date(lot['expiry_date']) or False}
+            lot_id = self.odoo.create("stock.production.lot", vals)
+            self.d[getKey(sl, lot["id"])] = lot_id
+        return True
+
+    def migrate_inventories(self):
+        self.crT.execute("select id,state,date,location from "
+                         "stock_inventory")
+        data = self.crT.fetchall()
+        st = "stock_inventory"
+        stl = "stock_inventory_line"
+        pp = "product_product"
+        sl = "stock_lot"
+        for inventory in data:
+            location_id = self.LOCATIONS_MAP[str(inventory['location'])]
+            vals = {'name': format_date(inventory['date']),
+                    'location_id': location_id,
+                    'date': format_date(inventory['date']),
+                    'filter': 'partial',
+                    'state': inventory['state']}
+            print "vals: ", vals
+            inv_id = self.odoo.create("stock.inventory", vals)
+            self.d[getKey(st, inventory["id"])] = inv_id
+            self.crT.execute("select id,product,expected_quantity,quantity,"
+                             "lot from stock_inventory_line where "
+                             "inventory = %s" % (inventory["id"]))
+            lines_data = self.crT.fetchall()
+            for line in lines_data:
+                product_id = self.d[getKey(pp, line["product"])]
+                product_data = self.odoo.read("product.product", product_id,
+                                              ['uom_id'])
+                lot_id = False
+                if line['lot']:
+                    lot_id = self.d[getKey(sl, line["lot"])]
+                line_vals = {'product_id': product_id,
+                             'inventory_id': inv_id,
+                             'location_id': location_id,
+                             'product_uom_id': product_data['uom_id'][0],
+                             'product_qty': float(line['quantity']),
+                             'prod_lot_id': lot_id}
+                print "line_vals: ", line_vals
+                line_id = self.odoo.create("stock.inventory.line", line_vals)
+                self.d[getKey(stl, line["id"])] = line_id
+        return True
+
+    def migrate_moves(self):
+        self.crT.execute("select id,create_date,origin,planned_date,unit_price"
+                         ",state,effective_date,cost_price,internal_quantity,"
+                         "uom,quantity,product,to_location,from_location,lot "
+                         "from stock_move order by id asc")
+        data = self.crT.fetchall()
+        sm = "stock_move"
+        pu = "product_uom"
+        pp = "product_product"
+        sl = "stock_lot"
+        stl = "stock_inventory_line"
+        for move in data:
+            product_id = self.d[getKey(pp, move["product"])]
+            product_data = self.odoo.read("product.product", product_id,
+                                          ['uom_id'])
+            uom_id = self.d[getKey(pu, move["uom"])]
+            location_id = self.LOCATIONS_MAP[str(move['from_location'])]
+            location_dest_id = self.LOCATIONS_MAP[str(move['to_location'])]
+            restrict_lot_id = False
+            if move['lot']:
+                restrict_lot_id = self.d[getKey(sl, move["lot"])]
+            inventory_id = False
+            if move['origin'] and \
+                    move['origin'].startswith("stock.inventory.line"):
+                sil_id = self.d[getKey(stl,
+                                       int(move['origin'].split(",")[1]))]
+                sil_data = self.odoo.read("stock.inventory.line", sil_id,
+                                          ["inventory_id"])
+                inventory_id = sil_data['inventory_id'][0]
+            vals = {'name': "-",
+                    'date_expected': move['planned_date'] and
+                    format_date(move['planned_date']) or
+                    format_date(move['create_date']),
+                    'product_id': product_id,
+                    'product_uom_qty': float(move['internal_quantity']),
+                    'product_uom': product_data['uom_id'][0],
+                    'product_uos_qty': float(move['quantity']),
+                    'product_uos': uom_id,
+                    'location_id': location_id,
+                    'location_dest_id': location_dest_id,
+                    'price_unit': move['unit_price'] and
+                    float(move['unit_price']) or 0.0,
+                    'procure_method': 'make_to_stock',
+                    'inventory_id': inventory_id,
+                    'restrict_lot_id': restrict_lot_id}
+            print "vals: ", vals
+            move_id = self.odoo.create("stock.move", vals)
+            self.d[getKey(sm, move["id"])] = move_id
+
+            if move['state'] == 'cancel':
+                self.odoo.execute("stock.move", "action_cancel", [move_id])
+            elif move['state'] == "done":
+                self.odoo.execute("stock.move", "action_done", [move_id])
+                if move['effective_date']:
+                    self.odoo.write("stock.move", [move_id],
+                                    {'date':
+                                     format_date(move['effective_date'])})
+            elif move['state'] == "assigned":
+                self.odoo.execute("stock.move", "force_assign", [move_id])
+
+            if move['cost_price'] or move['effective_date']:
+                move_data = self.odoo.read("stock.move", move_id,
+                                           ['quant_ids'])
+                if move_data['quant_ids']:
+                    print "QUANTS: ", move_data['quant_ids']
+                    for quant in move_data['quant_ids']:
+                        qvals = {'in_date':
+                                 format_date(move['effective_date'])}
+                        if move['cost_price']:
+                            qvals['cost'] = float(move['cost_price'])
+                        self.odoo.write("stock.quant", [quant], qvals)
+        return True
+
+    def migrate_pickings(self):
+        self.crT.\
+            execute("select id,code,planned_date,contact_address as "
+                    "address_id,effective_date,supplier as partner_id,"
+                    "comment,'stock_shipment_in' as table from "
+                    "stock_shipment_in union select id,code,planned_date,"
+                    "delivery_address as address_id,effective_date,customer "
+                    "as partner_id,comment,'stock_shipment_out_return' as "
+                    "table from stock_shipment_out_return union "
+                    "select id,code,planned_date,delivery_address as "
+                    "address_id,effective_date,customer as partner_id,comment,"
+                    "'stock_shipment_out' as table from stock_shipment_out "
+                    "union select id,code,planned_date,False as address_id,"
+                    "effective_date,False as partner_id,comment,"
+                    "'stock_shipment_in_return' as table from "
+                    "stock_shipment_in_return union select id,code,"
+                    "planned_date,False as address_id,effective_date,"
+                    "False as partner_id,comment,'stock_shipment_internal' "
+                    "as table from stock_shipment_internal")
+        data = self.crT.fetchall()
+        pa = "party_address"
+        sm = "stock_move"
+        TYPE_MAP = {'stock_shipment_in': "incoming",
+                    'stock_shipment_out_return': "incoming",
+                    'stock_shipment_out': 'outgoing',
+                    'stock_shipment_in_return': 'outgoing',
+                    'stock_shipment_internal': 'internal'}
+        for pick in data:
+            picking_type_id = self.odoo.\
+                search("stock.picking.type",
+                       [("code", '=', TYPE_MAP[pick['table']])])[0]
+            partner_id = False
+            if pick['address_id']:
+                partner_id = self.d[getKey(pa, pick["address_id"])]
+            vals = {'name': pick['code'],
+                    'note': pick['comment'] or "",
+                    'move_type': 'one',
+                    'date_done': pick['effective_date'] and
+                    format_date(pick['effective_date']) or False,
+                    'partner_id': partner_id,
+                    'picking_type_id': picking_type_id}
+            pick_id = self.odoo.create("stock.picking", vals)
+            self.d[getKey(pick['table'], pick["id"])] = pick_id
+
+            model = pick['table'].replace("_", ".")
+            ref = model + "," + str(pick['id'])
+            self.crT.execute("select id from stock_move where "
+                             "shipment = '%s'" % (ref))
+            moves_data = self.crT.fetchall()
+            move_ids = []
+            for move in moves_data:
+                move_id = self.d[getKey(sm, move["id"])]
+                move_ids.append(move_id)
+            if move_ids:
+                self.odoo.write("stock.move", move_ids,
+                                {'picking_id': pick_id,
+                                 'picking_type_id': picking_type_id,
+                                 'partner_id': partner_id})
+        return True
 
 Tryton2Odoo()
