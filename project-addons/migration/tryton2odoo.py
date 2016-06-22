@@ -65,6 +65,9 @@ class Tryton2Odoo(object):
             #self.migrate_carrier_api()
             #self.migrate_carrier_api_services()
             #self.migrate_magento_carrier()
+            self.migrate_commission_plan()
+            self.migrate_commission_agent()
+            self.migrate_users()
 
             self.d.close()
             print ("Successfull migration")
@@ -1544,6 +1547,63 @@ class Tryton2Odoo(object):
         for vals_k in created_destinations:
             vals = created_destinations[vals_k]
             self.odoo.create('delivery.grid', vals)
+
+    def migrate_commission_plan(self):
+        self.crT.execute("select id,name from commission_plan")
+        plan_data = self.crT.fetchall()
+        for plan in plan_data:
+            plan_vals = {'name': plan['name']}
+            self.crT.execute("select id,product,substring(formula from 8 for 5) as formula from commission_plan_line where plan=%s" % plan["id"])
+            plan_lines = self.crT.fetchall()
+            lines = []
+            for line in plan_lines:
+                odoo_product_id = False
+                if line['product']:
+                    odoo_product_id = self.d[getKey('product_product', line['product'])]
+                commission_perc = float(line['formula']) * 100
+                commission = self.odoo.search('sale.commission', [('fix_qty', '=', commission_perc)])
+                if not commission:
+                    commission = self.odoo.create('sale.commission', {'name': '%s%%' % commission_perc, 'fix_qty': commission_perc, 'active': True, 'type': 'fixed', 'amount_base_type': 'gross_amount', 'invoice_state': 'open'})
+                else:
+                    commission = commission[0]
+                lines.append((0, 0, {'product': odoo_product_id, 'commission': commission}))
+            plan_vals['lines'] = lines
+            plan_id = self.odoo.create('sale.agent.plan', plan_vals)
+            self.d[getKey('commission_plan', plan['id'])] = plan_id
+
+    def migrate_commission_agent(self):
+        self.crT.execute("select id,party,plan from commission_agent")
+        agent_data = self.crT.fetchall()
+        for agent in agent_data:
+            if not agent['plan']:
+                continue
+            partner_id = self.d[getKey('party_party', agent['party'])]
+            plan_id = self.d[getKey('commission_plan', agent['plan'])]
+            self.odoo.write('res.partner', partner_id, {'agent': True, 'plan': plan_id})
+
+            self.crT.execute("select party from party_commission_agent where agent=%s" % agent['id'])
+            partner_ids = self.crT.fetchall()
+            odoo_partners = []
+            for tr_partner_id in partner_ids:
+                if not agent['plan']:
+                    continue
+                odoo_partner_id = self.d[getKey('party_party', tr_partner_id['party'])]
+                odoo_partners.append(odoo_partner_id)
+            self.odoo.write('res.partner', odoo_partners, {'agents': [(4, partner_id)] })
+
+    def migrate_users(self):
+        self.crT.execute("select id,name,login,active,email,signature from res_user where login != 'admin'")
+        user_data = self.crT.fetchall()
+        for user in user_data:
+            if 'cron' in user['name'].lower():
+                continue
+            self.odoo.create(
+                'res.users',
+                {'name': user['name'], 'login': user['login'],
+                 'password': '1', 'lang': 'es_ES',
+                  'tz': 'Europe/Madrid', 'signature': user['signature'] or False,
+                  'active': user['active'], 'email': user['email'] or False})
+
 
 
 Tryton2Odoo()
