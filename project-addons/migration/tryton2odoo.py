@@ -53,8 +53,9 @@ class Tryton2Odoo(object):
             self.LOCATIONS_MAP = loadStockLocations()
             #self.migrate_stock_lots()
             #self.migrate_inventories()
-            self.migrate_moves()
-            #self.migrate_pickings()
+            #self.migrate_moves()
+            #self.merge_quants()
+            self.migrate_pickings()
 
             self.d.close()
             print ("Successfull migration")
@@ -1157,6 +1158,8 @@ class Tryton2Odoo(object):
         sl = "stock_lot"
         stl = "stock_inventory_line"
         for move in data:
+            if self.d.has_key(getKey(sm, move["id"])):
+                continue
             product_id = self.d[getKey(pp, move["product"])]
             product_data = self.odoo.read("product.product", product_id,
                                           ['uom_id'])
@@ -1169,11 +1172,13 @@ class Tryton2Odoo(object):
             inventory_id = False
             if move['origin'] and \
                     move['origin'].startswith("stock.inventory.line"):
-                sil_id = self.d[getKey(stl,
-                                       int(move['origin'].split(",")[1]))]
-                sil_data = self.odoo.read("stock.inventory.line", sil_id,
-                                          ["inventory_id"])
-                inventory_id = sil_data['inventory_id'][0]
+                if self.d.has_key(getKey(stl,
+                                         int(move['origin'].split(",")[1]))):
+                    sil_id = self.d[getKey(stl,
+                                           int(move['origin'].split(",")[1]))]
+                    sil_data = self.odoo.read("stock.inventory.line", sil_id,
+                                              ["inventory_id"])
+                    inventory_id = sil_data['inventory_id'][0]
             vals = {'name': "-",
                     'date_expected': move['planned_date'] and
                     format_date(move['planned_date']) or
@@ -1218,6 +1223,32 @@ class Tryton2Odoo(object):
                         self.odoo.write("stock.quant", [quant], qvals)
         return True
 
+    def merge_quants(self):
+        move_ids = self.odoo.search("stock.move",
+                                    [('state', '=', 'done'),
+                                     ('location_dest_id.usage', '=',
+                                      'internal'),
+                                     ('product_id.type', '=', 'product')],
+                                    order="date")
+        print "len(moves): ", len(move_ids)
+        for move in move_ids:
+            move_data = self.odoo.read("stock.move", move, ['quant_ids'])
+            if move_data['quant_ids']:
+                print "len(quants): ", len(move_data['quant_ids'])
+                quants_data = self.odoo.read("stock.quant",
+                                             move_data['quant_ids'], ["qty"])
+                quant_ids = []
+                for quant in quants_data:
+                    if quant['qty'] > 0:
+                        quant_ids.append(quant["id"])
+                if quant_ids:
+                    print "len(valid_quants): ", len(quant_ids)
+                    for quant in quant_ids:
+                        self.odoo.execute("stock.quant",
+                                          "quants_reconcile_negative",
+                                          quant, move)
+        return True
+
     def migrate_pickings(self):
         self.crT.\
             execute("select id,code,planned_date,contact_address as "
@@ -1230,12 +1261,12 @@ class Tryton2Odoo(object):
                     "select id,code,planned_date,delivery_address as "
                     "address_id,effective_date,customer as partner_id,comment,"
                     "'stock_shipment_out' as table from stock_shipment_out "
-                    "union select id,code,planned_date,False as address_id,"
-                    "effective_date,False as partner_id,comment,"
+                    "union select id,code,planned_date,null as address_id,"
+                    "effective_date,null as partner_id,comment,"
                     "'stock_shipment_in_return' as table from "
                     "stock_shipment_in_return union select id,code,"
-                    "planned_date,False as address_id,effective_date,"
-                    "False as partner_id,comment,'stock_shipment_internal' "
+                    "planned_date,null as address_id,effective_date,"
+                    "null as partner_id,comment,'stock_shipment_internal' "
                     "as table from stock_shipment_internal")
         data = self.crT.fetchall()
         pa = "party_address"
@@ -1246,12 +1277,17 @@ class Tryton2Odoo(object):
                     'stock_shipment_in_return': 'outgoing',
                     'stock_shipment_internal': 'internal'}
         for pick in data:
+            if self.d.has_key(getKey(pick['table'], pick["id"])):
+                continue
             picking_type_id = self.odoo.\
                 search("stock.picking.type",
                        [("code", '=', TYPE_MAP[pick['table']])])[0]
             partner_id = False
             if pick['address_id']:
-                partner_id = self.d[getKey(pa, pick["address_id"])]
+                try:
+                    partner_id = self.d[getKey(pa, pick["address_id"])]
+                except:
+                    partner_id = False
             vals = {'name': pick['code'],
                     'note': pick['comment'] or "",
                     'move_type': 'one',
