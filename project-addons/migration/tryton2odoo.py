@@ -29,7 +29,7 @@ class Tryton2Odoo(object):
                         "' host='" + Config.TRYTON_DB_HOST +
                         "' password='" + Config.TRYTON_DB_PASSWORD + "'")
             self.crT = self.connTryton.cursor(cursor_factory=DictCursor)
-            self.d = shelve.open("devel_cache_file")
+            self.d = shelve.open("devel_cache_file_recover")
             # Proceso
             #self.migrate_account_fiscalyears()
             #self.migrate_account_period()
@@ -49,6 +49,7 @@ class Tryton2Odoo(object):
             #self.migrate_product_product()
             #self.migrate_kits()
             #self.migrate_magento_metadata()
+            #self.migrate_prestashop_metadata()
             #self.migrate_magento_payment_mode()
             self.PAYMENT_TERM_MAP = loadPaymentTerms()
             #self.migrate_invoices()
@@ -60,11 +61,10 @@ class Tryton2Odoo(object):
             #self.migrate_moves()
             #self.merge_quants()
             #self.migrate_pickings()
-            self.migrate_pickings()
-            self.migrate_carrier()
-            self.migrate_carrier_api()
-            self.migrate_carrier_api_services()
-            self.migrate_magento_carrier()
+            #self.migrate_carrier()
+            #self.migrate_carrier_api()
+            #self.migrate_carrier_api_services()
+            #self.migrate_magento_carrier()
 
             self.d.close()
             print ("Successfull migration")
@@ -1465,16 +1465,6 @@ class Tryton2Odoo(object):
             vals['carriers'] = [(6, 0, [self.d[getKey('carrier', x['carrier'])] for x in carriers] )]
             api_id = self.odoo.create("carrier.api", vals)
             self.d[getKey('carrier_api', api_line["id"])] = api_id
-
-    def migrate_carrier_api_delivery_carrier_rel(self):
-        self.crT.execute('select api,carrier from carrier_api_carrier_rel')
-        rel_data = self.crT.fetchall()
-        for rel_line in rel_data:
-            vals = {
-                'carrier_api_id': self.d[getKey('carrier_api', rel_line["api"])],
-                'delivery_carrier_id': self.d[getKey('carrier', rel_line["carrier"])],
-            }
-            self.odoo.create("carrier.api.service", vals)
 
     def migrate_carrier_api_services(self):
         self.crT.execute("select id,code,name,api from carrier_api_service")
