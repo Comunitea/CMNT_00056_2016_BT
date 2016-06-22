@@ -7,7 +7,10 @@ def tryton2odoo_account_code(account_code):
 
 
 def format_date(date):
-    return date.strftime("%Y-%m-%d")
+    try:
+        return date.strftime("%Y-%m-%d")
+    except:
+        return False
 
 
 def getKey(tryton_model, reg_id):

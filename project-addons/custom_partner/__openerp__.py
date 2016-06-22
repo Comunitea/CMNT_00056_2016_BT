@@ -14,7 +14,8 @@
     "depends": [
         "base",
         "carrier_api",
-        "account"
+        "account",
+        "stock"
     ],
     "data": [
         "views/partner_view.xml",
