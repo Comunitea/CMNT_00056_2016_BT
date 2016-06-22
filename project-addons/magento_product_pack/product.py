@@ -22,7 +22,7 @@ class ProductPackMapper(ProductImportMapper):
 
     @mapping
     def pack_line_ids(self, record):
-        pack_components = []
+        pack_components = [(5,)]
         if record['type_id'] == 'bundle':
             binder = self.binder_for('magento.product.product')
             for component in record['_bundle_data']['options'][0]['selections']:

@@ -2,7 +2,7 @@
 # © 2016 Comunitea
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 {
-    "name": "Payment method connector codes",
+    "name": "BT customizations",
     "summary": "",
     "version": "8.0.1.0.0",
     "category": "Uncategorized",
@@ -12,10 +12,10 @@
     "application": False,
     "installable": True,
     "depends": [
-        "base", "sale_payment_method"
+        "base",
+        "sale_payment_method"
     ],
     "data": [
-        "payment_method.xml",
-        "security/ir.model.access.csv"
+        'views/payment_method.xml'
     ],
 }

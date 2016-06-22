@@ -10,5 +10,10 @@
 10. Creamos el mapeo de códigos de ubicaciones
 11. Se instala el móudlo product_expiry sino está.
 12. Se revisa el fichero de configuración: config.py
-13. Ejecutamos la migración; ./tryton2odoo.py (Una vez se hayan importado los periodos asegurarse de que estén abiertos los que tengan asientos)
-14. Poner las cuentas contables a los diarios de banco y caja y los diarios analíticos en los de facturas
+13. Instalar prestashoperpconnect y magentoerpconnect.
+14. Ejecutamos la migración; ./tryton2odoo.py (Una vez se hayan importado los periodos asegurarse de que estén abiertos los que tengan asientos)
+15. Poner las cuentas contables a los diarios de banco y caja y los diarios analíticos en los de facturas
+16. Crear los metodos de pago con nombre: paypal_standard cashondelivery free bankpayment checkmo serviredpro
+17. Sincronizar todos los modelos conector.
+18. Comprobar tarifas de envío, es necesario establecer secuencia correcta a las lineas y coregir el transportista de los códigos es-is250 ad-220 es-isB2209
+19. Configurar el metodo de envío importado desde prestashop.

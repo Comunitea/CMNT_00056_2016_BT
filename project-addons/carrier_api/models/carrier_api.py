@@ -20,7 +20,7 @@ class CarrierApi(models.Model):
 
     company = fields.Many2one('res.company', required=True,
                               default=lambda self: self.env.user.company_id.id)
-    carriers = fields.Many2many('delivery.carrier', required=True)
+    carriers = fields.Many2many('delivery.carrier')
     method = fields.Selection([], required=True)
     services = fields.One2many('carrier.api.service', 'carrier_api')
 

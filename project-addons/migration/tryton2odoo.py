@@ -8,6 +8,8 @@ import psycopg2
 from psycopg2.extras import DictCursor
 import shelve
 from utils import *
+import yaml
+from itertools import *
 
 
 class Tryton2Odoo(object):
@@ -27,8 +29,7 @@ class Tryton2Odoo(object):
                         "' host='" + Config.TRYTON_DB_HOST +
                         "' password='" + Config.TRYTON_DB_PASSWORD + "'")
             self.crT = self.connTryton.cursor(cursor_factory=DictCursor)
-            self.d = shelve.open("devel_cache_file_recover")
-
+            self.d = shelve.open("devel_cache_file")
             # Proceso
             #self.migrate_account_fiscalyears()
             #self.migrate_account_period()
@@ -47,15 +48,23 @@ class Tryton2Odoo(object):
             #self.migrate_product_uom()
             #self.migrate_product_product()
             #self.migrate_kits()
+            #self.migrate_magento_metadata()
+            #self.migrate_magento_payment_mode()
             self.PAYMENT_TERM_MAP = loadPaymentTerms()
             #self.migrate_invoices()
             #self.migrate_account_bank_statements()
             self.LOCATIONS_MAP = loadStockLocations()
+            self.UOM_MAP = loadProductUoms()
             #self.migrate_stock_lots()
             #self.migrate_inventories()
             #self.migrate_moves()
             #self.merge_quants()
+            #self.migrate_pickings()
             self.migrate_pickings()
+            self.migrate_carrier()
+            self.migrate_carrier_api()
+            self.migrate_carrier_api_services()
+            self.migrate_magento_carrier()
 
             self.d.close()
             print ("Successfull migration")
@@ -685,7 +694,6 @@ class Tryton2Odoo(object):
                        '4': 4,  # Longitud
                        '5': 5,  # Volumen
                        '6': 6}  # Superficie (Hay que crearla)
-        UOM_MAP = loadProductUoms()
         self.crT.execute("select id,name,category,rounding,rate,active from "
                          "product_uom")
         data = self.crT.fetchall()
@@ -897,6 +905,82 @@ class Tryton2Odoo(object):
             print "vals: ", vals
             self.odoo.create("product.pack.line", vals)
         return True
+
+    def _get_magento_id(self, model_name, tryton_id):
+        self.crT.execute("select id from ir_model where model = '%s'" % model_name)
+        ir_model_id = self.crT.fetchall()
+        self.crT.execute("select mgn_id from magento_external_referential where try_id=%s and model=%s" % (tryton_id, ir_model_id[0][0]))
+        return self.crT.fetchall()[0][0]
+
+    def migrate_magento_metadata(self):
+        self.crT.execute("select id,name,username,uri,password from magento_app")
+        backend_data = self.crT.fetchall()
+        ma = "magento_app"
+        msv = "magento_storeview"
+        mw = "magento_website"
+        mer = "magento_external_referential"
+        msg = "magento_storegroup"
+        for backend_line in backend_data:
+            vals = {
+                'version': '1.7',
+                'name': backend_line["name"],
+                'location': backend_line["uri"],
+                'username': backend_line["username"],
+                'password': backend_line["password"],
+                'warehouse_id': self.odoo.search('stock.warehouse', [], limit=1)[0],
+            }
+            backend_id = self.odoo.create("magento.backend", vals)
+            self.d[getKey(ma, backend_line["id"])] = backend_id
+
+        self.crT.execute("select id,magento_app,code,name from magento_website")
+        website_data = self.crT.fetchall()
+        for website_line in website_data:
+            mag_id = self._get_magento_id('magento.website', website_line["id"])
+            vals = {
+                'code': website_line['code'],
+                'name': website_line['name'],
+                'backend_id': self.d[getKey(ma, website_line["magento_app"])],
+                'magento_id': mag_id
+            }
+            website_id = self.odoo.create("magento.website", vals)
+            self.d[getKey(mw, website_line["id"])] = website_id
+
+        self.crT.execute("select id,magento_website,name from magento_storegroup")
+        storegroup_data = self.crT.fetchall()
+        for storegroup_line in storegroup_data:
+            mag_id = self._get_magento_id('magento.storegroup', storegroup_line["id"])
+            vals = {
+                'website_id':self.d[getKey(mw, storegroup_line['magento_website'])],
+                'name': storegroup_line['name'],
+                'magento_id': mag_id
+            }
+            store_id = self.odoo.create("magento.store", vals)
+            self.d[getKey(msg, storegroup_line["id"])] = store_id
+
+        self.crT.execute("select id,code,name,magento_storegroup from magento_storeview")
+        storeview_data = self.crT.fetchall()
+        for storeview_line in storeview_data:
+            mag_id = self._get_magento_id('magento.storeview', storeview_line["id"])
+            vals = {
+                'store_id':self.d[getKey(msg, storeview_line['magento_storegroup'])],
+                'name': storeview_line['name'],
+                'code': storeview_line['code'],
+                'magento_id': mag_id
+            }
+            store_id = self.odoo.create("magento.storeview", vals)
+            self.d[getKey(msv, storeview_line["id"])] = store_id
+        return True
+
+    def migrate_magento_payment_mode(self):
+        self.crT.execute("SELECT id,code,payment_type FROM esale_payment")
+        epayment_data = self.crT.fetchall()
+        for epayment_line in epayment_data:
+            vals = {
+                'name': epayment_line['code'],
+                'payment_mode_id': self.PAYMENT_MODES_MAP[str(epayment_line['payment_type'])]
+            }
+            method_id = self.odoo.create("payment.method", vals)
+            self.d[getKey('esale_payment', epayment_line["id"])] = method_id
 
     def migrate_invoices(self):
         self.crT.execute("select comment,reference,payment_term,move,number,"
@@ -1313,5 +1397,163 @@ class Tryton2Odoo(object):
                                  'picking_type_id': picking_type_id,
                                  'partner_id': partner_id})
         return True
+
+    def migrate_prestashop_metadata(self):
+        self.crT.execute("select id,name,uri,key from prestashop_app")
+        backend_data = self.crT.fetchall()
+        pa = "prestashop_app"
+        msv = "magento_storeview"
+        pw = "prestashop_website"
+        mer = "magento_external_referential"
+        msg = "magento_storegroup"
+        for backend_line in backend_data:
+            vals = {
+                'version': '1.5',
+                'name': backend_line["name"],
+                'location': backend_line["uri"],
+                'webservice_key': backend_line["key"],
+                'warehouse_id': self.odoo.search('stock.warehouse', [], limit=1)[0],
+            }
+            backend_id = self.odoo.create("prestashop.backend", vals)
+            self.d[getKey(pa, backend_line["id"])] = backend_id
+        return True
+
+    def migrate_carrier(self):
+        self.crT.execute("select id,party,carrier_product from carrier")
+        carrier_data = self.crT.fetchall()
+        p = 'party_party'
+        prod = 'product_product'
+        for carrier_line in carrier_data:
+            partner_id = self.d[getKey(p, carrier_line["party"])]
+            product_id = self.d[getKey(prod, carrier_line["carrier_product"])]
+            name = '%s - %s' % (self.odoo.read('res.partner', partner_id, ['name'])['name'], self.odoo.read('product.product', product_id, ['name'])['name'])
+            self.crT.execute('select code from esale_carrier where carrier=%s' % carrier_line['id'])
+            codes = [x[0] for x in self.crT.fetchall()]
+            codes = ','.join(codes)
+            vals = {
+                'partner_id': partner_id,
+                'product_id': product_id,
+                'name': name,
+                'magento_code': codes,
+            }
+            carrier_id = self.odoo.create("delivery.carrier", vals)
+            self.d[getKey('carrier', carrier_line["id"])] = carrier_id
+            self.odoo.unlink('delivery.grid', self.odoo.search('delivery.grid', []))
+
+    def migrate_carrier_api(self):
+        self.crT.execute("select id,reference_origin,weight,reference,username,method,phone,debug,password,zips,vat,weight_unit,weight_api_unit,envialia_agency from carrier_api")
+        api_data = self.crT.fetchall()
+        for api_line in api_data:
+            vals = {
+                'method': api_line['method'],
+                'username': api_line['username'],
+                'password': api_line['password'],
+                'debug': api_line['debug'],
+                'reference': api_line['reference'],
+                'reference_origin': api_line['reference_origin'],
+                'weight': api_line['weight'],
+                'vat': api_line['vat'],
+                'phone': api_line['phone'],
+                'zips': api_line['zips'],
+                'envialia_agency': api_line['envialia_agency'] and api_line['envialia_agency'] or False,
+                'weight_unit': api_line['weight_unit'] and self.UOM_MAP[str(api_line['weight_unit'])] or False,
+                'weight_api_unit': api_line['weight_api_unit'] and self.UOM_MAP[str(api_line['weight_api_unit'])] or False,
+                'company_id': 1
+            }
+            self.crT.execute('select carrier from carrier_api_carrier_rel where api=%s' % api_line["id"])
+            carriers = self.crT.fetchall()
+            vals['carriers'] = [(6, 0, [self.d[getKey('carrier', x['carrier'])] for x in carriers] )]
+            api_id = self.odoo.create("carrier.api", vals)
+            self.d[getKey('carrier_api', api_line["id"])] = api_id
+
+    def migrate_carrier_api_delivery_carrier_rel(self):
+        self.crT.execute('select api,carrier from carrier_api_carrier_rel')
+        rel_data = self.crT.fetchall()
+        for rel_line in rel_data:
+            vals = {
+                'carrier_api_id': self.d[getKey('carrier_api', rel_line["api"])],
+                'delivery_carrier_id': self.d[getKey('carrier', rel_line["carrier"])],
+            }
+            self.odoo.create("carrier.api.service", vals)
+
+    def migrate_carrier_api_services(self):
+        self.crT.execute("select id,code,name,api from carrier_api_service")
+        service_data = self.crT.fetchall()
+        for service_line in service_data:
+            vals = {
+                'code': service_line['code'],
+                'name': service_line['name'],
+                'carrier_api': self.d[getKey('carrier_api', service_line["api"])],
+            }
+            service_id = self.odoo.create("carrier.api.service", vals)
+            self.d[getKey('carrier_api_service', service_line["id"])] = service_id
+
+    def migrate_magento_carrier(self):
+        init_carrier_code = 'owebiashipping1_'
+        def lines_per_n(f, n):
+            for line in f:
+                yield ''.join(chain([line], islice(f, n - 1)))
+
+        file_data = []
+        with open('data/shipment.json') as f:
+            for chunk in lines_per_n(f, 10):
+                try:
+                    jfile = yaml.load(chunk)
+                    file_data.append(jfile)
+                except ValueError, e:
+                    pass
+                else:
+                    pass
+        created_destinations = {}
+        for ship_grid in file_data:
+            append = False
+            destination_vals = ship_grid['destination'].split('(')
+            country_code = destination_vals[0]
+            prov_names = False
+            if len(destination_vals) > 1 and '-' not in country_code:
+                prov_names = destination_vals[1]
+            if prov_names:
+                dict_key = country_code + prov_names.replace(')', '')
+            else:
+                dict_key = country_code
+            if dict_key in created_destinations:
+                append = True
+                grid_vals = created_destinations[dict_key]
+            if not append:
+                grid_vals = {'name': ship_grid['label'], 'line_ids': []}
+                carrier_id = self.odoo.search('delivery.carrier', [('magento_code', 'like', init_carrier_code + ship_grid['code'])])
+                if not carrier_id:
+                    carrier_id = self.odoo.search('delivery.carrier', [])
+                    print '%s -- %s' % (carrier_id[0], ship_grid['code'])
+                grid_vals['carrier_id'] = carrier_id[0]
+
+                country = self.odoo.search('res.country', [('code', '=', country_code)])
+                grid_vals['country_ids'] = [(4,country[0])]
+                if prov_names:
+                    grid_vals['state_ids'] = []
+                    provs = prov_names.replace(')', '').split(',')
+                    for prov in provs:
+                        prov_odoo = self.odoo.search('res.country.state', [('name', 'ilike', prov)])
+                        grid_vals['state_ids'].append((4,prov_odoo[0]))
+                else:
+                    grid_vals['sequence'] = 20 # se da mayor secuencia a la regla generalista.
+            condition = ship_grid['conditions'].split('and')[0].split('}')[1].lstrip()
+            operator = condition[:2].lstrip().rstrip()
+            quantity = float(condition[2:].lstrip())
+            grid_vals['line_ids'].append(
+                (0, 0, {'name': ship_grid['name'],
+                        'price_type': 'fixed',
+                        'list_price': ship_grid['fees'],
+                        'type': 'price',
+                        'operator': operator,
+                        'max_value': quantity,
+                        'standard_price': 0
+                        }))
+
+            created_destinations[dict_key] = grid_vals
+        for vals_k in created_destinations:
+            vals = created_destinations[vals_k]
+            self.odoo.create('delivery.grid', vals)
+
 
 Tryton2Odoo()
