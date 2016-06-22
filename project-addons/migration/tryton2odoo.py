@@ -910,18 +910,21 @@ class Tryton2Odoo(object):
         return True
 
     def _get_magento_id(self, model_name, tryton_id):
-        self.crT.execute("select id from ir_model where model = '%s'" % model_name)
+        self.crT.execute("select id from ir_model where model = "
+                         "'%s'" % model_name)
         ir_model_id = self.crT.fetchall()
-        self.crT.execute("select mgn_id from magento_external_referential where try_id=%s and model=%s" % (tryton_id, ir_model_id[0][0]))
+        self.crT.execute("select mgn_id from magento_external_referential "
+                         "where try_id=%s and model=%s"
+                         % (tryton_id, ir_model_id[0][0]))
         return self.crT.fetchall()[0][0]
 
     def migrate_magento_metadata(self):
-        self.crT.execute("select id,name,username,uri,password from magento_app")
+        self.crT.execute("select id,name,username,uri,password from "
+                         "magento_app")
         backend_data = self.crT.fetchall()
         ma = "magento_app"
         msv = "magento_storeview"
         mw = "magento_website"
-        mer = "magento_external_referential"
         msg = "magento_storegroup"
         for backend_line in backend_data:
             vals = {
@@ -930,15 +933,18 @@ class Tryton2Odoo(object):
                 'location': backend_line["uri"],
                 'username': backend_line["username"],
                 'password': backend_line["password"],
-                'warehouse_id': self.odoo.search('stock.warehouse', [], limit=1)[0],
+                'warehouse_id': self.odoo.search('stock.warehouse', [],
+                                                 limit=1)[0],
             }
             backend_id = self.odoo.create("magento.backend", vals)
             self.d[getKey(ma, backend_line["id"])] = backend_id
 
-        self.crT.execute("select id,magento_app,code,name from magento_website")
+        self.crT.execute("select id,magento_app,code,name from "
+                         "magento_website")
         website_data = self.crT.fetchall()
         for website_line in website_data:
-            mag_id = self._get_magento_id('magento.website', website_line["id"])
+            mag_id = self._get_magento_id('magento.website',
+                                          website_line["id"])
             vals = {
                 'code': website_line['code'],
                 'name': website_line['name'],
@@ -948,24 +954,30 @@ class Tryton2Odoo(object):
             website_id = self.odoo.create("magento.website", vals)
             self.d[getKey(mw, website_line["id"])] = website_id
 
-        self.crT.execute("select id,magento_website,name from magento_storegroup")
+        self.crT.execute("select id,magento_website,name from "
+                         "magento_storegroup")
         storegroup_data = self.crT.fetchall()
         for storegroup_line in storegroup_data:
-            mag_id = self._get_magento_id('magento.storegroup', storegroup_line["id"])
+            mag_id = self._get_magento_id('magento.storegroup',
+                                          storegroup_line["id"])
             vals = {
-                'website_id':self.d[getKey(mw, storegroup_line['magento_website'])],
+                'website_id':
+                self.d[getKey(mw, storegroup_line['magento_website'])],
                 'name': storegroup_line['name'],
                 'magento_id': mag_id
             }
             store_id = self.odoo.create("magento.store", vals)
             self.d[getKey(msg, storegroup_line["id"])] = store_id
 
-        self.crT.execute("select id,code,name,magento_storegroup from magento_storeview")
+        self.crT.execute("select id,code,name,magento_storegroup from "
+                         "magento_storeview")
         storeview_data = self.crT.fetchall()
         for storeview_line in storeview_data:
-            mag_id = self._get_magento_id('magento.storeview', storeview_line["id"])
+            mag_id = self._get_magento_id('magento.storeview',
+                                          storeview_line["id"])
             vals = {
-                'store_id':self.d[getKey(msg, storeview_line['magento_storegroup'])],
+                'store_id':
+                self.d[getKey(msg, storeview_line['magento_storegroup'])],
                 'name': storeview_line['name'],
                 'code': storeview_line['code'],
                 'magento_id': mag_id
@@ -980,7 +992,8 @@ class Tryton2Odoo(object):
         for epayment_line in epayment_data:
             vals = {
                 'name': epayment_line['code'],
-                'payment_mode_id': self.PAYMENT_MODES_MAP[str(epayment_line['payment_type'])]
+                'payment_mode_id':
+                self.PAYMENT_MODES_MAP[str(epayment_line['payment_type'])]
             }
             method_id = self.odoo.create("payment.method", vals)
             self.d[getKey('esale_payment', epayment_line["id"])] = method_id
@@ -1405,17 +1418,14 @@ class Tryton2Odoo(object):
         self.crT.execute("select id,name,uri,key from prestashop_app")
         backend_data = self.crT.fetchall()
         pa = "prestashop_app"
-        msv = "magento_storeview"
-        pw = "prestashop_website"
-        mer = "magento_external_referential"
-        msg = "magento_storegroup"
         for backend_line in backend_data:
             vals = {
                 'version': '1.5',
                 'name': backend_line["name"],
                 'location': backend_line["uri"],
                 'webservice_key': backend_line["key"],
-                'warehouse_id': self.odoo.search('stock.warehouse', [], limit=1)[0],
+                'warehouse_id': self.odoo.search('stock.warehouse', [],
+                                                 limit=1)[0],
             }
             backend_id = self.odoo.create("prestashop.backend", vals)
             self.d[getKey(pa, backend_line["id"])] = backend_id
@@ -1429,8 +1439,12 @@ class Tryton2Odoo(object):
         for carrier_line in carrier_data:
             partner_id = self.d[getKey(p, carrier_line["party"])]
             product_id = self.d[getKey(prod, carrier_line["carrier_product"])]
-            name = '%s - %s' % (self.odoo.read('res.partner', partner_id, ['name'])['name'], self.odoo.read('product.product', product_id, ['name'])['name'])
-            self.crT.execute('select code from esale_carrier where carrier=%s' % carrier_line['id'])
+            name = '%s - %s' % (self.odoo.read('res.partner',
+                                               partner_id, ['name'])['name'],
+                                self.odoo.read('product.product', product_id,
+                                               ['name'])['name'])
+            self.crT.execute('select code from esale_carrier where carrier=%s'
+                             % carrier_line['id'])
             codes = [x[0] for x in self.crT.fetchall()]
             codes = ','.join(codes)
             vals = {
@@ -1441,10 +1455,14 @@ class Tryton2Odoo(object):
             }
             carrier_id = self.odoo.create("delivery.carrier", vals)
             self.d[getKey('carrier', carrier_line["id"])] = carrier_id
-            self.odoo.unlink('delivery.grid', self.odoo.search('delivery.grid', []))
+            self.odoo.unlink('delivery.grid',
+                             self.odoo.search('delivery.grid', []))
 
     def migrate_carrier_api(self):
-        self.crT.execute("select id,reference_origin,weight,reference,username,method,phone,debug,password,zips,vat,weight_unit,weight_api_unit,envialia_agency from carrier_api")
+        self.crT.execute("select id,reference_origin,weight,reference,"
+                         "username,method,phone,debug,password,zips,vat,"
+                         "weight_unit,weight_api_unit,envialia_agency from "
+                         "carrier_api")
         api_data = self.crT.fetchall()
         for api_line in api_data:
             vals = {
@@ -1458,14 +1476,20 @@ class Tryton2Odoo(object):
                 'vat': api_line['vat'],
                 'phone': api_line['phone'],
                 'zips': api_line['zips'],
-                'envialia_agency': api_line['envialia_agency'] and api_line['envialia_agency'] or False,
-                'weight_unit': api_line['weight_unit'] and self.UOM_MAP[str(api_line['weight_unit'])] or False,
-                'weight_api_unit': api_line['weight_api_unit'] and self.UOM_MAP[str(api_line['weight_api_unit'])] or False,
+                'envialia_agency': api_line['envialia_agency'] and
+                api_line['envialia_agency'] or False,
+                'weight_unit': api_line['weight_unit'] and
+                self.UOM_MAP[str(api_line['weight_unit'])] or False,
+                'weight_api_unit': api_line['weight_api_unit'] and
+                self.UOM_MAP[str(api_line['weight_api_unit'])] or False,
                 'company_id': 1
             }
-            self.crT.execute('select carrier from carrier_api_carrier_rel where api=%s' % api_line["id"])
+            self.crT.execute("select carrier from carrier_api_carrier_rel "
+                             "where api=%s" % api_line["id"])
             carriers = self.crT.fetchall()
-            vals['carriers'] = [(6, 0, [self.d[getKey('carrier', x['carrier'])] for x in carriers] )]
+            vals['carriers'] = [(6, 0,
+                                 [self.d[getKey('carrier', x['carrier'])]
+                                  for x in carriers])]
             api_id = self.odoo.create("carrier.api", vals)
             self.d[getKey('carrier_api', api_line["id"])] = api_id
 
@@ -1476,13 +1500,15 @@ class Tryton2Odoo(object):
             vals = {
                 'code': service_line['code'],
                 'name': service_line['name'],
-                'carrier_api': self.d[getKey('carrier_api', service_line["api"])],
-            }
+                'carrier_api': self.d[getKey('carrier_api',
+                                             service_line["api"])]}
             service_id = self.odoo.create("carrier.api.service", vals)
-            self.d[getKey('carrier_api_service', service_line["id"])] = service_id
+            self.d[getKey('carrier_api_service',
+                          service_line["id"])] = service_id
 
     def migrate_magento_carrier(self):
         init_carrier_code = 'owebiashipping1_'
+
         def lines_per_n(f, n):
             for line in f:
                 yield ''.join(chain([line], islice(f, n - 1)))
@@ -1493,9 +1519,7 @@ class Tryton2Odoo(object):
                 try:
                     jfile = yaml.load(chunk)
                     file_data.append(jfile)
-                except ValueError, e:
-                    pass
-                else:
+                except:
                     pass
         created_destinations = {}
         for ship_grid in file_data:
@@ -1514,23 +1538,31 @@ class Tryton2Odoo(object):
                 grid_vals = created_destinations[dict_key]
             if not append:
                 grid_vals = {'name': ship_grid['label'], 'line_ids': []}
-                carrier_id = self.odoo.search('delivery.carrier', [('magento_code', 'like', init_carrier_code + ship_grid['code'])])
+                carrier_id = self.odoo.\
+                    search('delivery.carrier',
+                           [('magento_code', 'like',
+                             init_carrier_code + ship_grid['code'])])
                 if not carrier_id:
                     carrier_id = self.odoo.search('delivery.carrier', [])
                     print '%s -- %s' % (carrier_id[0], ship_grid['code'])
                 grid_vals['carrier_id'] = carrier_id[0]
 
-                country = self.odoo.search('res.country', [('code', '=', country_code)])
-                grid_vals['country_ids'] = [(4,country[0])]
+                country = self.odoo.search('res.country',
+                                           [('code', '=', country_code)])
+                grid_vals['country_ids'] = [(4, country[0])]
                 if prov_names:
                     grid_vals['state_ids'] = []
                     provs = prov_names.replace(')', '').split(',')
                     for prov in provs:
-                        prov_odoo = self.odoo.search('res.country.state', [('name', 'ilike', prov)])
-                        grid_vals['state_ids'].append((4,prov_odoo[0]))
+                        prov_odoo = self.odoo.\
+                            search('res.country.state',
+                                   [('name', 'ilike', prov)])
+                        grid_vals['state_ids'].append((4, prov_odoo[0]))
                 else:
-                    grid_vals['sequence'] = 20 # se da mayor secuencia a la regla generalista.
-            condition = ship_grid['conditions'].split('and')[0].split('}')[1].lstrip()
+                    # se da mayor secuencia a la regla generalista.
+                    grid_vals['sequence'] = 20
+            condition = ship_grid['conditions'].split('and')[0].\
+                split('}')[1].lstrip()
             operator = condition[:2].lstrip().rstrip()
             quantity = float(condition[2:].lstrip())
             grid_vals['line_ids'].append(
@@ -1553,20 +1585,33 @@ class Tryton2Odoo(object):
         plan_data = self.crT.fetchall()
         for plan in plan_data:
             plan_vals = {'name': plan['name']}
-            self.crT.execute("select id,product,substring(formula from 8 for 5) as formula from commission_plan_line where plan=%s" % plan["id"])
+            self.crT.execute("select id,product,substring(formula from 8 for "
+                             "5) as formula from commission_plan_line "
+                             "where plan=%s" % plan["id"])
             plan_lines = self.crT.fetchall()
             lines = []
             for line in plan_lines:
                 odoo_product_id = False
                 if line['product']:
-                    odoo_product_id = self.d[getKey('product_product', line['product'])]
+                    odoo_product_id = self.d[getKey('product_product',
+                                                    line['product'])]
                 commission_perc = float(line['formula']) * 100
-                commission = self.odoo.search('sale.commission', [('fix_qty', '=', commission_perc)])
+                commission = self.odoo.\
+                    search('sale.commission',
+                           [('fix_qty', '=', commission_perc)])
                 if not commission:
-                    commission = self.odoo.create('sale.commission', {'name': '%s%%' % commission_perc, 'fix_qty': commission_perc, 'active': True, 'type': 'fixed', 'amount_base_type': 'gross_amount', 'invoice_state': 'open'})
+                    commission = self.odoo.\
+                        create('sale.commission',
+                               {'name': '%s%%' % commission_perc,
+                                'fix_qty': commission_perc,
+                                'active': True,
+                                'type': 'fixed',
+                                'amount_base_type': 'gross_amount',
+                                'invoice_state': 'open'})
                 else:
                     commission = commission[0]
-                lines.append((0, 0, {'product': odoo_product_id, 'commission': commission}))
+                lines.append((0, 0, {'product': odoo_product_id,
+                                     'commission': commission}))
             plan_vals['lines'] = lines
             plan_id = self.odoo.create('sale.agent.plan', plan_vals)
             self.d[getKey('commission_plan', plan['id'])] = plan_id
@@ -1579,20 +1624,25 @@ class Tryton2Odoo(object):
                 continue
             partner_id = self.d[getKey('party_party', agent['party'])]
             plan_id = self.d[getKey('commission_plan', agent['plan'])]
-            self.odoo.write('res.partner', partner_id, {'agent': True, 'plan': plan_id})
+            self.odoo.write('res.partner', partner_id,
+                            {'agent': True, 'plan': plan_id})
 
-            self.crT.execute("select party from party_commission_agent where agent=%s" % agent['id'])
+            self.crT.execute("select party from party_commission_agent "
+                             "where agent=%s" % agent['id'])
             partner_ids = self.crT.fetchall()
             odoo_partners = []
             for tr_partner_id in partner_ids:
                 if not agent['plan']:
                     continue
-                odoo_partner_id = self.d[getKey('party_party', tr_partner_id['party'])]
+                odoo_partner_id = self.d[getKey('party_party',
+                                                tr_partner_id['party'])]
                 odoo_partners.append(odoo_partner_id)
-            self.odoo.write('res.partner', odoo_partners, {'agents': [(4, partner_id)] })
+            self.odoo.write('res.partner', odoo_partners,
+                            {'agents': [(4, partner_id)]})
 
     def migrate_users(self):
-        self.crT.execute("select id,name,login,active,email,signature from res_user where login != 'admin'")
+        self.crT.execute("select id,name,login,active,email,signature from "
+                         "res_user where login != 'admin'")
         user_data = self.crT.fetchall()
         for user in user_data:
             if 'cron' in user['name'].lower():
@@ -1601,9 +1651,8 @@ class Tryton2Odoo(object):
                 'res.users',
                 {'name': user['name'], 'login': user['login'],
                  'password': '1', 'lang': 'es_ES',
-                  'tz': 'Europe/Madrid', 'signature': user['signature'] or False,
-                  'active': user['active'], 'email': user['email'] or False})
-
-
+                 'tz': 'Europe/Madrid', 'signature': user['signature'] or
+                 False,
+                 'active': user['active'], 'email': user['email'] or False})
 
 Tryton2Odoo()
