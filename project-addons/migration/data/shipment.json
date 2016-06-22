@@ -1,0 +1,219 @@
+{
+    name: "Nacional < 80 (ESPAÑA)",
+    code: "es-80",
+    label: "24-48h.",
+    destination: "ES-(Las Palmas,Santa Cruz de Tenerife)",
+    conditions: "{cart.price_including_tax}<=79.99",
+    fees: 7.00,
+    customer_groups: "0,1,6",
+}
+
+{
+    name: "Nacional > 80 (ESPAÑA)",
+    code: "es+80",
+    label: "24-48h. (Gratuíto)",
+    destination: "ES-(Las Palmas,Santa Cruz de Tenerife)",
+    conditions: "{cart.price_including_tax}>=80.00",
+    fees: 0.00,
+    customer_groups: "0,1,6",
+}
+
+{
+    name: "Nacional Especial < 250 (ISLAS CANARIAS)",
+    code: "es-is250",
+    label: "Aéreo 48h.",
+    destination: "ES(Las Palmas,Santa Cruz de Tenerife)",
+    conditions: "{cart.price_including_tax}<=249.99",
+    fees: 40.00,
+    customer_groups: "0,1,6,7,8,10,11,4,5,9,13,16,14,17,19,20",
+}
+
+{
+    name: "Nacional Especial > 250 (Islas CANARIAS)",
+    code: "es-is+250",
+    label: "Aéreo 48h.",
+    destination: "ES(Las Palmas,Santa Cruz de Tenerife)",
+    conditions: "{cart.price_including_tax}>=250.00",
+    fees: 25.00,
+    customer_groups: "0,1,6,7,8,10,11,4,5,9,13,16,14,17,19,20",
+}
+
+{
+    name: "ANDORRA < 220 (ANDORRA)",
+    code: "ad-220",
+    label: "24-48h.(12,00€) + DUA (20,50€)",
+    destination: "AD",
+    conditions: "{cart.price_including_tax}<=219.99",
+    fees: 32.50,
+    customer_groups: "0,1,6",
+}
+
+{
+    name: "ANDORRA > 220 (ANDORRA)",
+    code: "ad+220",
+    label: "24-48h.(Gratuíto) + DUA (20,50€)",
+    destination: "AD",
+    conditions: "{cart.price_including_tax}>=220.00",
+    fees: 20.50,
+    customer_groups: "0,1,6",
+}
+
+{
+    name: "Nacional < 250 (ESPAÑA)",
+    code: "es-270-2",
+    label: "24-48h.",
+    destination: "ES-(Las Palmas,Santa Cruz de Tenerife,Baleares)",
+    conditions: "{cart.price_including_tax}<=269.99",
+    fees: 12.10,
+    customer_groups: "4,5,9,12,19,20",
+}
+
+{
+    name: "Nacional > 250 (ESPAÑA)",
+    code: "es+270-2",
+    label: "24-48h. (Gratuíto)",
+    destination: "ES-(Las Palmas,Santa Cruz de Tenerife,Baleares)",
+    conditions: "{cart.price_including_tax}>=270.00",
+    fees: 0.00,
+    customer_groups: "4,5,9,12,19,20",
+}
+
+{
+    name: "Nacional Especial ESCALADO 1 (ISLAS BALEARES)",
+    code: "es-isB2209",
+    label: "24-48h.",
+    destination: "ES(Baleares)",
+    conditions: "{cart.price_including_tax} <= 269.99",
+    fees: 24.20,
+    customer_groups: "4,5,9,12,19,20",
+}
+
+{
+    name: "Nacional Especial ESCALADO 2 (ISLAS BALEARES)",
+    code: "es-isB220",
+    label: "24-48h.",
+    destination: "ES(Baleares)",
+    conditions: "{cart.price_including_tax} > 270.00 and {cart.price_including_tax} <= 539.99",
+    fees: 12.10,
+    customer_groups: "4,5,9,12,19,20",
+}
+
+{
+    name: "Nacional Especial ESCALADO 3 (Islas BALEARES)",
+    code: "es-is+B220",
+    label: "24-48h. (Gratuíto)",
+    destination: "ES(Baleares)",
+    conditions: "{cart.price_including_tax}>=540.00",
+    fees: 0.00,
+    customer_groups: "4,5,9,12,19,20",
+}
+
+{
+    name: "Nacional Especial ESCALADO 1 (ANDORRA)",
+    code: "AD1",
+    label: "24-48h. (20,00€) + DUA (20,50€)",
+    destination: "AD",
+    conditions: "{cart.price_including_tax}<=269.99",
+    fees: 47.79,
+    customer_groups: "4,5,9,12,19,20",
+}
+
+{
+    name: "Nacional Especial ESCALADO 2 (ANDORRA)",
+    code: "AD2",
+    label: "24-48h. (10,00€) + DUA (20,50€)",
+    destination: "AD",
+    conditions: "{cart.price_including_tax} > 270.00 and {cart.price_including_tax} <= 539.99",
+    fees: 35.99,
+    customer_groups: "4,5,9,12,19,20",
+}
+
+{
+    name: "Nacional Especial ESCALADO 3 (ANDORRA)",
+    code: "AD3",
+    label: "24-48h. (Gratuíto) + DUA (20,50€)",
+    destination: "AD",
+    conditions: "{cart.price_including_tax}>=540.00",
+    fees: 24.19,
+    customer_groups: "4,5,9,12,19,20",
+}
+
+{
+    name: "Nacional < 200 (ESPAÑA)",
+    code: "es-216-3",
+    label: "Envío 24-48h.",
+    destination: "ES-(Las Palmas,Santa Cruz de Tenerife,Baleares)",
+    conditions: "{cart.price_including_tax}<=215.99",
+    fees: 12.10,
+    customer_groups: "7,8,10,11,13,16,14,17,18",
+}
+
+{
+    name: "Nacional > 200 (ESPAÑA)",
+    code: "es+216-3",
+    label: "Envío 24-48h. (Gratuíto)",
+    destination: "ES-(Las Palmas,Santa Cruz de Tenerife,Baleares)",
+    conditions: "{cart.price_including_tax}>=216.00",
+    fees: 0.00,
+    customer_groups: "7,8,10,11,13,16,14,17,18",
+}
+
+{
+    name: "Nacional Especial ESCALADO 1 (ISLAS BALEARES)",
+    code: "es-isB22039",
+    label: "24-48h.",
+    destination: "ES(Baleares)",
+    conditions: "{cart.price_including_tax}<=215.99",
+    fees: 24.20,
+    customer_groups: "7,8,10,11,13,16,14,17,18",
+}
+
+{
+    name: "Nacional Especial ESCALADO 2 (ISLAS BALEARES)",
+    code: "es-isB2203",
+    label: "24-48h.",
+    destination: "ES(Baleares)",
+    conditions: "{cart.price_including_tax} > 216.00 and {cart.price_including_tax} <= 431.99",
+    fees: 12.10,
+    customer_groups: "7,8,10,11,13,16,14,17,18",
+}
+
+{
+    name: "Nacional Especial ESCALADO 3 (Islas BALEARES)",
+    code: "es-is+B2203",
+    label: "24-48h. (Gratuíto)",
+    destination: "ES(Baleares)",
+    conditions: "{cart.price_including_tax}>=432.00",
+    fees: 0.00,
+    customer_groups: "7,8,10,11,13,16,14,17,18",
+}
+
+{
+    name: "Nacional Especial ESCALADO 1 (ANDORRA)",
+    code: "AD13",
+    label: "24-48h. (20,00€) + DUA (20,50€)",
+    destination: "AD",
+    conditions: "{cart.price_including_tax}<=215.99",
+    fees: 47.79,
+    customer_groups: "7,8,10,11,13,16,14,17,18",
+}
+
+{
+    name: "Nacional Especial ESCALADO 2 (ANDORRA)",
+    code: "AD23",
+    label: "24-48h. (10,00€) + DUA (20,50€)",
+    destination: "AD",
+    conditions: "{cart.price_including_tax} > 216.00 and {cart.price_including_tax} <= 431.99",
+    fees: 35.99,
+    customer_groups: "7,8,10,11,13,16,14,17,18",
+}
+
+{
+    name: "Nacional Especial ESCALADO 3 (ANDORRA)",
+    code: "AD33",
+    label: "24-48h. (Gratuíto) + DUA (20,50€)",
+    destination: "AD",
+    conditions: "{cart.price_including_tax}>=432.00",
+    fees: 24.19,
+    customer_groups: "7,8,10,11,13,16,14,17,18",
+}
