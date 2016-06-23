@@ -61,6 +61,7 @@ class Tryton2Odoo(object):
             #self.migrate_moves()
             #self.merge_quants()
             #self.migrate_pickings()
+            #self.migrate_orderpoints()
             #self.migrate_carrier()
             #self.migrate_carrier_api()
             #self.migrate_carrier_api_services()
@@ -68,7 +69,7 @@ class Tryton2Odoo(object):
             #self.migrate_commission_plan()
             #self.migrate_commission_agent()
             #self.migrate_users()
-            self.GROUPS_MAP = loadGroups()
+            #self.GROUPS_MAP = loadGroups()
             #self.migrate_groups()
             self.migrate_product_suppliers()
 
@@ -1417,6 +1418,26 @@ class Tryton2Odoo(object):
                                  'partner_id': partner_id})
         return True
 
+    def migrate_orderpoints(self):
+        self.crT.execute("select id,product,min_quantity,max_quantity from "
+                         "stock_order_point")
+        data = self.crT.fetchall()
+        sop = "stock_order_point"
+        pp = "product_product"
+        warehouse_id = self.odoo.search('stock.warehouse', [], limit=1)[0]
+        wh_data = self.odoo.read("stock.warehouse", warehouse_id,
+                                 ['lot_stock_id'])
+        for op in data:
+            vals = {'product_id': self.d[getKey(pp, op["product"])],
+                    'warehouse_id': warehouse_id,
+                    'location_id': wh_data['lot_stock_id'][0],
+                    'product_min_qty': float(op['min_quantity']),
+                    'product_max_qty': float(op['max_quantity'])}
+            op_id = self.odoo.create("stock.warehouse.orderpoint", vals)
+            self.d[getKey(sop, op["id"])] = op_id
+
+        return True
+
     def migrate_prestashop_metadata(self):
         self.crT.execute("select id,name,uri,key from prestashop_app")
         backend_data = self.crT.fetchall()
@@ -1598,7 +1619,7 @@ class Tryton2Odoo(object):
                 if line['product']:
                     odoo_product_id = self.d[getKey('product_product',
                                                     line['product'])]
-                commission_perc = float(line['formula']) * 100
+                commission_perc = float(line['formula'])
                 commission = self.odoo.\
                     search('sale.commission',
                            [('fix_qty', '=', commission_perc)])
@@ -1660,24 +1681,30 @@ class Tryton2Odoo(object):
             self.d[getKey('res_user', user['id'])] = user_id
 
     def migrate_groups(self):
-        self.crT.execute('select rurg.user as user, rurg.group as group from  "res_user-res_group" as rurg')
+        self.crT.execute('select rurg.user as user, rurg.group as group from '
+                         '"res_user-res_group" as rurg')
         group_data = self.crT.fetchall()
         for group in group_data:
-            if str(group['group']) not in self.GROUPS_MAP or not self.d.has_key(getKey('res_user', group['user'])):
+            if str(group['group']) not in self.GROUPS_MAP or not \
+                    self.d.has_key(getKey('res_user', group['user'])):
                 continue
             vals = {
                 'groups_id': [(4, self.GROUPS_MAP[str(group['group'])])]
             }
-            self.odoo.write('res.users', self.d[getKey('res_user', group['user'])], vals)
+            self.odoo.write('res.users', self.d[getKey('res_user',
+                                                       group['user'])], vals)
 
     def migrate_product_suppliers(self):
-        self.crT.execute("select id,delivery_time,product,code,name,sequence,party from  purchase_product_supplier")
+        self.crT.execute("select id,delivery_time,product,code,name,sequence,"
+                         "party from  purchase_product_supplier")
         supplier_data = self.crT.fetchall()
         for supplier in supplier_data:
-            self.crT.execute("select id from product_product where template=%s" % supplier['product'])
+            self.crT.execute("select id from product_product where "
+                             "template=%s" % supplier['product'])
             products = self.crT.fetchall()
             pp_id = self.d[getKey('product_product', products[0][0])]
-            product_template = self.odoo.read('product.product', pp_id, ['product_tmpl_id'])
+            product_template = self.odoo.read('product.product', pp_id,
+                                              ['product_tmpl_id'])
             vals = {
                 'product_name': supplier['name'] or False,
                 'product_code': supplier['code'] or False,
