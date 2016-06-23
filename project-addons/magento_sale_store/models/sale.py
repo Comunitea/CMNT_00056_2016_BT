@@ -27,8 +27,10 @@ class SaleStore(models.Model):
 
     _name = 'sale.store'
 
-    name = fields.Char()
+    name = fields.Char(required=True)
     journal_id = fields.Many2one('account.journal', 'Journal')
+    active = fields.Boolean("Active", default=True)
+    logo = fields.Binary()
 
 
 @magento(replacing=SaleOrderImportMapper)

@@ -61,6 +61,7 @@ class Tryton2Odoo(object):
             #self.migrate_moves()
             #self.merge_quants()
             #self.migrate_pickings()
+            #self.migrate_orderpoints()
             #self.migrate_carrier()
             #self.migrate_carrier_api()
             #self.migrate_carrier_api_services()
@@ -1412,6 +1413,26 @@ class Tryton2Odoo(object):
                                 {'picking_id': pick_id,
                                  'picking_type_id': picking_type_id,
                                  'partner_id': partner_id})
+        return True
+
+    def migrate_orderpoints(self):
+        self.crT.execute("select id,product,min_quantity,max_quantity from "
+                         "stock_order_point")
+        data = self.crT.fetchall()
+        sop = "stock_order_point"
+        pp = "product_product"
+        warehouse_id = self.odoo.search('stock.warehouse', [], limit=1)[0]
+        wh_data = self.odoo.read("stock.warehouse", warehouse_id,
+                                 ['lot_stock_id'])
+        for op in data:
+            vals = {'product_id': self.d[getKey(pp, op["product"])],
+                    'warehouse_id': warehouse_id,
+                    'location_id': wh_data['lot_stock_id'][0],
+                    'product_min_qty': float(op['min_quantity']),
+                    'product_max_qty': float(op['max_quantity'])}
+            op_id = self.odoo.create("stock.warehouse.orderpoint", vals)
+            self.d[getKey(sop, op["id"])] = op_id
+
         return True
 
     def migrate_prestashop_metadata(self):
