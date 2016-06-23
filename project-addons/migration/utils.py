@@ -45,3 +45,7 @@ def loadPaymentTerms():
 def loadStockLocations():
     json_data=open(Config.LOCATIONS_FILE).read()
     return commentjson.loads(json_data)
+
+def loadGroups():
+    json_data=open(Config.GROUPS_FILE).read()
+    return commentjson.loads(json_data)

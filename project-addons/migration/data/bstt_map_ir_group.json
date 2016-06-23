@@ -1,0 +1,13 @@
+{
+    "1": 48, #administracion/configuracion
+    "3": 7, #multidivisa
+    "8": 23, #gestor financiero
+    "11": 37, #almacen/responsable
+    "14": 46, # compras/responsable
+    "15": 45, #compras/usuario
+    "17": 10, # ventas/responsable
+    "7": 21, #cobros y pagos
+    "16": 9, #mostrar iniciativas propias
+    "12": 36 # almacen/usuario
+
+}
