@@ -13,7 +13,7 @@
 13. Instalar prestashoperpconnect y magentoerpconnect.
 14. Ejecutamos la migración; ./tryton2odoo.py (Una vez se hayan importado los periodos asegurarse de que estén abiertos los que tengan asientos)
 15. Poner las cuentas contables a los diarios de banco y caja y los diarios analíticos en los de facturas
-16.
+16. crear metodos de pago prestashop. Transferencia bancaria, Virement bancaire, Direct Debit Payments, Payment by check, Bank wire
 17. Sincronizar todos los modelos conector. Asegurarse que existe un producto con default_code SHIP
 18. Comprobar tarifas de envío, es necesario establecer secuencia correcta a las lineas y coregir el transportista de los códigos es-is250 ad-220 es-isB2209
 19. Configurar el metodo de envío importado desde prestashop.
