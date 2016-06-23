@@ -9,6 +9,7 @@ from psycopg2.extras import DictCursor
 import shelve
 from utils import *
 import yaml
+import base64
 from itertools import *
 
 
@@ -71,7 +72,8 @@ class Tryton2Odoo(object):
             #self.migrate_users()
             #self.GROUPS_MAP = loadGroups()
             #self.migrate_groups()
-            self.migrate_product_suppliers()
+            #self.migrate_product_suppliers()
+            self.sync_shops()
 
             self.d.close()
             print ("Successfull migration")
@@ -1715,5 +1717,45 @@ class Tryton2Odoo(object):
                 'product_tmpl_id': product_template['product_tmpl_id'][0],
             }
             self.odoo.create('product.supplierinfo', vals)
+
+    def sync_shops(self):
+        self.crT.execute("select ss.id,ss.name,ss.active,logo,pw.name as "
+                         "prestashop_name,ms.name as magento_name,journal "
+                         "from sale_shop ss left join magento_storegroup ms "
+                         "on ss.magento_website = ms.magento_website left join"
+                         " prestashop_website pw on pw.id = "
+                         "ss.prestashop_website order by active asc")
+        shop_data = self.crT.fetchall()
+        ss = "sale_shop"
+        aj = "account_journal"
+        for shop in shop_data:
+            journal_id = shop['journal'] and \
+                self.d[getKey(aj, shop['journal'])] or False
+            vals = {
+                'logo': shop['logo'] and base64.encodestring(shop['logo'])
+                or False,
+                'active': shop['active'],
+                'journal_id': journal_id
+            }
+            shop_id = False
+            if shop['magento_name']:
+                shop_ids = self.odoo.search("sale.store",
+                                           [('name', '=',
+                                             shop['magento_name']),
+                                            ('active', 'in', [True, False])])
+                shop_id = shop_ids and shop_ids[0] or False
+            elif shop['prestashop_name']:
+                shop_ids = self.odoo.search("sale.store",
+                                            [('name', '=',
+                                              shop['prestashop_name']),
+                                             ('active', 'in', [True, False])])
+                shop_id = shop_ids and shop_ids[0] or False
+            if shop_id:
+                self.odoo.write("sale.store", [shop_id], vals)
+            else:
+                vals['name'] = shop['name']
+                shop_id = self.odoo.create("sale.store", vals)
+
+            self.d[getKey(ss, shop['id'])] = shop_id
 
 Tryton2Odoo()
