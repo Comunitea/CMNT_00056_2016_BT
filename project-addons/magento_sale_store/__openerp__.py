@@ -19,7 +19,7 @@
         'views/magento_store_view.xml',
         'views/sale.xml',
         'views/prestashop_store_view.xml',
-        'security/ir.model.access.csv'
+        'security/ir.model.access.csv',
         'views/sale_store_view.xml'
     ],
 }
