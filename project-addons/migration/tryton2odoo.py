@@ -29,7 +29,7 @@ class Tryton2Odoo(object):
                         "' host='" + Config.TRYTON_DB_HOST +
                         "' password='" + Config.TRYTON_DB_PASSWORD + "'")
             self.crT = self.connTryton.cursor(cursor_factory=DictCursor)
-            self.d = shelve.open("devel_cache_file_recover")
+            self.d = shelve.open("devel_cache_file")
             # Proceso
             #self.migrate_account_fiscalyears()
             #self.migrate_account_period()
@@ -66,9 +66,12 @@ class Tryton2Odoo(object):
             #self.migrate_carrier_api()
             #self.migrate_carrier_api_services()
             #self.migrate_magento_carrier()
-            self.migrate_commission_plan()
-            self.migrate_commission_agent()
-            self.migrate_users()
+            #self.migrate_commission_plan()
+            #self.migrate_commission_agent()
+            #self.migrate_users()
+            self.GROUPS_MAP = loadGroups()
+            #self.migrate_groups()
+            self.migrate_product_suppliers()
 
             self.d.close()
             print ("Successfull migration")
@@ -1668,12 +1671,43 @@ class Tryton2Odoo(object):
         for user in user_data:
             if 'cron' in user['name'].lower():
                 continue
-            self.odoo.create(
+            user_id = self.odoo.create(
                 'res.users',
                 {'name': user['name'], 'login': user['login'],
                  'password': '1', 'lang': 'es_ES',
                  'tz': 'Europe/Madrid', 'signature': user['signature'] or
                  False,
                  'active': user['active'], 'email': user['email'] or False})
+            self.d[getKey('res_user', user['id'])] = user_id
+
+    def migrate_groups(self):
+        self.crT.execute('select rurg.user as user, rurg.group as group from  "res_user-res_group" as rurg')
+        group_data = self.crT.fetchall()
+        for group in group_data:
+            if str(group['group']) not in self.GROUPS_MAP or not self.d.has_key(getKey('res_user', group['user'])):
+                continue
+            vals = {
+                'groups_id': [(4, self.GROUPS_MAP[str(group['group'])])]
+            }
+            self.odoo.write('res.users', self.d[getKey('res_user', group['user'])], vals)
+
+    def migrate_product_suppliers(self):
+        self.crT.execute("select id,delivery_time,product,code,name,sequence,party from  purchase_product_supplier")
+        supplier_data = self.crT.fetchall()
+        for supplier in supplier_data:
+            self.crT.execute("select id from product_product where template=%s" % supplier['product'])
+            products = self.crT.fetchall()
+            pp_id = self.d[getKey('product_product', products[0][0])]
+            product_template = self.odoo.read('product.product', pp_id, ['product_tmpl_id'])
+            vals = {
+                'product_name': supplier['name'] or False,
+                'product_code': supplier['code'] or False,
+                'sequence': supplier['sequence'] or False,
+                'min_qty': 0,
+                'delay': supplier['delivery_time'] or 0,
+                'name': self.d[getKey('party_party', supplier['party'])],
+                'product_tmpl_id': product_template['product_tmpl_id'][0],
+            }
+            self.odoo.create('product.supplierinfo', vals)
 
 Tryton2Odoo()
