@@ -93,6 +93,8 @@ class sale_order(orm.Model):
             return
 
     def expand_packs(self, cr, uid, ids, context={}, depth=1):
+        if context.get('not_expand', False):
+            return
         if type(ids) in [int, long]:
             ids = [ids]
         if depth == 10:

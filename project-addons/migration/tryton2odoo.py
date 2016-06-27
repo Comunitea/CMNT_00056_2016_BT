@@ -74,6 +74,7 @@ class Tryton2Odoo(object):
             #self.migrate_groups()
             #self.migrate_product_suppliers()
             self.sync_shops()
+            self.migrate_sales()
 
             self.d.close()
             print ("Successfull migration")
@@ -1757,5 +1758,111 @@ class Tryton2Odoo(object):
                 shop_id = self.odoo.create("sale.store", vals)
 
             self.d[getKey(ss, shop['id'])] = shop_id
+
+    def migrate_sales(self):
+        self.crT.\
+            execute("select ss.id,comment,reference,payment_term,"
+                    "sale_date,state,ss.party,"
+                    "shipment_address,description,invoice_method,"
+                    "payment_type,carrier,price_list,shop,reference_external,"
+                    "sale_discount,esale_coupon,asm_return,carrier_notes,"
+                    "carrier_service,invoice_address,ca.party as agent from "
+                    "sale_sale ss left join commission_agent ca on ca.id = "
+                    "ss.agent order by ss.id asc")
+        data = self.crT.fetchall()
+        ss = "sale_sale"
+        c = "carrier"
+        cs = "carrier_api_service"
+        pp = "party_party"
+        pa = "party_address"
+        ppl = "product_price_list"
+        ssh = "sale_shop"
+        pprod = "product_product"
+        OP_MAP = {'order': 'prepaid',
+                  'shipment': 'picking',
+                  'manual': 'manual'}
+        warehouse_id = self.odoo.search('stock.warehouse', [], limit=1)[0]
+        for sale in data:
+            payment_term_id = False
+            if sale['payment_term']:
+                payment_term_id = self.\
+                    PAYMENT_TERM_MAP[str(sale['payment_term'])]
+
+            partner_id = self.d[getKey(pp, sale['party'])]
+            delivery_address_id = False
+            if sale['shipment_address']:
+                delivery_address_id = self.\
+                    d[getKey(pa, sale['shipment_address'])]
+
+            invoice_address_id = False
+            if sale['invoice_address']:
+                invoice_address_id = self.\
+                    d[getKey(pa, sale['invoice_address'])]
+
+            shop_id = self.d[getKey(ssh, sale['shop'])]
+            payment_type_id = False
+            if sale['payment_type']:
+                payment_type_id = self.\
+                    PAYMENT_MODES_MAP[str(sale['payment_type'])]
+
+            carrier_id = False
+            if sale['carrier']:
+                carrier_id = self.d[getKey(c, sale['carrier'])]
+
+            price_list_id = 1
+            if sale['price_list']:
+                price_list_id = self.d[getKey(ppl, sale['price_list'])]
+
+            carrier_service_id = False
+            if sale['carrier_service']:
+                carrier_service_id = self.\
+                    d[getKey(cs, sale['carrier_service'])]
+
+            agent_id = False
+            if sale['agent']:
+                agent_id = self.d[getKey(pp, sale['agent'])]
+
+            notes = ""
+            if sale['comment']:
+                notes += sale['comment'] + u"\n"
+            if sale['description']:
+                notes += sale['description'] + u"\n"
+            if sale['esale_coupon']:
+                notes += u"CUPON: " + sale['esale_coupon']
+
+            vals = {'name': sale['reference'],
+                    'partner_id': partner_id,
+                    'partner_invoice_id': invoice_address_id or partner_id,
+                    'partner_shipping_id': delivery_address_id or partner_id,
+                    'date_order': format_date(sale['sale_date']),
+                    'client_order_ref': sale['reference_external'] or "",
+                    'warehouse_id': warehouse_id,
+                    'pricelist_id': price_list_id,
+                    'carrier_id': carrier_id,
+                    'note': notes,
+                    'picking_policy': 'direct',
+                    'order_policy': OP_MAP[sale['invoice_method']],
+                    'payment_term': payment_term_id,
+                    'payment_mode_id': payment_type_id,
+                    'carrier_service_id': carrier_service_id,
+                    'asm_return': sale['asm_return'] or False,
+                    'carrier_notes': sale['carrier_notes'] or "",
+                    'sale_store_id': shop_id}
+            order_id = self.odoo.create("sale.order", vals)
+            self.d[getKey(ss, sale['id'])] = order_id
+
+            self.crT.execute("select id,sequence,unit,gross_unit_price,note,"
+                             "product,description,quantity,discount,"
+                             "shipment_cost,cost_price,kit_depth,"
+                             "kit_parent_line from sale_line where sale = %s "
+                             "order by kit_depth asc"
+                             % (sale['id']))
+            lines_data = self.crT.fetchall()
+            for line in lines_data:
+                product_id = False
+                if line['product']:
+                    product_id = self.d[getKey(pprod, line['product'])]
+
+
 
 Tryton2Odoo()

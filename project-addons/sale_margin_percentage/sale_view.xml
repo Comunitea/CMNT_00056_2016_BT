@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record model="ir.ui.view" id="sale_margin_percentage_sale_order">
+            <field name="name">sale.order.margin.percentage.view.form</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale_stock.view_order_form_inherit"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='order_line']/form//field[@name='price_unit']" position="after">
+                    <label for="margin_perc"/>
+                    <div name="margin_perc">
+                        <field name="margin_perc" class="oe_inline" groups="base.group_user" readonly="1"/> %%
+                    </div>
+                </xpath>
+                <xpath expr="//field[@name='order_line']/tree//field[@name='price_subtotal']" position="after">
+                    <field name="margin_perc" readonly="1"/>
+                </xpath>
+                <field name="amount_untaxed" position="after">
+                    <label for="margin"/>
+                    <div>
+                        <field name="margin" class="oe_inline"/>%%
+                    </div>
+                </field>
+            </field>
+        </record>
+
+    </data>
+</openerp>
