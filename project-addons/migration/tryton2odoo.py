@@ -1741,23 +1741,29 @@ class Tryton2Odoo(object):
                 }
                 if pricelist_line['product']:
                     line_vals['sequence'] = 1
-                    line_vals['product_id'] = self.d[getKey('product_product', pricelist_line['product'])]
+                    line_vals['product_id'] = self.d[getKey(
+                        'product_product', pricelist_line['product'])]
                 elif pricelist_line['category']:
                     line_vals['sequence'] = 10
-                    line_vals['categ_id'] = self.d[getKey('product_category', pricelist_line['category'])]
+                    line_vals['categ_id'] = self.d[getKey(
+                        'product_category', pricelist_line['category'])]
                 else:
                     line_vals['sequence'] = 30
-
 
                 formula = pricelist_line['formula']
                 if formula == 'unit_price':
                     line_vals['base'] = 1
                 elif 'unit_price*(1' in formula:
                     line_vals['base'] = 1
-                    line_vals['price_discount'] = float(formula.replace('unit_price*(1', '').replace(')',''))
+                    line_vals['price_discount'] = \
+                        float(formula.replace('unit_price*(1', '').replace(
+                              ')',''))
                 elif 'Decimal(round(' in formula:
                     line_vals['base'] = 2
-                    line_vals['price_discount'] = float(formula.replace('Decimal(round(product.cost_price*', '').replace(',2))', '')) - 1
+                    line_vals['price_discount'] = \
+                        float(formula.replace(
+                        'Decimal(round(product.cost_price*', '').replace(
+                        ',2))', '')) - 1
                 elif 'compute_price_list(' in formula:
                     line_vals['base'] = -1
                     line_vals['name'] = 'manual'
@@ -1770,10 +1776,11 @@ class Tryton2Odoo(object):
                     line_vals['price_surcharge'] = float(formula)
 
                 lines.append((0, 0, line_vals))
-            vals['version_id'] = [(0, 0, {'name': 'default', 'active': True, 'items_id': lines})]
+            vals['version_id'] = [(0, 0,
+                                   {'name': 'default', 'active': True,
+                                    'items_id': lines})]
             pricelist_id = self.odoo.create('product.pricelist', vals)
             self.d[getKey('product_price_list', pricelist['id'])] = pricelist_id
-
 
     def sync_shops(self):
         self.crT.execute("select ss.id,ss.name,ss.active,logo,pw.name as "
