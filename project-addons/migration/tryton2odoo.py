@@ -67,6 +67,7 @@ class Tryton2Odoo(object):
             #self.migrate_carrier()
             #self.migrate_carrier_api()
             #self.migrate_carrier_api_services()
+            self.migrate_carrier_data()
             #self.migrate_magento_carrier()
             #self.migrate_commission_plan()
             #self.migrate_commission_agent()
@@ -74,10 +75,10 @@ class Tryton2Odoo(object):
             #self.GROUPS_MAP = loadGroups()
             #self.migrate_groups()
             #self.migrate_product_suppliers()
-            self.migrate_pricelist()
-            self.sync_shops()
-            self.migrate_sales()
-            self.migrate_purchase_order()
+            #self.migrate_pricelist()
+            #self.sync_shops()
+            #self.migrate_sales()
+            #self.migrate_purchase_order()
 
             self.d.close()
             print ("Successfull migration")
@@ -1535,6 +1536,54 @@ class Tryton2Odoo(object):
             service_id = self.odoo.create("carrier.api.service", vals)
             self.d[getKey('carrier_api_service',
                           service_line["id"])] = service_id
+
+    def migrate_carrier_data(self):
+        self.crT.execute('select id,carrier_service,asm_return,carrier_notes,'
+                         'carrier from party_party')
+        partner_data = self.crT.fetchall()
+        for partner in partner_data:
+            service = False
+            carrier = False
+            odoo_partner = self.d[getKey('party_party', partner['id'])]
+            if partner['carrier']:
+                carrier = self.d[getKey('carrier', partner['carrier'])]
+            if partner['carrier_service']:
+                service = self.d[getKey('carrier_api_service',
+                                        partner['carrier_service'])]
+            partner_vals = {'asm_return': partner['asm_return'] or False,
+                            'property_delivery_carrier': carrier,
+                            'carrier_service_id': service,
+                            'carrier_notes': partner['carrier_notes'] or
+                            False}
+            self.odoo.write('res.partner', odoo_partner, partner_vals)
+        self.crT.execute('select id,carrier,weight,number_packages,'
+                         'carrier_service,carrier_delivery,carrier_printed,'
+                         'carrier_notes,carrier_send_date,asm_return,'
+                         'carrier_tracking_ref from stock_shipment_out')
+        picking_data = self.crT.fetchall()
+        for picking in picking_data:
+            picking_vals = {
+                'weight_edit': picking['weight'] or 0.0,
+                'number_of_packages': picking['number_packages'] or 0,
+                'asm_return': picking['asm_return'] or False,
+                'carrier_tracking_ref': picking['carrier_tracking_ref'] or '',
+                'carrier_notes': picking['carrier_notes'] or '',
+                'carrier_printed': picking['carrier_printed'] or False,
+                'carrier_delivery': picking['carrier_delivery'] or False,
+
+            }
+            picking_vals['carrier_send_date'] = \
+                picking['carrier_send_date'] and \
+                picking['carrier_send_date'].strftime('%Y-%m-%d %H:%M:%S') \
+                or datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            if picking['carrier']:
+                picking_vals['carrier_id'] = self.d[getKey('carrier',
+                                                           picking['carrier'])]
+            if picking['carrier_service']:
+                picking_vals['carrier_service'] = self.d[getKey(
+                    'carrier_api_service', picking['carrier_service'])]
+            self.odoo.write('stock.picking', self.d[getKey(
+                'stock_shipment_out', picking['id'])], picking_vals)
 
     def migrate_magento_carrier(self):
         init_carrier_code = 'owebiashipping1_'
