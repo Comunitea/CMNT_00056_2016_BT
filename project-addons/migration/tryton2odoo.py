@@ -47,6 +47,7 @@ class Tryton2Odoo(object):
             #self.migrate_account_moves()
             #self.migrate_account_reconciliation()
             #self.migrate_product_category()
+            self.UOM_MAP = loadProductUoms()
             #self.migrate_product_uom()
             #self.migrate_product_product()
             #self.migrate_kits()
@@ -57,7 +58,6 @@ class Tryton2Odoo(object):
             #self.migrate_invoices()
             #self.migrate_account_bank_statements()
             self.LOCATIONS_MAP = loadStockLocations()
-            self.UOM_MAP = loadProductUoms()
             #self.migrate_stock_lots()
             #self.migrate_inventories()
             #self.migrate_moves()
@@ -78,7 +78,7 @@ class Tryton2Odoo(object):
             #self.migrate_pricelist()
             #self.sync_shops()
             #self.migrate_sales()
-            #self.migrate_purchase_order()
+            self.migrate_purchase_order()
 
             self.d.close()
             print ("Successfull migration")
@@ -195,6 +195,7 @@ class Tryton2Odoo(object):
         pp = "party_party"
         pa = "party_address"
         self.d[getKey(pp, 1)] = 1  # res_company
+        self.d[getKey(pa, 1)] = 1  # res_company
 
         for part_data in data:
             vals = {'ref': part_data['code'] or False,
@@ -713,9 +714,9 @@ class Tryton2Odoo(object):
         data = self.crT.fetchall()
         pu = "product_uom"
         for uom_data in data:
-            if str(uom_data['id']) in UOM_MAP:
+            if str(uom_data['id']) in self.UOM_MAP:
                 self.d[getKey(pu, uom_data["id"])] = \
-                    UOM_MAP[str(uom_data['id'])]
+                    self.UOM_MAP[str(uom_data['id'])]
             else:
                 vals = {
                     'name': uom_data['name'],
@@ -1808,14 +1809,14 @@ class Tryton2Odoo(object):
                 elif 'unit_price*(1' in formula:
                     line_vals['base'] = 1
                     line_vals['price_discount'] = \
-                        float(formula.replace('unit_price*(1', '').replace(
-                              ')',''))
+                        float(formula.replace('unit_price*(1', '').
+                              replace(')', ''))
                 elif 'Decimal(round(' in formula:
                     line_vals['base'] = 2
                     line_vals['price_discount'] = \
-                        float(formula.replace(
-                        'Decimal(round(product.cost_price*', '').replace(
-                        ',2))', '')) - 1
+                        float(formula.
+                              replace('Decimal(round(product.cost_price*', '').
+                              replace(',2))', '')) - 1
                 elif 'compute_price_list(' in formula:
                     line_vals['base'] = -1
                     line_vals['name'] = 'manual'
@@ -1832,7 +1833,8 @@ class Tryton2Odoo(object):
                                    {'name': 'default', 'active': True,
                                     'items_id': lines})]
             pricelist_id = self.odoo.create('product.pricelist', vals)
-            self.d[getKey('product_price_list', pricelist['id'])] = pricelist_id
+            self.d[getKey('product_price_list', pricelist['id'])] = \
+                pricelist_id
 
     def sync_shops(self):
         self.crT.execute("select ss.id,ss.name,ss.active,logo,pw.name as "
@@ -1856,9 +1858,9 @@ class Tryton2Odoo(object):
             shop_id = False
             if shop['magento_name']:
                 shop_ids = self.odoo.search("sale.store",
-                                           [('name', '=',
-                                             shop['magento_name']),
-                                            ('active', 'in', [True, False])])
+                                            [('name', '=',
+                                              shop['magento_name']),
+                                             ('active', 'in', [True, False])])
                 shop_id = shop_ids and shop_ids[0] or False
             elif shop['prestashop_name']:
                 shop_ids = self.odoo.search("sale.store",
@@ -2003,7 +2005,7 @@ class Tryton2Odoo(object):
     def migrate_sales(self):
         self.crT.\
             execute("select ss.id,comment,reference,payment_term,"
-                    "sale_date,state,ss.party,"
+                    "sale_date,state,ss.party,ss.create_date,"
                     "shipment_address,description,invoice_method,"
                     "payment_type,carrier,price_list,shop,reference_external,"
                     "sale_discount,esale_coupon,asm_return,carrier_notes,"
@@ -2011,7 +2013,12 @@ class Tryton2Odoo(object):
                     "sale_sale ss left join commission_agent ca on ca.id = "
                     "ss.agent order by ss.id asc")
         data = self.crT.fetchall()
+        PROC_MOVE_STATES_MAP = {'done': 'done',
+                                'draft': 'confirmed',
+                                'cancel': 'cancel',
+                                'assigned': 'done'}
         ss = "sale_sale"
+        sl = "sale_line"
         c = "carrier"
         cs = "carrier_api_service"
         pp = "party_party"
@@ -2019,11 +2026,16 @@ class Tryton2Odoo(object):
         ppl = "product_price_list"
         ssh = "sale_shop"
         pprod = "product_product"
+        pu = "product_uom"
+        sm = "stock_move"
+        spo = "stock_shipment_out"
         OP_MAP = {'order': 'prepaid',
                   'shipment': 'picking',
                   'manual': 'manual'}
         warehouse_id = self.odoo.search('stock.warehouse', [], limit=1)[0]
         for sale in data:
+            if self.d.has_key(getKey(ss, sale["id"])):
+                continue
             payment_term_id = False
             if sale['payment_term']:
                 payment_term_id = self.\
@@ -2065,17 +2077,19 @@ class Tryton2Odoo(object):
 
             notes = ""
             if sale['comment']:
-                notes += sale['comment'] + u"\n"
+                notes += sale['comment'] + "\n"
             if sale['description']:
-                notes += sale['description'] + u"\n"
+                notes += sale['description'] + "\n"
             if sale['esale_coupon']:
-                notes += u"CUPON: " + sale['esale_coupon']
+                notes += "CUPON: " + sale['esale_coupon']
 
-            vals = {'name': sale['reference'],
+            vals = {'name': sale['reference'] or "/",
                     'partner_id': partner_id,
                     'partner_invoice_id': invoice_address_id or partner_id,
                     'partner_shipping_id': delivery_address_id or partner_id,
-                    'date_order': format_date(sale['sale_date']),
+                    'date_order': sale['sale_date'] and
+                    format_date(sale['sale_date']) or
+                    format_date(sale['create_date']),
                     'client_order_ref': sale['reference_external'] or "",
                     'warehouse_id': warehouse_id,
                     'pricelist_id': price_list_id,
@@ -2089,7 +2103,12 @@ class Tryton2Odoo(object):
                     'asm_return': sale['asm_return'] or False,
                     'carrier_notes': sale['carrier_notes'] or "",
                     'sale_store_id': shop_id}
+            print "vals: ", vals
             order_id = self.odoo.create("sale.order", vals)
+            partner_data = self.odoo.read("res.partner",
+                                          vals['partner_shipping_id'],
+                                          ['property_stock_customer'])
+            customer_loc_id = partner_data['property_stock_customer'][0]
             self.d[getKey(ss, sale['id'])] = order_id
 
             self.crT.execute("select id,sequence,unit,gross_unit_price,note,"
@@ -2099,9 +2118,195 @@ class Tryton2Odoo(object):
                              "order by kit_depth asc"
                              % (sale['id']))
             lines_data = self.crT.fetchall()
+            procs = []
             for line in lines_data:
+                self.crT.execute("select tax from sale_line_account_tax where "
+                                 "line = %s" % (line['id']))
+                tax_data = self.crT.fetchall()
+                taxes_ids = []
+                for tax in tax_data:
+                    taxes_ids.extend(self.TAXES_MAP[str(tax["tax"])])
+
                 product_id = False
                 if line['product']:
                     product_id = self.d[getKey(pprod, line['product'])]
+                kit_parent_line_id = False
+                if line['kit_parent_line']:
+                    kit_parent_line_id = \
+                        self.d[getKey(sl, line['kit_parent_line'])]
+                notes = ""
+                if line['note']:
+                    notes = "\n\n" + line['note']
+                uom = 1
+                if line['unit']:
+                    uom = self.d[getKey(pu, line['unit'])]
+                agents = []
+                if agent_id and product_id:
+                    commission_ids = self.odoo.\
+                        search("product.product.agent",
+                               [('product_id', '=', product_id),
+                                ('agent', '=', agent_id)])
+                    if commission_ids:
+                        commission_data = \
+                            self.odoo.read("product.product.agent",
+                                           commission_ids[0], ['commission'])
+                        agents.\
+                            append((0, 0,
+                                   {'agent': agent_id,
+                                    'commission':
+                                    commission_data['commission'][0]}))
+                    else:
+                        commission_ids = self.odoo.\
+                            search("product.product.agent",
+                                   [('product_id', '=', product_id),
+                                    ('agent', '=', False)])
+                        if commission_ids:
+                            commission_data = \
+                                self.odoo.read("product.product.agent",
+                                               commission_ids[0],
+                                               ['commission'])
+                            agents.\
+                                append((0, 0,
+                                       {'agent': agent_id,
+                                        'commission':
+                                        commission_data['commission'][0]}))
+
+                line_vals = {
+                    'sequence': line['sequence'] or 0,
+                    'price_unit': line['gross_unit_price'] and
+                    float(line['gross_unit_price']) or 0.0,
+                    'product_id': product_id,
+                    'name': line['description'] + notes,
+                    'product_uom': uom,
+                    'product_uom_qty': line['quantity'] and
+                    float(line['quantity']) or 0.0,
+                    'discount': line['discount'] and
+                    float(line['discount']) or 0.0,
+                    'purchase_price': (line['cost_price'] and
+                                       float(line['cost_price']) or 0.0) +
+                    (line['shipment_cost'] and float(line['shipment_cost'])
+                     or 0.0),
+                    'pack_depth': line['kit_depth'] or 0,
+                    'pack_parent_line_id': kit_parent_line_id,
+                    'order_id': order_id,
+                    'agents': agents,
+                    'tax_id': [(6, 0, taxes_ids)]
+                }
+                print "lines: ", line_vals
+                line_id = self.odoo.create("sale.order.line", line_vals,
+                                           {'not_expand': True})
+                self.d[getKey(sl, line['id'])] = line_id
+
+                self.crT.execute("select id from stock_move where origin = "
+                                 "'sale.line,%s'" % (line['id']))
+                move_data = self.crT.fetchall()
+                for move in move_data:
+                    move_id = self.d[getKey(sm, move["id"])]
+                    move_info = self.odoo.read("stock.move", move_id,
+                                               ['date_expected', 'state'])
+                    proc_vals = {'name': line_vals['name'],
+                                 'origin': vals['name'],
+                                 'date_planned': move_info['date_expected'],
+                                 'product_id': product_id,
+                                 'product_qty': line_vals['product_uom_qty'],
+                                 'product_uom': line_vals['product_uom'],
+                                 'invoice_state': vals['order_policy'] ==
+                                 "picking" and "2binvoiced" or "none",
+                                 "sale_line_id": line_id,
+                                 'location_id': customer_loc_id,
+                                 'warehouse_id': warehouse_id,
+                                 'partner_dest_id':
+                                 vals['partner_shipping_id'],
+                                 'state': 'confirmed'}
+                    print "proc_vals: ", proc_vals
+                    proc_id = self.odoo.create("procurement.order", proc_vals)
+                    procs.append((proc_id,
+                                  PROC_MOVE_STATES_MAP[move_info['state']]))
+
+            if sale['sale_discount']:
+                order_data = self.odoo.read("sale.order", order_id,
+                                            ["amount_untaxed"])
+                discount = order_data['amount_untaxed'] * \
+                    float(sale['sale_discount'])
+
+                line_vals = {'sequence': 99,
+                             'price_unit': -discount,
+                             'name': "Descuento global",
+                             'product_uom': 1,
+                             'product_uom_qty': 1.0,
+                             'order_id': order_id}
+                self.odoo.create("sale.order.line", line_vals)
+                print "Discount line: ", line_vals
+
+            if sale['state'] not in ('draft', 'quotation'):
+                if sale['state'] == 'cancel':
+                    self.odoo.exec_workflow("sale.order", "cancel", order_id)
+                else:
+                    line_ids = self.odoo.search("sale.order.line",
+                                                [('order_id', '=', order_id)])
+                    if line_ids:
+                        self.odoo.write("sale.order.line", line_ids,
+                                        {'state': 'done'})
+                    # No queremos que cree factura
+                    reset = False
+                    if vals['order_policy'] == 'prepaid':
+                        self.odoo.write("sale.order", [order_id],
+                                        {'order_policy': 'picking'})
+                        reset = True
+
+                    self.odoo.exec_workflow("sale.order", "order_confirm",
+                                            order_id)
+
+                    # Restablecemos
+                    if reset:
+                        self.odoo.write("sale.order", [order_id],
+                                        {'order_policy': 'prepaid'})
+
+                    if not procs:
+                        sale_data = self.odoo.read("sale.order", order_id,
+                                                   ['picking_ids'])
+                        if sale_data['picking_ids']:
+                            move_ids = self.odoo.\
+                                search("stock.move",
+                                       [('picking_id', 'in',
+                                         sale_data['picking_ids'])])
+                            if move_ids:
+                                self.odoo.write("stock.move", move_ids,
+                                                {'state': 'draft'})
+                                self.odoo.unlink("stock.move", move_ids)
+                            self.odoo.unlink("stock.picking",
+                                             sale_data['picking_ids'])
+                            continue
+
+                    sale_data = self.odoo.read("sale.order", order_id,
+                                               ['procurement_group_id'])
+                    self.crT.execute("select id from stock_shipment_out where "
+                                     "origin_cache = 'sale.sale,%s'"
+                                     % (sale['id']))
+                    pick_data = self.crT.fetchall()
+                    for pick in pick_data:
+                        picking_id = self.d[getKey(spo, pick["id"])]
+                        self.odoo.write("stock.picking", picking_id,
+                                        {'group_id':
+                                         sale_data['procurement_group_id'] and
+                                         sale_data['procurement_group_id'][0]
+                                         or False})
+                    for proc in procs:
+                        proc_vals = {'group_id':
+                                     sale_data['procurement_group_id'] and
+                                     sale_data['procurement_group_id'][0]
+                                     or False,
+                                     'state': proc[1]}
+                        self.odoo.write("procurement.order", [proc[0]],
+                                        proc_vals)
+                        print "PROC: ", proc_vals
+
+                    order_data = self.odoo.read("sale.order", order_id,
+                                                ['state'])
+                    if order_data['state'] == 'shipping_except':
+                        self.odoo.exec_workflow("sale.order", "ship_corrected",
+                                                order_id)
+
+        return True
 
 Tryton2Odoo()
