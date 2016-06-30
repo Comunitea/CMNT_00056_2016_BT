@@ -25,3 +25,4 @@ empaqueta -- empaqueta
 laura.gomez -- Laura Gomez-Calcerrada
 
 22. configurar manualmente la regla de tarifa con nombre "manual" en la regla X compute_price_list(1)/1.10
+23. Borrar los albaranes de entrada con origen 3 y 19

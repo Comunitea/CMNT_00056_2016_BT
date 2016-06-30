@@ -11,6 +11,7 @@ from utils import *
 import yaml
 import base64
 from itertools import *
+from datetime import date,datetime
 
 
 class Tryton2Odoo(object):
@@ -75,7 +76,8 @@ class Tryton2Odoo(object):
             #self.migrate_product_suppliers()
             #self.migrate_pricelist()
             #self.sync_shops()
-            self.migrate_sales()
+            #self.migrate_sales()
+            self.migrate_purchase_order()
 
             self.d.close()
             print ("Successfull migration")
@@ -1824,6 +1826,132 @@ class Tryton2Odoo(object):
                 shop_id = self.odoo.create("sale.store", vals)
 
             self.d[getKey(ss, shop['id'])] = shop_id
+
+    def migrate_purchase_order(self):
+        self.crT.execute('select id,comment,reference,payment_term,state,'
+                         'purchase_date,total_amount_cache,shipment_state,'
+                         'supplier_reference,invoice_state,invoice_method,'
+                         'invoice_address,payment_type from purchase_purchase')
+        purchase_data = self.crT.fetchall()
+        po = 'purchase_purchase'
+        pl = 'purchase_line'
+        for purchase in purchase_data:
+            warehouse_id = self.odoo.search('stock.warehouse', [])
+            warehouse_vals = self.odoo.read('stock.warehouse',
+                                            warehouse_id,
+                                            ['in_type_id',
+                                             'wh_input_stock_loc_id'])
+            in_loc = warehouse_vals[0]['wh_input_stock_loc_id'][0]
+            type_id = warehouse_vals[0]['in_type_id'][0]
+            pricelist_id = self.odoo.search('product.pricelist',
+                                            [('type', '=', 'purchase')])
+            inv_met_dict = {
+                'manual': 'manual',
+                'order': 'order',
+                'shipment': 'picking',
+            }
+            purchase_date = purchase['purchase_date'] and \
+                purchase['purchase_date'].strftime('%Y-%m-%d 00:00:00') \
+                or datetime.now().strftime('%Y-%m-%d 00:00:00')
+            vals = {
+                'name': purchase['reference'] or '/',
+                'notes': purchase['comment'] or '',
+                'partner_id': self.d[getKey('party_address',
+                                            purchase['invoice_address'])],
+                'date_order': purchase_date,
+                'picking_type_id': type_id,
+                'pricelist_id': pricelist_id[0],
+                'partner_ref': purchase['supplier_reference'] or '',
+                'invoice_method': inv_met_dict[purchase['invoice_method']],
+                'payment_term_id': purchase['payment_term'] and
+                self.PAYMENT_TERM_MAP[str(purchase['payment_term'])] or
+                False,
+                'payment_mode_id': purchase['payment_type'] and
+                self.PAYMENT_MODES_MAP[str(purchase['payment_type'])] or
+                False,
+                'state': 'draft',
+                'location_id': in_loc,
+            }
+            purchase_id = self.odoo.create('purchase.order', vals)
+            self.d[getKey(po, purchase['id'])] = purchase_id
+            self.crT.execute('select id,sequence,unit,unit_price,product,'
+                             'description,quantity,discount from '
+                             'purchase_line where purchase=%s'
+                             % purchase['id'])
+            purchase_line_data = self.crT.fetchall()
+            purchase_lines = []
+            for purchase_line in purchase_line_data:
+                purchase_lines.append(purchase_line['id'])
+                self.crT.execute('select tax from purchase_line_account_tax '
+                                 'where line=%s' % purchase_line['id'])
+                tax_ids = self.crT.fetchall()
+                tax_ids = [x[0] for x in tax_ids]
+                if 44 in tax_ids and 77 in tax_ids:
+                    tax_ids.remove(77)
+                line_vals = {
+                    'sequence': purchase_line['sequence'] or False,
+                    'name': purchase_line['description'],
+                    'price_unit': float(purchase_line['unit_price']),
+                    'product_id': purchase_line['product'] and
+                    self.d[getKey('product_product', purchase_line['product'])]
+                    or False,
+                    'product_qty': purchase_line['quantity'],
+                    'discount': float(purchase_line['discount']),
+                    'order_id': self.d[getKey(po, purchase['id'])],
+                    'date_planned': purchase_date,
+                    'taxes_id': [(4, self.TAXES_MAP[str(x)][0])
+                                 for x in tax_ids]
+                }
+                try:
+                    line_vals['product_uom'] = self.UOM_MAP[str(
+                        purchase_line['unit'])]
+                except KeyError:
+                    line_vals['product_uom'] = self.d[getKey(
+                        'product_uom', purchase_line['unit'])]
+                line_id = self.odoo.create('purchase.order.line', line_vals)
+                self.d[getKey(pl, purchase_line['id'])] = line_id
+            if purchase['state'] == 'cancel':
+                self.odoo.execute('purchase.order', 'action_cancel',
+                                  [purchase_id])
+            if purchase['state'] in ('processing', 'confirmed'):
+                self.odoo.exec_workflow('purchase.order', 'purchase_confirm',
+                                        purchase_id)
+                picking_ids = self.odoo.read('purchase.order', [purchase_id],
+                                             ['picking_ids'])[0]['picking_ids']
+                self.odoo.unlink('stock.picking', picking_ids)
+                invoices = []
+                for purchase_line in purchase_lines:
+                    odoo_purchase_line = self.d[getKey(pl, purchase_line)]
+                    self.crT.execute("select id from stock_move where "
+                                     "origin='purchase.line,%s'" %
+                                     purchase_line)
+                    move_ids = self.crT.fetchall()
+                    for move_id in move_ids:
+                        self.odoo.write(
+                            'stock.move',
+                            self.d[getKey('stock_move', move_id[0])],
+                            {'purchase_line_id': odoo_purchase_line})
+                    self.crT.execute("select id,invoice from "
+                                     "account_invoice_line where origin = "
+                                     "'purchase.line,%s'" % purchase_line)
+                    invoice_ids = self.crT.fetchall()
+                    invoiced = invoice_ids and True or False
+                    for invoice in filter(lambda r: r['invoice'], invoice_ids):
+                        self.odoo.write(
+                            'account.invoice.line',
+                            self.d[getKey('account_invoice_line',
+                                          invoice['id'])],
+                            {'purchase_line_id': odoo_purchase_line})
+                        invoices.append(self.d[getKey('account_invoice',
+                                        invoice['invoice'])])
+                    if invoiced:
+                        self.odoo.write('purchase.order.line',
+                                        odoo_purchase_line, {'invoiced': True})
+                invoices = list(set(invoices))
+                self.odoo.write('purchase.order', purchase_id,
+                                {'invoice_ids': [(6, 0, invoices)]})
+                self.odoo.exec_workflow('purchase.order', 'picking_ok',
+                                        purchase_id)
 
     def migrate_sales(self):
         self.crT.\
