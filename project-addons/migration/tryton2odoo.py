@@ -67,7 +67,7 @@ class Tryton2Odoo(object):
             #self.migrate_carrier()
             #self.migrate_carrier_api()
             #self.migrate_carrier_api_services()
-            self.migrate_carrier_data()
+            #self.migrate_carrier_data()
             #self.migrate_magento_carrier()
             #self.migrate_commission_plan()
             #self.migrate_commission_agent()
@@ -78,7 +78,8 @@ class Tryton2Odoo(object):
             #self.migrate_pricelist()
             #self.sync_shops()
             #self.migrate_sales()
-            self.migrate_purchase_order()
+            self.migrate_sale_invoice_link()
+            #self.migrate_purchase_order()
 
             self.d.close()
             print ("Successfull migration")
@@ -2307,6 +2308,35 @@ class Tryton2Odoo(object):
                         self.odoo.exec_workflow("sale.order", "ship_corrected",
                                                 order_id)
 
+        return True
+
+    def migrate_sale_invoice_link(self):
+        self.crT.execute("select id,invoice,origin from account_invoice_line "
+                         "where origin like 'sale.line,%' and invoice is not "
+                         "null")
+        data = self.crT.fetchall()
+        ai = "account_invoice"
+        ail = "account_invoice_line"
+        sol = "sale_line"
+        for line in data:
+            sale_line_id = int(line['origin'].split(',')[1])
+            if self.d.has_key(getKey(sol, sale_line_id)):
+                line_id = self.d[getKey(sol, sale_line_id)]
+                try:
+                    invoice_line_id = self.d[getKey(ail, line['id'])]
+                except:
+                    continue
+                try:
+                    invoice_id = self.d[getKey(ai, line['invoice'])]
+                except:
+                    continue
+                self.odoo.write("sale.order.line", [line_id],
+                                {'invoice_lines': [(4, [invoice_line_id])]})
+                line_data = self.odoo.read("sale.order.line", line_id,
+                                           ['order_id'])
+                print "SALE: ", line_data['order_id']
+                self.odoo.write("sale.order", [line_data['order_id'][0]],
+                                {'invoice_ids': [(4, [invoice_id])]})
         return True
 
 Tryton2Odoo()
