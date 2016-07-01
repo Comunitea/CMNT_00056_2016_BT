@@ -41,6 +41,7 @@ class ProductPackMapper(ProductImportMapper):
 
     @mapping
     def type(self, record):
+        import ipdb; ipdb.set_trace()
         if record['type_id'] == 'bundle':
-            return {'type': 'service'}
+            return {'type': 'consu'}
         return super(ProductPackMapper, self).type(record)

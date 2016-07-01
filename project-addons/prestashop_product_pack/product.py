@@ -58,7 +58,7 @@ class TemplatePackMapper(TemplateMapper):
     @mapping
     def type(self, record):
         if record['type']['value'] and record['type']['value'] == 'pack':
-            return {'type': 'service'}
+            return {'type': 'consu'}
         return super(TemplatePackMapper, self).type(record)
 
 
