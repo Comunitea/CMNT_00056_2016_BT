@@ -12,7 +12,6 @@ class SaleOrderMapperAddStore(SaleOrderMapper):
 
     @mapping
     def store_id(self, record):
-        import ipdb; ipdb.set_trace()
         binder = self.binder_for('prestashop.shop')
         shop_store = binder.to_openerp(record['id_shop'])
         sale_store = self.env['prestashop.shop'].browse(shop_store).store_id

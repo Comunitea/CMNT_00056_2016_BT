@@ -42,5 +42,5 @@ class ProductPackMapper(ProductImportMapper):
     @mapping
     def type(self, record):
         if record['type_id'] == 'bundle':
-            return {'type': 'service'}
+            return {'type': 'consu'}
         return super(ProductPackMapper, self).type(record)
