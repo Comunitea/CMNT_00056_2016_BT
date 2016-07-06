@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- © 2016 Comunitea
+     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
+
+<openerp>
+    <data>
+
+        <template id="header_sale_store" inherit_id="report.external_layout_header">
+
+            <xpath expr="//img[@t-if='company.logo']" position="before">
+                <t t-if="o._name in ('sale.order', 'stock.picking', 'account.invoice') and o.sale_store_id">
+                    <t t-set="store" t-value="o.sale_store_id"></t>
+                    <img t-if="store and store.logo" t-att-src="'data:image/png;base64,%s' % store.logo" style="max-height: 60px;"/>
+                </t>
+            </xpath>
+
+            <xpath expr="//img[@t-if='company.logo']" position="attributes">
+                <attribute name="t-if">not store or not store.logo and company.logo</attribute>
+            </xpath>
+
+        </template>
+
+    </data>
+</openerp>

@@ -20,6 +20,15 @@ class SaleOrder(models.Model):
         if order.sale_store_id:
             journal = order.sale_store_id.journal_id
             res['journal_id'] = journal.id
+            res['sale_store_id'] = order.sale_store_id.id
+        return res
+
+    @api.multi
+    def action_ship_create(self):
+        res = super(SaleOrder, self).action_ship_create()
+        for obj in self:
+            for picking in obj.picking_ids:
+                picking.sale_store_id = obj.sale_store_id
         return res
 
 
