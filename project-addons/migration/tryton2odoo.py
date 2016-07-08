@@ -78,8 +78,11 @@ class Tryton2Odoo(object):
             #self.migrate_pricelist()
             #self.sync_shops()
             #self.migrate_sales()
-            self.migrate_sale_invoice_link()
+            #self.migrate_sale_invoice_link()
             #self.migrate_purchase_order()
+            #self.fix_product_migration()
+            #self.fix_party_migration()
+            self.fix_lot_migration()
 
             self.d.close()
             print ("Successfull migration")
@@ -2337,6 +2340,90 @@ class Tryton2Odoo(object):
                 print "SALE: ", line_data['order_id']
                 self.odoo.write("sale.order", [line_data['order_id'][0]],
                                 {'invoice_ids': [(4, [invoice_id])]})
+        return True
+
+    def fix_product_migration(self):
+        pp = "product_product"
+        self.crT.execute(
+            "select pp.id, pt.id as template_id from product_product pp inner"
+            " join product_template pt on pt.id = pp.template")
+        data = self.crT.fetchall()
+        list_price_field = cost_price_field = False
+        for prod in data:
+            vals = {}
+            if not cost_price_field:
+                self.crT.execute("select id from ir_model_field where name = "
+                                 "'cost_price' and module = 'product'")
+                field = self.crT.fetchone()
+                cost_price_field = field['id']
+            self.crT.execute("select value from ir_property where field = %s "
+                             "and res = 'product.template,%s' limit 1"
+                             % (cost_price_field, prod["template_id"]))
+            field_value = self.crT.fetchone()
+            if field_value:
+                field_value = field_value['value'].replace(",", "")
+                vals['standard_price'] = float(field_value)
+
+            if not list_price_field:
+                self.crT.execute("select id from ir_model_field where name = "
+                                 "'list_price' and module = 'product'")
+                field = self.crT.fetchone()
+                list_price_field = field['id']
+            self.crT.execute("select value from ir_property where field = %s "
+                             "and res = 'product.template,%s' limit 1"
+                             % (list_price_field, prod["template_id"]))
+            field_value = self.crT.fetchone()
+            if field_value:
+                field_value = field_value['value'].replace(",", "")
+                vals['list_price'] = float(field_value)
+
+            self.odoo.write('product.product', self.d[getKey(pp, prod["id"])], vals)
+
+    def fix_party_migration(self):
+        aa = 'account_account'
+        self.crT.execute("select id from ir_model where model = 'party.party' limit 1")
+        model_id = self.crT.fetchone()
+        self.crT.execute("select id from ir_model_field where name = 'account_payable' and module = 'account' and model = %s limit 1" % model_id['id'])
+        payable_field_id = self.crT.fetchone()
+        self.crT.execute("select id from ir_model_field where name = 'account_receivable' and module = 'account' and model = %s limit 1" % model_id['id'])
+        receivable_field_id = self.crT.fetchone()
+
+        self.crT.execute("select id from party_party")
+        data = self.crT.fetchall()
+        for party in data:
+            vals = {}
+            self.crT.execute("select value from ir_property where field = %s and res = 'party.party,%s' limit 1" % (payable_field_id['id'], party['id']))
+            field_value = self.crT.fetchone()
+            if field_value:
+                payable_id = field_value['value'].split(",")[1]
+                odoo_payable_id = self.d[getKey(aa, payable_id)]
+                vals['property_account_payable'] = odoo_payable_id
+
+            self.crT.execute("select value from ir_property where field = %s and res = 'party.party,%s' limit 1" % (receivable_field_id['id'], party['id']))
+            field_value = self.crT.fetchone()
+            if field_value:
+                receivable_id = field_value['value'].split(",")[1]
+                odoo_receivable_id = self.d[getKey(aa, receivable_id)]
+                vals['property_account_receivable'] = odoo_receivable_id
+
+            odoo_partner_id = self.d[getKey('party_party', party['id'])]
+            self.odoo.write('res.partner', odoo_partner_id, vals)
+
+    def fix_lot_migration(self):
+        self.crT.execute("select id,life_date,removal_date,expiry_date,alert_date,lot_date from stock_lot")
+        data = self.crT.fetchall()
+        sl = "stock_lot"
+        for lot in data:
+            vals = {'create_date': format_date(lot['lot_date']),
+                    'life_date': lot['life_date'] and
+                    format_date(lot['life_date']) or False,
+                    'removal_date': lot['removal_date'] and
+                    format_date(lot['removal_date']) or False,
+                    'alert_date': lot['alert_date'] and
+                    format_date(lot['alert_date']) or False,
+                    'use_date': lot['expiry_date'] and
+                    format_date(lot['expiry_date']) or False}
+            lot_id = self.odoo.write("stock.production.lot", self.d[getKey(sl, lot["id"])], vals)
         return True
 
 Tryton2Odoo()
