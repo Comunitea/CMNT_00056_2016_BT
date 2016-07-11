@@ -82,7 +82,8 @@ class Tryton2Odoo(object):
             #self.migrate_purchase_order()
             #self.fix_product_migration()
             #self.fix_party_migration()
-            self.fix_lot_migration()
+            #self.fix_lot_migration()
+            self.fix_product_ean14_migration()
 
             self.d.close()
             print ("Successfull migration")
@@ -906,7 +907,11 @@ class Tryton2Odoo(object):
                     self.odoo.write("product.product", [prod_id],
                                     {'ean13': prod['number']})
                 except:
-                    pass
+                    try:
+                        self.odoo.write("product.product", [prod_id],
+                                        {'ean14': prod['number']})
+                    except:
+                        pass
             self.d[getKey(pp, prod["id"])] = prod_id
         return True
 
@@ -2378,6 +2383,23 @@ class Tryton2Odoo(object):
                 vals['list_price'] = float(field_value)
 
             self.odoo.write('product.product', self.d[getKey(pp, prod["id"])], vals)
+
+    def fix_product_ean14_migration(self):
+        self.crT.execute('select product, number from product_code')
+        data = self.crT.fetchall()
+        pp = 'product_product'
+        for product_code in data:
+            odoo_product = self.d[getKey(pp, product_code['product'])]
+            try:
+                self.odoo.write("product.product", [odoo_product],
+                                {'ean13': product_code['number']})
+            except:
+                try:
+                    self.odoo.write("product.product", [odoo_product],
+                                    {'ean14': product_code['number']})
+                except:
+                    pass
+
 
     def fix_party_migration(self):
         aa = 'account_account'

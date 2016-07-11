@@ -2,7 +2,7 @@
 # © 2016 Comunitea
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 {
-    "name": "BT customizations",
+    "name": "Magento customizations",
     "summary": "",
     "version": "8.0.1.0.0",
     "category": "Uncategorized",
@@ -13,10 +13,7 @@
     "installable": True,
     "depends": [
         "base",
-        "sale_payment_method"
     ],
     "data": [
-        'views/payment_method.xml',
-        'views/product.xml'
     ],
 }

@@ -10,8 +10,8 @@
             <field name="model">sale.order</field>
             <field name="inherit_id" ref="sale.view_order_form"/>
             <field name="arch" type="xml">
-                <field name="user_id" position="after">
-                    <field name="sale_store_id"/>
+                <field name="pricelist_id" position="after">
+                    <field name="sale_store_id" required="True"/>
                 </field>
             </field>
         </record>

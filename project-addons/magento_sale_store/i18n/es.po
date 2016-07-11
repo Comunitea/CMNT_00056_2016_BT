@@ -94,7 +94,17 @@ msgid "Shops"
 msgstr "Tiendas"
 
 #. module: magento_sale_store
+#: field:account.invoice,sale_store_id:0
 #: field:magento.store,store_id:0
+#: field:prestashop.shop,store_id:0
 #: field:sale.order,sale_store_id:0
+#: view:stock.picking:magento_sale_store.view_picking_add_store_search
+#: field:stock.picking,sale_store_id:0
 msgid "Store"
 msgstr "Tienda"
+
+#. module: magento_sale_store
+#: code:addons/magento_sale_store/models/stock.py:41
+#, python-format
+msgid "cannot invoice together pickings with different store"
+msgstr "No se pueden facturar a la vez albaranes de distintas tiendas"
