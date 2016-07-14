@@ -37,7 +37,13 @@ class ProductPackMapper(ProductImportMapper):
                 pack_components.append((0, 0,
                                         {'product_id': component_product,
                                          'quantity': quantity}))
-        return {'pack_line_ids': pack_components}
+        product = self.env['product.product'].search(
+            [('default_code', '=', record['sku']), '|',
+             ('active', '=', False), ('active', '=', True)], order='active desc', limit=1)
+        if not product:
+            return {'pack_line_ids': pack_components}
+        else:
+            return {}
 
     @mapping
     def type(self, record):

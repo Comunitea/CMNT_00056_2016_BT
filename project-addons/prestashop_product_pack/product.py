@@ -53,7 +53,13 @@ class TemplatePackMapper(TemplateMapper):
                                          'quantity': quantity}))
                 if only_one:
                     break
-        return {'imported_pack_line_ids': pack_components}
+        product = self.env['product.product'].search(
+            [('default_code', '=', record['reference']), '|',
+             ('active', '=', False), ('active', '=', True)], order='active desc', limit=1)
+        if not product:
+            return {'imported_pack_line_ids': pack_components}
+        else:
+            return {}
 
     @mapping
     def type(self, record):
