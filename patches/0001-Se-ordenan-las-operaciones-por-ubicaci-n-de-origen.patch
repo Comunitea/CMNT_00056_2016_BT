@@ -1,0 +1,90 @@
+From 693a8223ef18ed8f420481d413d653c8584e25bb Mon Sep 17 00:00:00 2001
+From: jesusVMayor <jesus@comunitea.com>
+Date: Wed, 20 Jul 2016 10:22:43 +0200
+Subject: [PATCH] =?UTF-8?q?Se=20ordenan=20las=20operaciones=20por=20ubicac?=
+ =?UTF-8?q?i=C3=B3n=20de=20origen.?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ addons/stock/static/src/js/widgets.js | 31 ++++++++++++++++++++++++++-----
+ 1 file changed, 26 insertions(+), 5 deletions(-)
+
+diff --git a/addons/stock/static/src/js/widgets.js b/addons/stock/static/src/js/widgets.js
+index 161a16b..ddfdfa7 100644
+--- a/addons/stock/static/src/js/widgets.js
++++ b/addons/stock/static/src/js/widgets.js
+@@ -116,19 +116,40 @@ function openerp_picking_widgets(instance){
+             });
+             //sort element by things to do, then things done, then grouped by packages
+             group_by_container = _.groupBy(self.rows, function(row){
++                console.log('return row.cols.container: ' + row.cols.container)
+                 return row.cols.container;
+             });
+             var sorted_row = [];
+             if (group_by_container.undefined !== undefined){
+-                group_by_container.undefined.sort(function(a,b){return (b.classes === '') - (a.classes === '');});
++                var done_row = [];
++                var todo_row = [];
+                 $.each(group_by_container.undefined, function(key, value){
+-                    sorted_row.push(value);
++                    if(value.classes !== ''){
++                        done_row.push(value);
++                    }
++                    else{
++                        todo_row.push(value);
++                    }
+                 });
++                todo_row.sort(function(a, b){
++                    if(a.cols.loc < b.cols.loc) return -1;
++                    if(a.cols.loc > b.cols.loc) return 1;
++                    return 0;
++                });
++
++                done_row.sort(function(a, b){
++                    if(a.cols.loc < b.cols.loc) return -1;
++                    if(a.cols.loc > b.cols.loc) return 1;
++                    return 0;
++                });
++
++                sorted_row = todo_row.concat(done_row);
+             }
+ 
+             $.each(group_by_container, function(key, value){
+                 if (key !== 'undefined'){
+                     $.each(value, function(k,v){
++                        console.log('v: ' + v)
+                         sorted_row.push(v);
+                     });
+                 }
+@@ -267,7 +288,7 @@ function openerp_picking_widgets(instance){
+                 if (value>=0){
+                     self.getParent().set_operation_quantity(value, op_id);
+                 }
+-                
++
+                 self.getParent().barcode_scanner.connect(function(ean){
+                     self.getParent().scan(ean);
+                 });
+@@ -335,7 +356,7 @@ function openerp_picking_widgets(instance){
+                     $('.container_head[data-package-id="'+pack_id+'"]').data('ulid', ul_id);
+                 }
+             });
+-            
++
+             //remove navigtion bar from default openerp GUI
+             $('td.navbar').html('<div></div>');
+         },
+@@ -528,7 +549,7 @@ function openerp_picking_widgets(instance){
+             }
+             catch(e) {
+                 //avoid crash if a not supported char is given (like '\' or ')')
+-	        return [];
++            return [];
+             }
+ 
+             var results = [];
+-- 
+1.9.1
+
