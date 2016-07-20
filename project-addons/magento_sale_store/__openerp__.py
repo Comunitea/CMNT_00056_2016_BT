@@ -22,6 +22,7 @@
         'security/ir.model.access.csv',
         'views/sale_store_view.xml',
         'views/layout.xml',
-        'views/stock.xml'
+        'views/stock.xml',
+        'views/partner.xml',
     ],
 }

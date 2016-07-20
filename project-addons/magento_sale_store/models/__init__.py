@@ -7,3 +7,4 @@ from . import sale
 from . import sale_prestashop
 from . import stock
 from . import account_invoice
+from . import partner

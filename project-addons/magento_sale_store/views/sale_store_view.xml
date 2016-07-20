@@ -13,6 +13,7 @@
                 <tree string="Shop">
                     <field name="name"/>
                     <field name="journal_id"/>
+                    <field name="default_account_id"/>
                 </tree>
             </field>
         </record>
@@ -24,6 +25,11 @@
             <field name="arch" type="xml">
                 <form string="Shop">
                     <sheet>
+                        <div class="oe_right oe_button_box" name="buttons">
+                            <button name="action_view_config" icon="fa-cog" class="oe_stat_button"
+                                string="Partner configurations" type="object" />
+                        </div>
+
                         <div>
                             <field name="logo" widget="image"  class="oe_avatar oe_left"/>
                         </div>
@@ -35,6 +41,7 @@
                         </div>
                         <group>
                             <field name="journal_id"/>
+                            <field name="default_account_id"/>
                             <field name="active"/>
                         </group>
                     </sheet>
@@ -63,6 +70,35 @@
         </record>
 
         <menuitem name="Shops" parent="base.menu_sale_config_sales" action="sale_store_action" id="sale_shop_menu"/>
+
+
+        <record id="sale_store_config_view_tree" model="ir.ui.view">
+            <field name="name">sale.store.config.form</field>
+            <field name="model">sale.store.config</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree editable="top">
+                    <field name="partner"/>
+                    <field name="store"/>
+                    <field name="value"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="sale_store_config_view_search" model="ir.ui.view">
+            <field name="name">sale.store.config</field>
+            <field name="model">sale.store.config</field>
+            <field name="type">search</field>
+            <field name="arch" type="xml">
+                <search>
+                   <field name="partner"/>
+                   <field name="value"/>
+                   <group expand="0" string="Group By">
+                       <filter string="partner" context="{'group_by': 'partner'}"/>
+                   </group>
+               </search>
+            </field>
+        </record>
 
     </data>
 </openerp>
