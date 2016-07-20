@@ -13,10 +13,13 @@
     "installable": True,
     "depends": [
         "base",
+        "stock",
         "sale_payment_method"
     ],
     "data": [
         'views/payment_method.xml',
-        'views/product.xml'
+        'views/product.xml',
+        'views/sale.xml',
+        'views/stock.xml',
     ],
 }

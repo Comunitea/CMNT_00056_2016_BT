@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- © 2016 Comunitea
+     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
+
+<openerp>
+    <data>
+
+        <record id="view_order_form_add_takes" model="ir.ui.view">
+            <field name="name">sale.order.form</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='order_line']/tree//field[@name='product_uom']" position="after">
+                    <field name="takes" context="{'orig_uom': product_uom, 'updated_takes': True}"/>
+                    <field name="takes_change_flag" invisible="1"/>
+                </xpath>
+                <xpath expr="//field[@name='order_line']/form//field[@name='product_uom']" position="after">
+                    <field name="takes"/>
+                    <field name="takes_change_flag" invisible="1"/>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</openerp>

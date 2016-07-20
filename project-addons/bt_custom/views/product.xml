@@ -13,6 +13,9 @@
                 <field name="ean13" position="after">
                     <field name="ean14"/>
                 </field>
+                <field name="lst_price" position="after">
+                    <field name="takes"/>
+                </field>
             </field>
         </record>
 

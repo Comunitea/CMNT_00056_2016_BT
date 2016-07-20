@@ -1,6 +1,6 @@
 # Translation of Odoo Server.
 # This file contains the translation of the following modules:
-#	* bt_custom
+#   * bt_custom
 #
 msgid ""
 msgstr ""
@@ -45,3 +45,17 @@ msgstr "Producto"
 msgid "Sales Order"
 msgstr "Pedido de venta"
 
+#. module: bt_custom
+#: field:sale.order.line,takes:0
+msgid "Takes"
+msgstr "Tomas"
+
+#. module: bt_custom
+#: field:sale.order.line,takes_change_flag:0
+msgid "Takes change flag"
+msgstr "Takes change flag"
+
+#. module: bt_custom
+#: field:product.product,takes:0
+msgid "Takes per unit"
+msgstr "Tomas por unidad"

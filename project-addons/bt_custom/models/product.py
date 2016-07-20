@@ -10,6 +10,7 @@ class ProductProduct(models.Model):
     _inherit = 'product.product'
 
     ean14 = fields.Char('Code EAN14', size=14)
+    takes = fields.Integer('Takes per unit')
 
     @api.model
     def name_search(self, name, args=None, operator='ilike', limit=100):
