@@ -24,3 +24,4 @@ class StockPicking(models.Model):
                 increment=True)
             answer['operation_id'] = op_id
             return answer
+        return answer
