@@ -9,4 +9,4 @@ class StockPicking(models.Model):
 
     _inherit = 'stock.picking'
     cash_on_delivery = fields.Boolean(
-        'Cash on delivery', related='sale_id.payment_mode_id.cash_on_delivery')
+        'Cash on delivery', related='sale_id.payment_mode_id.cash_on_delivery', readonly=True)

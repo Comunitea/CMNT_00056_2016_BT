@@ -14,10 +14,6 @@ logger = logging.getLogger(__name__)
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
 
-    asm_return = fields.Boolean(
-        'ASM Return', states={'done': [('readonly', True)]},
-        help='Active return when send API shipment')
-
     @api.multi
     def asm_picking_data(self, api, service, price=None, weight=False):
         '''

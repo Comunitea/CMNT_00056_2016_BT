@@ -28,6 +28,35 @@ msgid "Add notes when send API shipment"
 msgstr "Añadir notas para el envío"
 
 #. module: carrier_send_shipment
+#. openerp-web
+#: code:addons/carrier_send_shipment/static/src/xml/picking.xml:46
+#, python-format
+msgid "Close"
+msgstr "Cerrar"
+
+#. module: carrier_send_shipment
+#. openerp-web
+#: code:addons/carrier_send_shipment/static/src/xml/picking.xml:28
+#, python-format
+msgid "Number of packages"
+msgstr "Número de paquetes"
+
+#. module: carrier_send_shipment
+#. openerp-web
+#: code:addons/carrier_send_shipment/static/src/xml/picking.xml:54
+#, python-format
+msgid "Print Shipment"
+msgstr "Enviar a transportista"
+
+#. module: carrier_send_shipment
+#. openerp-web
+#: code:addons/carrier_send_shipment/static/src/xml/picking.xml:47
+#, python-format
+msgid "Send Sipment"
+msgstr "Enviar a transportista"
+
+
+#. module: carrier_send_shipment
 #: code:addons/carrier_send_shipment/models/stock.py:68
 #, python-format
 msgid "Address error"
@@ -240,8 +269,11 @@ msgid "Select only pickings of the same carrier"
 msgstr "Seleccione unicamente albaranes del mismo transportista"
 
 #. module: carrier_send_shipment
-#: model:ir.actions.act_window,name:carrier_send_shipment.send_shipment_action
-msgid "Send Shipment"
+#. openerp-web
+#: code:addons/carrier_send_shipment/static/src/xml/picking.xml:14
+#: view:carrier.send.shipment:carrier_send_shipment.send_shipment_form
+#, python-format
+msgid "Send shipment"
 msgstr "Enviar a transportista"
 
 #. module: carrier_send_shipment
@@ -299,7 +331,10 @@ msgid "The picking %s is not in done state"
 msgstr "El albarán %s no está finalizado"
 
 #. module: carrier_send_shipment
+#. openerp-web
+#: code:addons/carrier_send_shipment/static/src/xml/picking.xml:20
 #: field:stock.picking,weight_edit:0
+#, python-format
 msgid "Weight"
 msgstr "Peso"
 

@@ -21,8 +21,10 @@
     ],
     "data": [
         'views/stock.xml',
+        'views/assets.xml',
         'wizard/send_shipment_view.xml',
         'wizard/carrier_print.xml',
         'wizard/get_label.xml'
     ],
+    'qweb': ['static/src/xml/picking.xml'],
 }

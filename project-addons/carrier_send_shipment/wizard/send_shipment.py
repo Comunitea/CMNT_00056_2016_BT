@@ -70,14 +70,15 @@ class CarrierSendShipment(models.TransientModel):
 
         pickings = self.env['stock.picking'].browse(self._context.get('active_ids', []))
         for picking in pickings:
-            if picking.state != 'done':
+            if picking.state != 'done' and not self._context.get('from_barcode', False):
                 raise exceptions.Warning(_('Picking state'), _("The picking %s is not in done state"))
             if picking.carrier_tracking_ref:
                 raise exceptions.Warning(_('Shipment error'), _('Picking was sended'))
             carrier = picking.carrier_id.name
             apis = self.env['carrier.api'].search([('carriers', 'in', [picking.carrier_id.id])], limit=1)
+            if not apis:
+                raise exceptions.Warning(_('Carrier error'), _('Carrier not have a api.'))
             api = apis and apis[0] or False
-
             if api.zips:
                 zips = api.zips.split(',')
                 if (picking.partner_id.zip and picking.partner_id.zip in zips):

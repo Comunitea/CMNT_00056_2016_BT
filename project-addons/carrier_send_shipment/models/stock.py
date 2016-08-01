@@ -10,6 +10,9 @@ import base64
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
 
+    asm_return = fields.Boolean(
+        'ASM Return', states={'done': [('readonly', True)]},
+        help='Active return when send API shipment')
 
     carrier_service = fields.Many2one('carrier.api.service',
         'Carrier API Service')
@@ -81,3 +84,10 @@ class StockPicking(models.Model):
                 'type': 'binary'
             })
         return refs, labs
+
+    @api.multi
+    def barcode_send_shipment(self):
+        wizard = self.env['carrier.send.shipment'].create({})
+        wizard.with_context(from_barcode=True,active_ids=[self.id]).default_get([])
+        wizard.with_context(from_barcode=True,active_ids=[self.id]).action_send()
+        return wizard.sended
