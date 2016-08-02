@@ -8,7 +8,7 @@ class Config(object):
     ODOO_USER = "admin"
     ODOO_PASSWD = "admin"
 
-    ODOO_DATABASE = "besthetic_devel"
+    ODOO_DATABASE = "besthetic_preprod"
     TRYTON_DATABSE = "besthetic_tryton"
     ODOO_DB_USER = "oerp"
     ODOO_DB_PASSWORD = "oerp"

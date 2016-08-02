@@ -11,7 +11,7 @@ from utils import *
 import yaml
 import base64
 from itertools import *
-from datetime import date, datetime
+from datetime import datetime
 
 
 class Tryton2Odoo(object):
@@ -58,9 +58,9 @@ class Tryton2Odoo(object):
             #self.migrate_new_accounts() # ACUMULATIVO
             #self.migrate_party_party() # ACUMULATIVO
             #self.migrate_party_category() # ACUMULATIVO
-            #self.migrate_account_journal() # ACUMULATIVO
+            #self.migrate_account_journal()
             #self.sync_banks() # ACUMULATIVO
-            # self.migrate_bank_accounts() # ACUMULATIVO
+            #self.migrate_bank_accounts() # ACUMULATIVO
             self.TAXES_MAP = loadTaxes()
             self.TAX_CODES_MAP = loadTaxCodes()
             self.PAYMENT_MODES_MAP = loadPaymentModes()
@@ -77,12 +77,12 @@ class Tryton2Odoo(object):
             #self.migrate_invoices() #ACUMULATIVO
             #self.migrate_account_bank_statements() #ACUMULATIVO
             self.LOCATIONS_MAP = loadStockLocations()
-            #self.migrate_stock_lots()
-            #self.migrate_inventories()
-            #self.migrate_moves()
+            #self.migrate_stock_lots() # ACUMULATIVO
+            #self.migrate_inventories() # ACUMULATIVO
+            #self.migrate_moves() # ACUMULATIVO
             #self.merge_quants()
-            #self.migrate_pickings()
-            #self.migrate_orderpoints()
+            #self.migrate_pickings() #ACUMULATIVO
+            #self.migrate_orderpoints() # ACUMULATIVO
             #self.migrate_carrier() #ACUMULATIVO
             #self.migrate_carrier_api() #ACUMULATIVO
             #self.migrate_carrier_api_services() # ACUMULATIVO
@@ -96,9 +96,9 @@ class Tryton2Odoo(object):
             #self.migrate_product_suppliers() # ACUMULATIVO
             #self.migrate_pricelist() # ACUMULATIVO
             #self.sync_shops() # ACUMULATIVO
-            # self.migrate_sales()  # ACUMULATIVO
+            #self.migrate_sales()  # ACUMULATIVO
             #self.migrate_sale_invoice_link()  # ACUMULATIVO
-            #self.migrate_purchase_order()  # ACUMULATIVO
+            self.migrate_purchase_order()  # ACUMULATIVO
             #self.fix_product_migration()
             #self.fix_party_migration()
             #self.fix_lot_migration()
@@ -166,8 +166,10 @@ class Tryton2Odoo(object):
             acc_ids = self.odoo.search("account.account",
                                        [('code', '=', odoo_code)])
             if acc_ids:
+                print "Acc. exists: ", odoo_code
                 self.d[getKey(aa, acc_data["id"])] = acc_ids[0]
             else:
+                print "New account: ", odoo_code
                 parent_ids = False
                 parent_account_code = odoo_code[:-1]
                 while len(parent_account_code) > 0:
@@ -225,56 +227,58 @@ class Tryton2Odoo(object):
         self.d[getKey(pa, 1)] = 1  # res_company
 
         for part_data in data:
+            no_update = False
             if self.d.has_key(getKey(pp, part_data['id'])):
                 tr_date = part_data['write_date'] or part_data['create_date']
                 if tr_date <= self.last_update:
-                    continue
-            vals = {'ref': part_data['code'] or False,
-                    'active': part_data['active'],
-                    'name': part_data['name'],
-                    'comercial': part_data['trade_name'] or False,
-                    'email': part_data['esale_email'] or part_data['email']
-                    or False,
-                    'not_in_mod347': not part_data['include_347'] and True
-                    or False,
-                    'phone': part_data['phone'] or False,
-                    'fax': part_data['fax'] or False,
-                    'website': part_data['website'] or False,
-                    'comment': part_data['comment'] or False,
-                    'is_company': True}
+                    no_update = True
+            if not no_update:
+                vals = {'ref': part_data['code'] or False,
+                        'active': part_data['active'],
+                        'name': part_data['name'],
+                        'comercial': part_data['trade_name'] or False,
+                        'email': part_data['esale_email'] or part_data['email']
+                        or False,
+                        'not_in_mod347': not part_data['include_347'] and True
+                        or False,
+                        'phone': part_data['phone'] or False,
+                        'fax': part_data['fax'] or False,
+                        'website': part_data['website'] or False,
+                        'comment': part_data['comment'] or False,
+                        'is_company': True}
 
-            if part_data['attributes']:
-                attributes = eval(part_data['attributes'])
-                if attributes.get('medical_code', False):
-                    vals['medical_code'] = attributes['medical_code']
-                if attributes.get('timetable', False):
-                    vals['timetable'] = attributes['timetable']
+                if part_data['attributes']:
+                    attributes = eval(part_data['attributes'])
+                    if attributes.get('medical_code', False):
+                        vals['medical_code'] = attributes['medical_code']
+                    if attributes.get('timetable', False):
+                        vals['timetable'] = attributes['timetable']
 
-            self.crT.execute("select count(*) from sale_sale where party = %s"
-                             % (part_data["id"]))
-            result = self.crT.fetchone()
-            if result and result["count"]:
-                vals['customer'] = True
+                self.crT.execute("select count(*) from sale_sale where party = %s"
+                                 % (part_data["id"]))
+                result = self.crT.fetchone()
+                if result and result["count"]:
+                    vals['customer'] = True
 
-            self.crT.execute("select count(*) from purchase_purchase where "
-                             "party = %s" % (part_data["id"]))
-            result = self.crT.fetchone()
-            if result and result["count"]:
-                vals['supplier'] = True
+                self.crT.execute("select count(*) from purchase_purchase where "
+                                 "party = %s" % (part_data["id"]))
+                result = self.crT.fetchone()
+                if result and result["count"]:
+                    vals['supplier'] = True
 
-            print "vals: ", vals
-            if self.d.has_key(getKey(pp, part_data['id'])):
-                partner_id = self.d[getKey(pp, part_data["id"])]
-                self.odoo.write('res.partner', partner_id, vals)
-            else:
-                partner_id = self.odoo.create("res.partner", vals)
-            if part_data.get('vat', False):
-                try:
-                    self.odoo.write("res.partner", [partner_id],
-                                    {'vat': part_data['vat']})
-                except:
-                    print "VAT not valid: ", part_data['vat']
-            self.d[getKey(pp, part_data["id"])] = partner_id
+                print "vals: ", vals
+                if self.d.has_key(getKey(pp, part_data['id'])):
+                    partner_id = self.d[getKey(pp, part_data["id"])]
+                    self.odoo.write('res.partner', partner_id, vals)
+                else:
+                    partner_id = self.odoo.create("res.partner", vals)
+                if part_data.get('vat', False):
+                    try:
+                        self.odoo.write("res.partner", [partner_id],
+                                        {'vat': part_data['vat']})
+                    except:
+                        print "VAT not valid: ", part_data['vat']
+                self.d[getKey(pp, part_data["id"])] = partner_id
             self.crT.\
                 execute("select party_address.id,city,party_address.name,zip,"
                         "streetbis,street,active,party,comment_shipment,"
@@ -302,6 +306,7 @@ class Tryton2Odoo(object):
                 if self.d.has_key(getKey(pa, add['id'])):
                     add_date = add['write_date'] or add['create_date']
                     if add_date <= self.last_update:
+                        partner_address = True
                         continue
                 vals = {'street': add['street'] or False,
                         'street2': add['streetbis'] or False,
@@ -327,7 +332,7 @@ class Tryton2Odoo(object):
                     self.d[getKey(pa, add["id"])] = partner_id
                 else:
                     vals.update({'parent_id': partner_id,
-                                 'name': add['name'],
+                                 'name': add['name'] or "/",
                                  'active': add['active'],
                                  'carrier_notes': add['comment_shipment']
                                  or False,
@@ -341,10 +346,12 @@ class Tryton2Odoo(object):
                     print "vals: ", vals
                     if self.d.has_key(getKey(pa, add['id'])):
                         add_id = self.d[getKey(pa, add['id'])]
-                        add_id = self.odoo.write('res.partner', add_id, vals)
+                        if add_id == partner_id:
+                            del vals['parent_id']
+                        self.odoo.write('res.partner', [add_id], vals)
                     else:
                         add_id = self.odoo.create('res.partner', vals)
-                    self.d[getKey(pa, add["id"])] = add_id
+                        self.d[getKey(pa, add["id"])] = add_id
 
         return True
 
@@ -357,6 +364,8 @@ class Tryton2Odoo(object):
         pc = "party_category"
         pp = "party_party"
         for cat_data in data:
+            if self.d.has_key(getKey(pc, cat_data['id'])):
+                continue
             vals = {'name': cat_data['name'],
                     'active': cat_data['active']}
             if cat_data.get('parent', False):
@@ -369,8 +378,11 @@ class Tryton2Odoo(object):
         for part_data in partner_data:
             partner_id = self.d[getKey(pp, part_data["party"])]
             category_id = self.d[getKey(pc, part_data["category"])]
-            self.odoo.write("res.partner", [partner_id],
-                            {'category_id': [(4, category_id)]})
+            partner_data = self.odoo.read("res.partner", partner_id,
+                                          ['category_id'])
+            if category_id not in partner_data['category_id']:
+                self.odoo.write("res.partner", [partner_id],
+                                {'category_id': [(4, category_id)]})
         return True
 
     def migrate_account_journal(self):
@@ -656,13 +668,14 @@ class Tryton2Odoo(object):
         pp = "party_party"
         aa = "account_account"
         tr_move_ids = ['account_move_%s' % x['id'] for x in data]
+        print "LEN: ", len(tr_move_ids)
         move_keys = [x for x in self.d.keys()
                      if 'account_move' in x and 'account_move_line' not in x
                      and 'account_move_reconciliation' not in x and
                      x not in tr_move_ids]
+        print "Filter LEN: ", len(move_keys)
         for move_key in move_keys:
             self.unlink_move(move_key)
-
         for move_data in data:
             if self.d.has_key(getKey(am, move_data["id"])):
                 tr_date = move_data['write_date'] or move_data['create_date']
@@ -674,6 +687,7 @@ class Tryton2Odoo(object):
                     l_tr_date = line['write_date'] or line['create_date']
                     if l_tr_date > tr_date:
                         tr_date = l_tr_date
+                print "tr_date: ", tr_date
                 if tr_date <= self.last_update:
                     continue
                 else:
@@ -1014,7 +1028,7 @@ class Tryton2Odoo(object):
                     self.migrate_kits(prod["id"])
             else:
                 prod_id = self.odoo.create("product.product", vals)
-                self.migrate_kits(prod["id"])
+                #self.migrate_kits(prod["id"])
             if prod.get('number', False):
                 try:
                     self.odoo.write("product.product", [prod_id],
@@ -1262,11 +1276,14 @@ class Tryton2Odoo(object):
 
             self.odoo.execute("account.invoice", "button_reset_taxes",
                               [invoice_id])
-            if invoice["state"] not in ('draft', 'cancel'):
+            if invoice["state"] not in ('draft', 'cancel', 'validated'):
                 self.odoo.exec_workflow("account.invoice", "invoice_open",
                                         invoice_id)
             elif invoice['state'] == 'cancel' and not move_id:
                 self.odoo.exec_workflow("account.invoice", "invoice_cancel",
+                                        invoice_id)
+            elif invoice['state'] == 'validated':
+                self.odoo.exec_workflow("account.invoice", "invoice_proforma2",
                                         invoice_id)
         return True
 
@@ -1348,12 +1365,21 @@ class Tryton2Odoo(object):
 
     def migrate_stock_lots(self):
         self.crT.execute("select id,product,number,life_date,removal_date,"
-                         "expiry_date,alert_date,lot_date,active from "
+                         "expiry_date,alert_date,lot_date,active,"
+                         "write_date,create_date from "
                          "stock_lot")
         data = self.crT.fetchall()
         pp = "product_product"
         sl = "stock_lot"
         for lot in data:
+            tr_date = lot['write_date'] or lot['create_date']
+            if tr_date < self.last_update:
+                continue
+
+            update = False
+            if self.d.has_key(getKey(sl, lot["id"])):
+                update = True
+
             product_id = self.d[getKey(pp, lot["product"])]
             vals = {'name': lot['number'],
                     'product_id': product_id,
@@ -1366,8 +1392,14 @@ class Tryton2Odoo(object):
                     format_date(lot['alert_date']) or False,
                     'use_date': lot['expiry_date'] and
                     format_date(lot['expiry_date']) or False}
-            lot_id = self.odoo.create("stock.production.lot", vals)
-            self.d[getKey(sl, lot["id"])] = lot_id
+            if not update:
+                print "create vals: ", vals
+                lot_id = self.odoo.create("stock.production.lot", vals)
+                self.d[getKey(sl, lot["id"])] = lot_id
+            else:
+                print "update vals: ", vals
+                lot_id = self.d[getKey(sl, lot["id"])]
+                self.odoo.write("stock.production.lot", [lot_id], vals)
         return True
 
     def migrate_inventories(self):
@@ -1379,6 +1411,8 @@ class Tryton2Odoo(object):
         pp = "product_product"
         sl = "stock_lot"
         for inventory in data:
+            if self.d.has_key(getKey(st, inventory["id"])):
+                continue
             location_id = self.LOCATIONS_MAP[str(inventory['location'])]
             vals = {'name': format_date(inventory['date']),
                     'location_id': location_id,
@@ -1413,17 +1447,31 @@ class Tryton2Odoo(object):
     def migrate_moves(self):
         self.crT.execute("select id,create_date,origin,planned_date,unit_price"
                          ",state,effective_date,cost_price,internal_quantity,"
-                         "uom,quantity,product,to_location,from_location,lot "
+                         "uom,quantity,product,to_location,from_location,lot,"
+                         "write_date "
                          "from stock_move order by id asc")
         data = self.crT.fetchall()
+        print "migrate_moves"
         sm = "stock_move"
         pu = "product_uom"
         pp = "product_product"
         sl = "stock_lot"
         stl = "stock_inventory_line"
         for move in data:
-            if self.d.has_key(getKey(sm, move["id"])):
+            tr_date = move['write_date'] or move['create_date']
+            if tr_date < self.last_update:
                 continue
+            if self.d.has_key(getKey(sm, move["id"])):
+                move_id = self.d[getKey(sm, move["id"])]
+                move_data = self.odoo.read("stock.move", move_id,
+                                           ["state"])
+                if move_data:
+                    if move_data["state"] == "done":
+                        continue
+                    else:
+                        self.odoo.write("stock.move", [move_id],
+                                        {"state": "draft"})
+                        self.odoo.unlink("stock.move", [move_id])
             product_id = self.d[getKey(pp, move["product"])]
             product_data = self.odoo.read("product.product", product_id,
                                           ['uom_id'])
@@ -1517,21 +1565,26 @@ class Tryton2Odoo(object):
         self.crT.\
             execute("select id,code,planned_date,contact_address as "
                     "address_id,effective_date,supplier as partner_id,"
-                    "comment,'stock_shipment_in' as table from "
+                    "comment,'stock_shipment_in' as table,"
+                    "create_date,write_date from "
                     "stock_shipment_in union select id,code,planned_date,"
                     "delivery_address as address_id,effective_date,customer "
                     "as partner_id,comment,'stock_shipment_out_return' as "
-                    "table from stock_shipment_out_return union "
+                    "table,create_date,write_date from "
+                    "stock_shipment_out_return union "
                     "select id,code,planned_date,delivery_address as "
                     "address_id,effective_date,customer as partner_id,comment,"
-                    "'stock_shipment_out' as table from stock_shipment_out "
+                    "'stock_shipment_out' as table,create_date,write_date "
+                    "from stock_shipment_out "
                     "union select id,code,planned_date,null as address_id,"
                     "effective_date,null as partner_id,comment,"
-                    "'stock_shipment_in_return' as table from "
+                    "'stock_shipment_in_return' as table,"
+                    "create_date,write_date from "
                     "stock_shipment_in_return union select id,code,"
                     "planned_date,null as address_id,effective_date,"
                     "null as partner_id,comment,'stock_shipment_internal' "
-                    "as table from stock_shipment_internal")
+                    "as table,create_date,write_date from "
+                    "stock_shipment_internal")
         data = self.crT.fetchall()
         pa = "party_address"
         sm = "stock_move"
@@ -1541,8 +1594,23 @@ class Tryton2Odoo(object):
                     'stock_shipment_in_return': 'outgoing',
                     'stock_shipment_internal': 'internal'}
         for pick in data:
-            if self.d.has_key(getKey(pick['table'], pick["id"])):
+            tr_date = pick['write_date'] or pick['create_date']
+            if tr_date < self.last_update:
                 continue
+
+            if self.d.has_key(getKey(pick['table'], pick["id"])):
+                pick_id = self.d[getKey(pick['table'], pick["id"])]
+                pick_data = self.odoo.read("stock.picking", pick_id,
+                                           ["state"])
+                if pick_data["state"] == "done":
+                    continue
+                else:
+                    move_ids = self.odoo.search("stock.move",
+                                                [('picking_id', '=', pick_id)])
+                    if move_ids:
+                        self.odoo.write("stock.move", move_ids,
+                                        {'picking_id': False})
+                    self.odoo.unlink("stock.picking", [pick_id])
             picking_type_id = self.odoo.\
                 search("stock.picking.type",
                        [("code", '=', TYPE_MAP[pick['table']])])[0]
@@ -1579,7 +1647,8 @@ class Tryton2Odoo(object):
         return True
 
     def migrate_orderpoints(self):
-        self.crT.execute("select id,product,min_quantity,max_quantity from "
+        self.crT.execute("select id,product,min_quantity,max_quantity,"
+                         "create_date,write_date from "
                          "stock_order_point")
         data = self.crT.fetchall()
         sop = "stock_order_point"
@@ -1588,13 +1657,25 @@ class Tryton2Odoo(object):
         wh_data = self.odoo.read("stock.warehouse", warehouse_id,
                                  ['lot_stock_id'])
         for op in data:
+            tr_date = op['write_date'] or op['create_date']
+            if tr_date < self.last_update:
+                continue
+
+            update = False
+            if self.d.has_key(getKey(sop, op["id"])):
+                update = True
+
             vals = {'product_id': self.d[getKey(pp, op["product"])],
                     'warehouse_id': warehouse_id,
                     'location_id': wh_data['lot_stock_id'][0],
                     'product_min_qty': float(op['min_quantity']),
                     'product_max_qty': float(op['max_quantity'])}
-            op_id = self.odoo.create("stock.warehouse.orderpoint", vals)
-            self.d[getKey(sop, op["id"])] = op_id
+            if not update:
+                op_id = self.odoo.create("stock.warehouse.orderpoint", vals)
+                self.d[getKey(sop, op["id"])] = op_id
+            else:
+                op_id = self.d[getKey(sop, op["id"])]
+                self.odoo.write("stock.warehouse.orderpoint", [op_id], vals)
 
         return True
 
@@ -2352,7 +2433,7 @@ class Tryton2Odoo(object):
                     'asm_return': sale['asm_return'] or False,
                     'carrier_notes': sale['carrier_notes'] or "",
                     'sale_store_id': shop_id}
-            # print "vals: ", vals
+            print "vals: ", vals
             order_id = self.odoo.create("sale.order", vals)
             partner_data = self.odoo.read("res.partner",
                                           vals['partner_shipping_id'],
@@ -2441,7 +2522,7 @@ class Tryton2Odoo(object):
                     'agents': agents,
                     'tax_id': [(6, 0, taxes_ids)]
                 }
-                # print "lines: ", line_vals
+                print "lines: ", line_vals
                 line_id = self.odoo.create("sale.order.line", line_vals,
                                            {'not_expand': True})
                 self.d[getKey(sl, line['id'])] = line_id
@@ -2467,7 +2548,7 @@ class Tryton2Odoo(object):
                                  'partner_dest_id':
                                  vals['partner_shipping_id'],
                                  'state': 'confirmed'}
-                    # print "proc_vals: ", proc_vals
+                    print "proc_vals: ", proc_vals
                     proc_id = self.odoo.create("procurement.order", proc_vals)
                     procs.append((proc_id,
                                   PROC_MOVE_STATES_MAP[move_info['state']]))
@@ -2485,7 +2566,7 @@ class Tryton2Odoo(object):
                              'product_uom_qty': 1.0,
                              'order_id': order_id}
                 self.odoo.create("sale.order.line", line_vals)
-                # print "Discount line: ", line_vals
+                print "Discount line: ", line_vals
 
             if sale['state'] not in ('draft', 'quotation'):
                 if sale['state'] == 'cancel':
@@ -2548,7 +2629,7 @@ class Tryton2Odoo(object):
                                      'state': proc[1]}
                         self.odoo.write("procurement.order", [proc[0]],
                                         proc_vals)
-                        # print "PROC: ", proc_vals
+                        print "PROC: ", proc_vals
 
                     order_data = self.odoo.read("sale.order", order_id,
                                                 ['state'])
