@@ -344,3 +344,17 @@ msgstr "Peso"
 #: view:carrier.send.shipment:carrier_send_shipment.send_shipment_form
 msgid "or"
 msgstr "o"
+
+#. module: carrier_send_shipment
+#. openerp-web
+#: code:addons/carrier_send_shipment/static/src/js/picking.js:27
+#, python-format
+msgid "Print label"
+msgstr "Imprimir etiqueta"
+
+#. module: carrier_send_shipment
+#. openerp-web
+#: code:addons/carrier_send_shipment/static/src/js/picking.js:61
+#, python-format
+msgid "Click to download"
+msgstr "Descargar etiqueta"
