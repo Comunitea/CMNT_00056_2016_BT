@@ -48,5 +48,11 @@
     "204": 105, # Base adquisiciones intracomunitarias bienes corrientes (21%)
     "206": 44, # En adquisiciones intracomunitarias bienes corrientes (21%)
     "207": 194, # Base imponible compres a Ceuta i Melilla
-    "208": 196 # Base imponible compres a Canàries
+    "208": 196, # Base imponible compres a Canàries
+    "104": 26, # Cuotas soportadas operaciones interiores bienes inversión (10%)
+    "36": 87, # Base operaciones interiores bienes inversión (10%)
+    "158": 163, # IRPF Retenciones a cuenta Base Imponible 20%
+    "178": 168, # IRPF Retenciones a cuenta Cuota 20%
+    "186": 76, # Régimen especial criterio de Caja. Base devengada 10%
+    "190": 54 # Régimen especial criterio de Caja. IVA Devengado 10%
 }

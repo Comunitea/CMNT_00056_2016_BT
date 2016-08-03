@@ -29,5 +29,8 @@
     "25": [15], # IVA 0% Intracomunitario
     "972": [120], # IVA 0% Exportación Andorra (creado desactivado)
     "15": [55], # IVA 10% Importaciones bienes corrientes
-    "21": [40] # IVA 21% Importaciones bienes corrientes
+    "21": [40], # IVA 21% Importaciones bienes corrientes
+    "79": [73], # IVA Soportado exento (bienes de inversión)
+    "83": [59], # 10% IVA Soportado (bienes de inversión)
+    "868": [12,122] # Retenciones a cuenta IRPF 20% + IVA Criterio Caja 10%
 }

@@ -36,7 +36,7 @@ class StockPicking(models.Model):
 
         with Picking(agency, customer, password, debug) as picking_api:
             for picking in self:
-                service = picking.carrier_service or picking.carrier.service or default_service
+                service = picking.carrier_service or picking.carrier_id.service or default_service
                 if not service:
                     raise exceptions.Warning(_('Api service error'), _('Select a service or default service in Envialia API'))
 
