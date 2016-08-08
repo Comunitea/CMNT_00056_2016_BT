@@ -87,7 +87,14 @@ class StockPicking(models.Model):
 
     @api.multi
     def barcode_send_shipment(self):
-        wizard = self.env['carrier.send.shipment'].create({})
+        if self.carrier_delivery:
+            model = 'carrier.print.shipment'
+        else:
+            model = 'carrier.send.shipment'
+        wizard = self.env[model].create({})
         wizard.with_context(from_barcode=True,active_ids=[self.id]).default_get([])
-        wizard.with_context(from_barcode=True,active_ids=[self.id]).action_send()
-        return wizard.sended
+        if self.carrier_delivery:
+            wizard.with_context(from_barcode=True,active_ids=[self.id]).action_print()
+        else:
+            wizard.with_context(from_barcode=True,active_ids=[self.id]).action_send()
+        return wizard.labels
