@@ -8,8 +8,8 @@ class Config(object):
     ODOO_USER = "admin"
     ODOO_PASSWD = "admin"
 
-    ODOO_DATABASE = "besthetic_preprod"
-    TRYTON_DATABSE = "besthetic_tryton"
+    ODOO_DATABASE = "odoodb"
+    TRYTON_DATABSE = "trytondb"
     ODOO_DB_USER = "oerp"
     ODOO_DB_PASSWORD = "oerp"
     ODOO_DB_HOST = "localhost"
@@ -24,3 +24,4 @@ class Config(object):
     PAYMENT_TERMS_FILE = "data/bstt_map_payment_terms.json"
     LOCATIONS_FILE = "data/bstt_map_stock_locations.json"
     GROUPS_FILE = "data/bstt_map_ir_group.json"
+    FPOSITIONS_FILE = "data/bstt_map_fiscal_position.json"

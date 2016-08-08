@@ -50,3 +50,8 @@ def loadStockLocations():
 def loadGroups():
     json_data=open(Config.GROUPS_FILE).read()
     return commentjson.loads(json_data)
+
+
+def loadFiscalPositions():
+    json_data=open(Config.FPOSITIONS_FILE).read()
+    return commentjson.loads(json_data)

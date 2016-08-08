@@ -1,0 +1,16 @@
+{
+    # select * from account_tax_rule where id in (select distinct split_part(value, ',', 2)::int from ir_property where field in (1528,1530))
+    "16": 3, # Vendes Ceuta i Melilla
+    "3": 3, # Régimen Extracomunitario
+    "17": 3, # Vendes Andorra
+    "15": 3, # Vendes Canàries
+    "4": 2, # Régimen Intracomunitario
+    "23": 3, # Compres Andorra
+    "20": 3, # Compres Ceuta i Melilla
+    "1": 1, # Régimen Nacional
+    "9": 10, # Retención IRPF 15%
+    "2": 4, # Recargo de Equivalencia
+    "21": 21, # Compres Portugal 23%
+    "5": 18, # Retención IRPF 21%
+    "7": 13 # Retención IRPF 19%
+}

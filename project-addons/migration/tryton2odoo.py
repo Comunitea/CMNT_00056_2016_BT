@@ -29,12 +29,12 @@ class Tryton2Odoo(object):
         """método incial"""
         try:
             self.odoo = OdooConnect()
-            self.connOdoo = psycopg2.\
-                connect("dbname='" + Config.ODOO_DATABASE +
-                        "' user='" + Config.ODOO_DB_USER +
-                        "' host='" + Config.ODOO_DB_HOST +
-                        "' password='" + Config.ODOO_DB_PASSWORD + "'")
-            self.crO = self.connOdoo.cursor(cursor_factory=DictCursor)
+            #~ self.connOdoo = psycopg2.\
+                #~ connect("dbname='" + Config.ODOO_DATABASE +
+                        #~ "' user='" + Config.ODOO_DB_USER +
+                        #~ "' host='" + Config.ODOO_DB_HOST +
+                        #~ "' password='" + Config.ODOO_DB_PASSWORD + "'")
+            #~ self.crO = self.connOdoo.cursor(cursor_factory=DictCursor)
             self.connTryton = psycopg2.\
                 connect("dbname='" + Config.TRYTON_DATABSE +
                         "' user='" + Config.TRYTON_DB_USER +
@@ -64,6 +64,7 @@ class Tryton2Odoo(object):
             self.TAXES_MAP = loadTaxes()
             self.TAX_CODES_MAP = loadTaxCodes()
             self.PAYMENT_MODES_MAP = loadPaymentModes()
+            self.FISCAL_POSITIONS_MAP = loadFiscalPositions()
             #self.migrate_account_moves() # ACUMULATIVO
             #self.migrate_account_reconciliation()  # ACUMULATIVO
             #self.migrate_product_category() # ACUMULATIVO
@@ -98,11 +99,12 @@ class Tryton2Odoo(object):
             #self.sync_shops() # ACUMULATIVO
             #self.migrate_sales()  # ACUMULATIVO
             #self.migrate_sale_invoice_link()  # ACUMULATIVO
-            self.migrate_purchase_order()  # ACUMULATIVO
+            #self.migrate_purchase_order()  # ACUMULATIVO
             #self.fix_product_migration()
             #self.fix_party_migration()
             #self.fix_lot_migration()
             #self.fix_product_ean14_migration()
+            self.fix_partner_payment_data()
             print('Nueva fecha de última actualización: %s' %
                   str(datetime.utcnow()))
             self.d['last_update'] = datetime.utcnow()
@@ -2779,5 +2781,93 @@ class Tryton2Odoo(object):
             self.odoo.write("stock.production.lot",
                             self.d[getKey(sl, lot["id"])], vals)
         return True
+
+    def fix_partner_payment_data(self):
+        self.crT.execute("select id from ir_model where model = 'party.party' "
+                         "limit 1")
+        model_id = self.crT.fetchone()
+        self.crT.execute("select id from ir_model_field where name = "
+                         "'lang' and module = 'party' and "
+                         "model = %s limit 1" % model_id['id'])
+        lang_field_id = self.crT.fetchone()
+        self.crT.execute("select id from ir_model_field where name = "
+                         "'customer_tax_rule' and module = 'account' and "
+                         "model = %s limit 1" % model_id['id'])
+        customer_fpos_field_id = self.crT.fetchone()
+        self.crT.execute("select id from ir_model_field where name = "
+                         "'supplier_tax_rule' and module = 'account' and "
+                         "model = %s limit 1" % model_id['id'])
+        supplier_fpos_field_id = self.crT.fetchone()
+        self.crT.execute("select id from ir_model_field where name = "
+                         "'supplier_payment_term' and module = "
+                         "'account_invoice' and model = %s limit 1"
+                         % model_id['id'])
+        supplier_pterm_field_id = self.crT.fetchone()
+        self.crT.execute("select id from ir_model_field where name = "
+                         "'customer_payment_term' and module = "
+                         "'account_invoice' and model = %s limit 1"
+                         % model_id['id'])
+        customer_pterm_field_id = self.crT.fetchone()
+        self.crT.execute("select id from ir_model_field where name = "
+                         "'sale_price_list' and module = 'sale_price_list' "
+                         "and model = %s limit 1" % model_id['id'])
+        sale_pricelist_field_id = self.crT.fetchone()
+        ppl = "product_price_list"
+
+        self.crT.execute("select id from party_party")
+        data = self.crT.fetchall()
+        for party in data:
+            vals = {}
+            self.crT.execute("select code from ir_lang where id in "
+                             "(select split_part(value, ',', 2)::int from "
+                             "ir_property where res like 'party.party,%s' "
+                             "and field = %s) limit 1"
+                             % (party['id'], lang_field_id['id']))
+            field_value = self.crT.fetchone()
+            if field_value:
+                vals['lang'] = field_value['code']
+
+            self.crT.execute("select value from ir_property where field in "
+                             "%s and res = 'party.party,%s' and value is not"
+                             " null limit 1" %
+                             ((customer_fpos_field_id['id'],
+                               supplier_fpos_field_id['id']),
+                              party['id']))
+            field_value = self.crT.fetchone()
+            if field_value:
+                fpos_id = field_value['value'].split(",")[1]
+                vals['property_account_position'] = \
+                    self.FISCAL_POSITIONS_MAP[fpos_id]
+
+            self.crT.execute("select value from ir_property where field = %s "
+                             "and res = 'party.party,%s' limit 1" %
+                             (supplier_pterm_field_id['id'], party['id']))
+            field_value = self.crT.fetchone()
+            if field_value:
+                pterm_id = field_value['value'].split(",")[1]
+                vals['property_supplier_payment_term'] = \
+                    self.PAYMENT_TERM_MAP[pterm_id]
+
+            self.crT.execute("select value from ir_property where field = %s "
+                             "and res = 'party.party,%s' limit 1" %
+                             (customer_pterm_field_id['id'], party['id']))
+            field_value = self.crT.fetchone()
+            if field_value:
+                pterm_id = field_value['value'].split(",")[1]
+                vals['property_payment_term'] = self.PAYMENT_TERM_MAP[pterm_id]
+
+            self.crT.execute("select value from ir_property where field = %s "
+                             "and res = 'party.party,%s' limit 1" %
+                             (sale_pricelist_field_id['id'], party['id']))
+            field_value = self.crT.fetchone()
+            if field_value:
+                pricelist_id = int(field_value['value'].split(",")[1])
+                vals['property_product_pricelist'] = \
+                    self.d[getKey(ppl, pricelist_id)]
+
+            if vals:
+                odoo_partner_id = self.d[getKey('party_party', party['id'])]
+                self.odoo.write('res.partner', odoo_partner_id, vals)
+
 
 Tryton2Odoo()
