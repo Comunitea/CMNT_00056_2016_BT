@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- © 2016 Comunitea
+     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
+
+<templates id="template" xml:space="preserve">
+
+    <t t-extend="PickingEditorWidget" >
+        <t t-jquery=".js_op_table_todo" t-operation="after">
+            <div>
+                <textarea class='form-control js_picking_note' rows="4" placeholder="Internal notes..."/>
+            </div>
+        </t>
+    </t>
+</templates>
