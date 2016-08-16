@@ -5,6 +5,7 @@ import logging
 import tempfile
 from base64 import decodestring
 from asm.picking import Picking
+from datetime import datetime, date
 from asm.utils import services as asm_services
 from openerp import models, fields, api, exceptions, _
 from openerp.addons.carrier_send_shipment.tools import unaccent
@@ -30,7 +31,7 @@ class StockPicking(models.Model):
         if not packages:
             packages = 1
 
-        remitente_partner = self.warehouse.partner_id or self.company.partner_id
+        remitente_partner = self.picking_type_id.warehouse_id.partner_id or self.company_id.partner_id
 
         if api.reference_origin and hasattr(self, 'origin'):
             code = self.origin
@@ -42,7 +43,7 @@ class StockPicking(models.Model):
             notes = '%s\n' % self.carrier_notes
 
         data = {}
-        data['today'] = Date.today()
+        data['today'] = date.today()
         #~ data['portes'] =
         data['bultos'] = packages
         #~ data['volumen'] =
@@ -53,7 +54,7 @@ class StockPicking(models.Model):
         #~ data['pod'] =
         #~ data['podobligatorio'] =
         #~ data['remite_plaza'] =
-        data['remite_nombre'] = self.company_id.partner_id.name
+        data['remite_nombre'] = remitente_partner.name
         data['remite_direccion'] = unaccent(remitente_partner.street)
         data['remite_poblacion'] = unaccent(remitente_partner.city)
         data['remite_provincia'] = remitente_partner.state_id and unaccent(remitente_partner.state_id.name) or ''
@@ -97,7 +98,7 @@ class StockPicking(models.Model):
             data['servicio'] = asm_service['servicio']
             data['horario'] = asm_service['horario']
 
-        if self.carrier_cashondelivery and price:
+        if self.cash_on_delivery and price:
             data['importes_reembolso'] = price
 
         if weight and hasattr(self, 'weight_func'): # TODO: revisar campos pesos
@@ -121,7 +122,6 @@ class StockPicking(models.Model):
         Send shipments out to asm
         Return references, labels, errors
         '''
-
         references = []
         labels = []
 
@@ -138,29 +138,27 @@ class StockPicking(models.Model):
                     raise exceptions.Warning(_('Partner error'), _('Add country in shipment "%s" partner') % picking.partner_id.name)
 
                 price = None
-                if picking.carrier_cashondelivery:
+                if picking.cash_on_delivery:
                     price = picking.amount_total
                     if not price:
                         raise exceptions.Warning(_('Picking error'), _('Shipment "%s" not have price and send cashondelivery') % picking.name)
 
                 data = picking.asm_picking_data(api, service, price, api.weight)
                 reference, label, error = picking_api.create(data)
-
                 if reference:
-                    self.write([picking], {
+                    picking.write({
                         'carrier_tracking_ref': reference,
-                        'carrier_service': service,
+                        'carrier_service': service.id,
                         'carrier_delivery': True,
-                        'carrier_send_date': datetime.now,
-                        'carrier_send_employee': self.env.user.employee_ids and self.env.user.employee_ids[0] or False,
+                        'carrier_send_date': datetime.now(),
+                        'carrier_send_employee': self.env.user.employee_ids and self.env.user.employee_ids[0].id or False,
                         })
                     logger.info(
-                        'Send shipment %s' % (picking.code))
-                    references.append(picking.code)
+                        'Send shipment %s' % (picking.name))
+                    references.append(picking.name)
                 else:
                     logger.error(
-                        'Not send shipment %s.' % (picking.code))
-
+                        'Not send shipment %s.' % (picking.name))
                 if label:
                     with tempfile.NamedTemporaryFile(
                             prefix='%s-asm-%s-' % (dbname, reference),
@@ -175,7 +173,6 @@ class StockPicking(models.Model):
 
                 if error:
                     raise exceptions.Warning(_('API Error'), Error)
-
         return references, labels
 
     @api.multi
