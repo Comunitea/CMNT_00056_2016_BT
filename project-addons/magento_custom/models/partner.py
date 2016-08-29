@@ -5,7 +5,13 @@
 from openerp.addons.magentoerpconnect.partner import BaseAddressImportMapper, CompanyImportMapper
 from openerp.addons.magentoerpconnect.backend import magento
 from openerp.addons.connector.unit.mapper import mapping
+from openerp.addons.magento_sale_store.models.magento_store import PartnerImportMapperStoreACcount
 
 @magento(replacing=CompanyImportMapper)
 class CustomCompanyImportMapper(CompanyImportMapper):
     direct = BaseAddressImportMapper.direct
+
+
+@magento(replacing=PartnerImportMapperStoreACcount)
+class PartnerImportMapperMedical(PartnerImportMapperStoreACcount):
+    direct = PartnerImportMapperStoreACcount.direct + [('codigo_prescriptor', 'medical_code')]

@@ -27,6 +27,7 @@ class Tryton2Odoo(object):
 
     def __init__(self):
         """método incial"""
+        import ipdb; ipdb.set_trace()
         try:
             self.odoo = OdooConnect()
             #~ self.connOdoo = psycopg2.\
@@ -56,7 +57,7 @@ class Tryton2Odoo(object):
             #self.migrate_account_fiscalyears()
             #self.migrate_account_period()
             #self.migrate_new_accounts() # ACUMULATIVO
-            #self.migrate_party_party() # ACUMULATIVO
+            self.migrate_party_party() # ACUMULATIVO
             #self.migrate_party_category() # ACUMULATIVO
             #self.migrate_account_journal()
             #self.sync_banks() # ACUMULATIVO
@@ -104,7 +105,8 @@ class Tryton2Odoo(object):
             #self.fix_party_migration()
             #self.fix_lot_migration()
             #self.fix_product_ean14_migration()
-            self.fix_partner_payment_data()
+            #self.fix_partner_payment_data()
+            # self.reimport_medical_code() # Corregido migrate_party_party esta función es innecesaria
             print('Nueva fecha de última actualización: %s' %
                   str(datetime.utcnow()))
             self.d['last_update'] = datetime.utcnow()
@@ -208,7 +210,8 @@ class Tryton2Odoo(object):
         self.crT.\
             execute("select id,code,active,name,comment,trade_name,write_date,"
                     "create_date,"
-                    "esale_email,attributes,include_347,(select code from "
+                    "esale_email,attributes,manual_code,include_347,"
+                    "(select code from "
                     "party_identifier where party = party_party.id) as vat,"
                     "(select min(value) from party_contact_mechanism where "
                     "party = party_party.id and address is null and "
@@ -255,6 +258,10 @@ class Tryton2Odoo(object):
                         vals['medical_code'] = attributes['medical_code']
                     if attributes.get('timetable', False):
                         vals['timetable'] = attributes['timetable']
+                if part_data['manual_code']:
+                    if vals.get('medical_code', False) and vals['medical_code'] != part_data['manual_code']:
+                        print('diferencia en codigo medico del partner %s' % part_data['id'])
+                    vals['medical_code'] = part_data['manual_code']
 
                 self.crT.execute("select count(*) from sale_sale where party = %s"
                                  % (part_data["id"]))
@@ -2868,6 +2875,25 @@ class Tryton2Odoo(object):
             if vals:
                 odoo_partner_id = self.d[getKey('party_party', party['id'])]
                 self.odoo.write('res.partner', odoo_partner_id, vals)
+
+    def reimport_medical_code(self):
+        self.crT.execute("SELECT id,attributes,manual_code FROM party_party")
+        data = self.crT.fetchall()
+        pp = 'party_party'
+        for party_code in data:
+            code = ''
+            if party_code['attributes']:
+                attribute_dict = eval(party_code['attributes'])
+                if 'medical_code' in attribute_dict:
+                    att_code = attribute_dict['medical_code']
+            if party_code['manual_code']:
+                if code and code != party_code['manual_code']:
+                    print('diferencia en codigo medico del partner %s' % party_code['id'])
+                if not code:
+                    code = party_code['manual_code']
+            if self.d.has_key(getKey(pp, party_code['id'])):
+                partner_id = self.d[getKey(pp, party_code["id"])]
+                self.odoo.write('res.partner', partner_id, {'medical_code': code})
 
 
 Tryton2Odoo()
