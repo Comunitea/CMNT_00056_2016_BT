@@ -1,4 +1,5 @@
 {
+    # select * from account_payment_type order by id
     "1": 1, # Transferencia Bancaria receivable
     "2": 7, # Transferencia Bancaria payable
     "3": 3, # Recibo domiciliado payable

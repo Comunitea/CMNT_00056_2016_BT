@@ -30,12 +30,12 @@ class Tryton2Odoo(object):
         import ipdb; ipdb.set_trace()
         try:
             self.odoo = OdooConnect()
-            #~ self.connOdoo = psycopg2.\
-                #~ connect("dbname='" + Config.ODOO_DATABASE +
-                        #~ "' user='" + Config.ODOO_DB_USER +
-                        #~ "' host='" + Config.ODOO_DB_HOST +
-                        #~ "' password='" + Config.ODOO_DB_PASSWORD + "'")
-            #~ self.crO = self.connOdoo.cursor(cursor_factory=DictCursor)
+            self.connOdoo = psycopg2.\
+                connect("dbname='" + Config.ODOO_DATABASE +
+                        "' user='" + Config.ODOO_DB_USER +
+                        "' host='" + Config.ODOO_DB_HOST +
+                        "' password='" + Config.ODOO_DB_PASSWORD + "'")
+            self.crO = self.connOdoo.cursor(cursor_factory=DictCursor)
             self.connTryton = psycopg2.\
                 connect("dbname='" + Config.TRYTON_DATABSE +
                         "' user='" + Config.TRYTON_DB_USER +
@@ -57,7 +57,7 @@ class Tryton2Odoo(object):
             #self.migrate_account_fiscalyears()
             #self.migrate_account_period()
             #self.migrate_new_accounts() # ACUMULATIVO
-            self.migrate_party_party() # ACUMULATIVO
+            #self.migrate_party_party() # ACUMULATIVO
             #self.migrate_party_category() # ACUMULATIVO
             #self.migrate_account_journal()
             #self.sync_banks() # ACUMULATIVO
@@ -234,6 +234,7 @@ class Tryton2Odoo(object):
         for part_data in data:
             no_update = False
             if self.d.has_key(getKey(pp, part_data['id'])):
+                partner_id = self.d[getKey(pp, part_data["id"])]
                 tr_date = part_data['write_date'] or part_data['create_date']
                 if tr_date <= self.last_update:
                     no_update = True
@@ -373,12 +374,11 @@ class Tryton2Odoo(object):
         pc = "party_category"
         pp = "party_party"
         for cat_data in data:
-            if self.d.has_key(getKey(pc, cat_data['id'])):
-                continue
             vals = {'name': cat_data['name'],
                     'active': cat_data['active']}
             if cat_data.get('parent', False):
                 vals['parent_id'] = self.d[getKey(pc, cat_data["parent"])]
+            print "vals: ", vals
             cat_id = self.odoo.create("res.partner.category", vals)
             self.d[getKey(pc, cat_data["id"])] = cat_id
 
@@ -638,7 +638,9 @@ class Tryton2Odoo(object):
                 'country_id': owner_data['country_id'] and
                 owner_data['country_id'][0] or False,
             }
-            if self.d.has_key(getKey(ba, acc_data["id"])):
+            if self.d.has_key(getKey(ba, acc_data["id"])) and self.odoo.\
+                    read("res.partner.bank",
+                         self.d[getKey(ba, acc_data["id"])], []):
                 self.odoo.write("res.partner.bank",
                                 self.d[getKey(ba, acc_data["id"])], vals)
             else:
@@ -699,7 +701,10 @@ class Tryton2Odoo(object):
                 print "tr_date: ", tr_date
                 if tr_date <= self.last_update:
                     continue
-                else:
+                elif self.odoo.read("account.move",
+                                    self.d[getKey(am, move_data["id"])],
+                                    ["name"]):
+                    print "DEL ID: ", self.d[getKey(am, move_data["id"])]
                     self.unlink_move(getKey(am, move_data["id"]))
 
             period_id = self.d[getKey(ap, move_data["period"])]
@@ -2351,30 +2356,32 @@ class Tryton2Odoo(object):
             if self.d.has_key(getKey(ss, sale["id"])):
                 order_data = self.odoo.read(
                     "sale.order", self.d[getKey(ss, sale["id"])],
-                    ['state', 'order_line', 'procurement_group_id'])
-                if order_data['state'] == 'done':
-                    continue
-                elif order_data['state'] == 'manual' and \
-                        sale['state'] == 'done':
-                    self.odoo.write('sale.order',
-                                    self.d[getKey(ss, sale["id"])],
-                                    {'state': 'done'})
-                    continue
-                else:
-                    if order_data['procurement_group_id']:
-                        group_id = order_data['procurement_group_id'][0]
-                        self.crO.execute(
-                            'delete from procurement_order where group_id = %s'
-                            % group_id)
-                        self.crO.execute(
-                            'delete from procurement_group where id = %s' %
-                            group_id)
-                    self.crO.execute("delete from sale_order_line where "
-                                     "order_id = %s" %
-                                     self.d[getKey(ss, sale["id"])])
-                    self.crO.execute('delete from sale_order where id = %s' %
-                                     self.d[getKey(ss, sale["id"])])
-                    self.close_crO()
+                    ['state', 'procurement_group_id'])
+                if order_data:
+                    if order_data['state'] == 'done':
+                        continue
+                    elif order_data['state'] == 'manual' and \
+                            sale['state'] == 'done':
+                        self.odoo.write('sale.order',
+                                        self.d[getKey(ss, sale["id"])],
+                                        {'state': 'done'})
+                        continue
+                    else:
+                        if order_data['procurement_group_id']:
+                            group_id = order_data['procurement_group_id'][0]
+                            self.crO.execute(
+                                'delete from procurement_order where group_id '
+                                '= %s' % group_id)
+                            self.crO.execute(
+                                'delete from procurement_group where id = %s'
+                                 % group_id)
+                        self.crO.execute("delete from sale_order_line where "
+                                         "order_id = %s" %
+                                         self.d[getKey(ss, sale["id"])])
+                        self.crO.execute('delete from sale_order where id = %s'
+                                        % self.d[getKey(ss, sale["id"])])
+                        self.close_crO()
+            print "ORIG SALE: ", sale
             payment_term_id = False
             if sale['payment_term']:
                 payment_term_id = self.\

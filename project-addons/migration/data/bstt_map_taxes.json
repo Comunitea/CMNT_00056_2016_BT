@@ -5,12 +5,15 @@
     "73": [73], # IVA Soportado exento (operaciones corrientes)
     "74": [62], # 4% IVA Soportado (operaciones corrientes)
     "77": [61], # 10% IVA Soportado (operaciones corrientes)
+    "79": [73], # IVA Soportado exento (bienes de inversión)
+    "83": [59], # 10% IVA Soportado (bienes de inversión)
     "86": [60], # 21% IVA Soportado (bienes de inversión)
     "91": [67], # IVA 10%
     "346": [1,25], # Retenciones IRPF 15% + 21% IVA Soportado (operaciones corrientes)
     "439": [73,80], # Retenciones IRPF 19% + IVA Soportado exento (operaciones corrientes)
     "460": [1,80], # Retenciones IRPF 19% + 21% IVA Soportado (operaciones corrientes)
     "574": [1,32], # Retenciones IRPF 21% + 21% IVA Soportado (operaciones corrientes)
+    "868": [12,122], # Retenciones a cuenta IRPF 20% + IVA Criterio Caja 10%
     "916": [67,71], # IVA 10% + 1.4% Recargo Equivalencia Ventas
     "925": [2,72], # IVA 21% + 5.2% Recargo Equivalencia Ventas
     "980": [115], # IVA 0% Importaciones bienes de inversión (creado desactivado)
@@ -29,8 +32,5 @@
     "25": [15], # IVA 0% Intracomunitario
     "972": [120], # IVA 0% Exportación Andorra (creado desactivado)
     "15": [55], # IVA 10% Importaciones bienes corrientes
-    "21": [40], # IVA 21% Importaciones bienes corrientes
-    "79": [73], # IVA Soportado exento (bienes de inversión)
-    "83": [59], # 10% IVA Soportado (bienes de inversión)
-    "868": [12,122] # Retenciones a cuenta IRPF 20% + IVA Criterio Caja 10%
+    "21": [40] # IVA 21% Importaciones bienes corrientes
 }
