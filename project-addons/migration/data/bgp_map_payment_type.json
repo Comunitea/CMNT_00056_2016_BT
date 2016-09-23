@@ -1,0 +1,15 @@
+{
+    # select * from account_payment_type order by id
+    "1": 1, # Efectivo receivable
+    "2": 2, # Recibo domiciliado receivable
+    "3": 3, # Transferencia receivable
+    "4": 4, # TRANSFERENCIA payable (desactivado)
+    "5": 5, # Transferencia * receivable (desactivado)
+    "6": 6, # RECIBO DOMICILIADO payable (desactivado)
+    "7": 7, # VISA payable
+    "8": 1, # Efectivo payable
+    "9": 2, # RECIBO DOMICILIADO payable
+    "10": 3, # TRANSFERENCIA payable
+    "11": 8, # Transferencia * receivable
+    "12": 9 # Recibo domiciliado* receivable
+}

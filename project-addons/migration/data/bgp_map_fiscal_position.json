@@ -1,0 +1,8 @@
+{
+    # select * from account_tax_rule where id in (select distinct split_part(value, ',', 2)::int from ir_property where field in (1531,1533))
+    "1": 1, # Régimen Nacional
+    "11": 8, # Retención IRPF 7%
+    "2": 4, # Recargo de Equivalencia
+    "3": 3, # Régimen Extracomunitario
+    "9": 10 # Retención IRPF 15%
+}
