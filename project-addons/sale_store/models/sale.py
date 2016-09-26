@@ -26,6 +26,7 @@ class SaleStore(models.Model):
             'view_type': 'form',
             'res_model': 'sale.store.config',
             'type': 'ir.actions.act_window',
+            'context': "{'default_store': " + str(self.id) + "}"
         }
 
 
@@ -33,12 +34,12 @@ class SaleStoreConfig(models.Model):
 
     _name = 'sale.store.config'
 
-    partner = fields.Many2one('res.partner')
-    store = fields.Many2one('sale.store')
+    partner = fields.Many2one('res.partner', required=True)
+    store = fields.Many2one('sale.store', required=True)
     value = fields.Reference(
         [('product.pricelist', 'Pricelist'),
          ('payment.mode', 'Payment mode'),
-         ('account.payment.term', 'Payment term')])
+         ('account.payment.term', 'Payment term')], required=True)
 
 
 class SaleOrder(models.Model):
@@ -68,10 +69,18 @@ class SaleOrder(models.Model):
     @api.multi
     def onchange_partner_id(self, part):
         res = super(SaleOrder, self).onchange_partner_id(part)
+        store = False
         if part and self.env.context.get('store_id', False):
             store_id = self.env.context['store_id']
             store = self.env['sale.store'].browse(store_id)
             partner = self.env['res.partner'].browse(part)
+        elif part:
+            partner = self.env['res.partner'].browse(part)
+            if partner.store_values:
+                store = partner.store_values[0].store
+
+        if store:
+            res['value']['sale_store_id'] = store.id
             payment_mode_id = partner.get_store_value(store, 'payment.mode')
             pricelist_id = partner.get_store_value(store, 'product.pricelist')
             payment_term = partner.get_store_value(

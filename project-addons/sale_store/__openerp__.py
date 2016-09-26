@@ -12,7 +12,7 @@
     "application": False,
     "installable": True,
     "depends": [
-        "sale", "account_payment"
+        "sale", "account_payment", "delivery"
     ],
     "data": ['security/ir.model.access.csv',
              'views/layout.xml',
