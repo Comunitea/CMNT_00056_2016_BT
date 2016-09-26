@@ -1,0 +1,10 @@
+{
+    # select * from account_invoice_payment_term
+    "4": 5, # 120 días
+    "2": 3, # 30 días
+    "6": 6, # 60 días
+    "5": 7, # 90 días
+    "1": 1, # Al contado
+    "9": 8, # Dia 10
+    "11": 10 # 30,60,90,120
+}

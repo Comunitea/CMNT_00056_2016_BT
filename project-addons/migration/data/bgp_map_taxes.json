@@ -1,0 +1,17 @@
+{
+    # select id,active,name from account_tax where id in (select distinct tax from account_invoice_line_account_tax)
+    "44": [48], # IVA 10% Intracomunitario. Bienes corrientes
+    "232": [85,1], # Retenciones IRPF 7% + 21% IVA Soportado (operaciones corrientes)
+    "325": [24,73], # Retenciones IRPF 15% + IVA Soportado exento (operaciones corrientes)
+    "346": [24,1], # Retenciones IRPF 15% + 21% IVA Soportado (operaciones corrientes)
+    "71": [], # Suplido
+    "916": [67,71], # IVA 10% + 1.4% Recargo Equivalencia Ventas
+    "925": [2,72], # IVA 21% + 5.2% Recargo Equivalencia Ventas
+    "7": [116], # IVA 0% Importaciones bienes corrientes
+    "73": [73], # IVA Soportado exento (operaciones corrientes)
+    "87": [64], # IVA Exento
+    "2": [1], # 21% IVA Soportado (operaciones corrientes)
+    "4": [2], # IVA 21%
+    "77": [61], # 10% IVA Soportado (operaciones corrientes)
+    "91": [67] # IVA 10%
+}

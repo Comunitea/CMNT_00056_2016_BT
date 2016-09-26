@@ -1,0 +1,152 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#       * sale_store
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 8.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-06-23 10:50+0000\n"
+"PO-Revision-Date: 2016-06-23 10:50+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: sale_store
+#: field:sale.store,active:0
+msgid "Active"
+msgstr "Activo"
+
+#. module: sale_store
+#: field:sale.store,create_uid:0
+msgid "Created by"
+msgstr "Created by"
+
+#. module: sale_store
+#: field:sale.store,create_date:0
+msgid "Created on"
+msgstr "Created on"
+
+#. module: sale_store
+#: field:sale.store,default_account_id:0
+msgid "Default account for ecommerce customers importations"
+msgstr "Cuenta por defecto para clientes importados de ecommerce"
+
+#. module: sale_store
+#: field:sale.store,display_name:0
+msgid "Display Name"
+msgstr "Nombre"
+
+#. module: sale_store
+#: field:sale.store,id:0
+msgid "ID"
+msgstr "ID"
+
+#. module: sale_store
+#: field:sale.store,journal_id:0
+msgid "Journal"
+msgstr "Diario"
+
+#. module: sale_store
+#: field:sale.store,__last_update:0
+msgid "Last Modified on"
+msgstr "Last Modified on"
+
+#. module: sale_store
+#: field:sale.store,write_uid:0
+msgid "Last Updated by"
+msgstr "Last Updated by"
+
+#. module: sale_store
+#: field:sale.store,write_date:0
+msgid "Last Updated on"
+msgstr "Last Updated on"
+
+#. module: sale_store
+#: field:sale.store,logo:0
+msgid "Logo"
+msgstr "Logo"
+
+#. module: sale_store
+#: field:sale.store,name:0
+msgid "Name"
+msgstr "Nombre"
+
+#. module: sale_store
+#: model:ir.model,name:sale_store.model_sale_order
+msgid "Sales Order"
+msgstr "Pedido de venta"
+
+#. module: sale_store
+#: view:sale.store:sale_store.sale_store_form
+#: view:sale.store:sale_store.sale_store_search
+#: view:sale.store:sale_store.sale_store_tree
+msgid "Shop"
+msgstr "Tienda"
+
+#. module: sale_store
+#: model:ir.actions.act_window,name:sale_store.sale_store_action
+#: model:ir.ui.menu,name:sale_store.sale_shop_menu
+msgid "Shops"
+msgstr "Tiendas"
+
+#. module: sale_store
+#: field:account.invoice,sale_store_id:0
+#: field:sale.order,sale_store_id:0
+#: field:sale.store.config,store:0
+#: view:stock.picking:sale_store.view_picking_add_store_search
+#: field:stock.picking,sale_store_id:0
+msgid "Store"
+msgstr "Tienda"
+
+#. module: sale_store
+#: code:addons/sale_store/models/stock.py:41
+#, python-format
+msgid "cannot invoice together pickings with different store"
+msgstr "No se pueden facturar a la vez albaranes de distintas tiendas"
+
+#. module: sale_store
+#: view:sale.store:sale_store.sale_store_form
+msgid "Partner configurations"
+msgstr "Configuración de cliente"
+
+#. module: sale_store
+#: selection:sale.store.config,value:0
+msgid "Payment mode"
+msgstr "Modo de pago"
+
+#. module: sale_store
+#: selection:sale.store.config,value:0
+msgid "Payment term"
+msgstr "Plazo de pago"
+
+#. module: sale_store
+#: selection:sale.store.config,value:0
+msgid "Pricelist"
+msgstr "Tarifa"
+
+
+#. module: sale_store
+#: code:addons/sale_store/models/sale.py:79
+#: view:res.partner:sale_store.view_partner_property_form_add_store_fields
+#, python-format
+msgid "Store configuration"
+msgstr "Configuración de tienda"
+
+#. module: sale_store
+#: field:res.partner,store_values:0
+msgid "Stores configuration"
+msgstr "Configuración de tiendas"
+
+#. module: sale_store
+#: field:sale.store.config,value:0
+msgid "Value"
+msgstr "Valor"
+
+#. module: sale_store
+#: view:sale.store.config:sale_store.sale_store_config_view_search
+msgid "partner"
+msgstr "Cliente"

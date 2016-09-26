@@ -2,7 +2,7 @@
 # © 2016 Comunitea
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 {
-    "name": "magento store",
+    "name": "Sale store",
     "summary": "",
     "version": "8.0.1.0.0",
     "category": "Uncategorized",
@@ -12,12 +12,12 @@
     "application": False,
     "installable": True,
     "depends": [
-        "base",
-        "magentoerpconnect",
-        "sale_store"
+        "sale", "account_payment", "delivery"
     ],
-    "data": [
-        'views/magento_store_view.xml',
-        'views/prestashop_store_view.xml',
-    ],
+    "data": ['security/ir.model.access.csv',
+             'views/layout.xml',
+             'views/partner.xml',
+             'views/sale.xml',
+             'views/sale_store_view.xml',
+             'views/stock.xml',],
 }

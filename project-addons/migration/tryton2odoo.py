@@ -43,6 +43,7 @@ class Tryton2Odoo(object):
                         "' password='" + Config.TRYTON_DB_PASSWORD + "'")
             self.crT = self.connTryton.cursor(cursor_factory=DictCursor)
             self.d = shelve.open("devel_cache_file")
+            self.esale = True
             if len(sys.argv) > 1:
                 last_update_str = sys.argv[1]
                 self.last_update = datetime.strptime(last_update_str,
@@ -56,51 +57,56 @@ class Tryton2Odoo(object):
             # Proceso
             #self.migrate_account_fiscalyears()
             #self.migrate_account_period()
-            #self.migrate_new_accounts() # ACUMULATIVO
-            #self.migrate_party_party() # ACUMULATIVO
-            #self.migrate_party_category() # ACUMULATIVO
-            #self.migrate_account_journal()
-            #self.sync_banks() # ACUMULATIVO
-            #self.migrate_bank_accounts() # ACUMULATIVO
+            self.migrate_new_accounts() # ACUMULATIVO
+            self.migrate_party_party() # ACUMULATIVO
+            self.migrate_party_category() # ACUMULATIVO
+            self.migrate_account_journal()
+            self.sync_banks() # ACUMULATIVO
+            self.migrate_bank_accounts() # ACUMULATIVO
             self.TAXES_MAP = loadTaxes()
             self.TAX_CODES_MAP = loadTaxCodes()
             self.PAYMENT_MODES_MAP = loadPaymentModes()
             self.FISCAL_POSITIONS_MAP = loadFiscalPositions()
-            #self.migrate_account_moves() # ACUMULATIVO
-            #self.migrate_account_reconciliation()  # ACUMULATIVO
-            #self.migrate_product_category() # ACUMULATIVO
+            self.migrate_account_moves() # ACUMULATIVO
+            self.migrate_account_reconciliation()  # ACUMULATIVO
+            self.migrate_product_category() # ACUMULATIVO
             self.UOM_MAP = loadProductUoms()
-            #self.migrate_product_uom() # ACUMULATIVO
-            #self.migrate_product_product() # ACUMULATIVO
-            #self.migrate_magento_metadata()
-            #self.migrate_prestashop_metadata()
-            #self.migrate_magento_payment_mode() # ACUMULATIVO
+            self.migrate_product_uom() # ACUMULATIVO
+            self.migrate_product_product() # ACUMULATIVO
+            if self.esale:
+                self.migrate_magento_metadata()
+                self.migrate_prestashop_metadata()
+                self.migrate_magento_payment_mode() # ACUMULATIVO
             self.PAYMENT_TERM_MAP = loadPaymentTerms()
-            #self.migrate_invoices() #ACUMULATIVO
-            #self.migrate_account_bank_statements() #ACUMULATIVO
+            self.migrate_invoices() #ACUMULATIVO
+            self.migrate_account_bank_statements() #ACUMULATIVO
             self.LOCATIONS_MAP = loadStockLocations()
-            #self.migrate_stock_lots() # ACUMULATIVO
-            #self.migrate_inventories() # ACUMULATIVO
-            #self.migrate_moves() # ACUMULATIVO
-            #self.merge_quants()
-            #self.migrate_pickings() #ACUMULATIVO
-            #self.migrate_orderpoints() # ACUMULATIVO
-            #self.migrate_carrier() #ACUMULATIVO
-            #self.migrate_carrier_api() #ACUMULATIVO
-            #self.migrate_carrier_api_services() # ACUMULATIVO
-            #self.migrate_carrier_data() # ACUMULATIVO
-            #self.migrate_magento_carrier() # ACUMULATIVO
-            #self.migrate_commission_plan() # ACUMULATIVO
-            #self.migrate_commission_agent() # ACUMULATIVO
-            #self.migrate_users() # ACUMULATIVO
+            self.migrate_stock_lots() # ACUMULATIVO
+            self.migrate_inventories() # ACUMULATIVO
+            self.migrate_moves() # ACUMULATIVO
+            self.merge_quants()
+            self.migrate_pickings() #ACUMULATIVO
+            self.migrate_orderpoints() # ACUMULATIVO
+            self.migrate_carrier() #ACUMULATIVO
+            if self.esale:
+                self.migrate_carrier_api() #ACUMULATIVO
+                self.migrate_carrier_api_services() # ACUMULATIVO
+                self.migrate_carrier_data() # ACUMULATIVO
+                self.migrate_magento_carrier() # ACUMULATIVO
+            self.migrate_commission_plan() # ACUMULATIVO
+            self.migrate_commission_agent() # ACUMULATIVO
+            self.migrate_users() # ACUMULATIVO
             self.GROUPS_MAP = loadGroups()
-            #self.migrate_groups()  # ACUMULATIVO
-            #self.migrate_product_suppliers() # ACUMULATIVO
-            #self.migrate_pricelist() # ACUMULATIVO
-            #self.sync_shops() # ACUMULATIVO
-            #self.migrate_sales()  # ACUMULATIVO
-            #self.migrate_sale_invoice_link()  # ACUMULATIVO
-            #self.migrate_purchase_order()  # ACUMULATIVO
+            self.migrate_groups()  # ACUMULATIVO
+            self.migrate_product_suppliers() # ACUMULATIVO
+            self.migrate_pricelist() # ACUMULATIVO
+            if self.esale:
+                self.sync_ecommerce_shops() # ACUMULATIVO
+            else:
+                self.sync_shops() # ACUMULATIVO
+            self.migrate_sales()  # ACUMULATIVO
+            self.migrate_sale_invoice_link()  # ACUMULATIVO
+            self.migrate_purchase_order()  # ACUMULATIVO
             #self.fix_product_migration()
             #self.fix_party_migration()
             #self.fix_lot_migration()
@@ -207,24 +213,45 @@ class Tryton2Odoo(object):
         return True
 
     def migrate_party_party(self):
-        self.crT.\
-            execute("select id,code,active,name,comment,trade_name,write_date,"
-                    "create_date,"
-                    "esale_email,attributes,manual_code,include_347,"
-                    "(select code from "
-                    "party_identifier where party = party_party.id) as vat,"
-                    "(select min(value) from party_contact_mechanism where "
-                    "party = party_party.id and address is null and "
-                    "type = 'email' and active=true) as email,(select "
-                    "min(value) from party_contact_mechanism where party = "
-                    "party_party.id and address is null and type = 'phone' "
-                    "and active=true) as phone,(select min(value) from "
-                    "party_contact_mechanism where party = party_party.id "
-                    "and address is null and type = 'fax' and active=true) "
-                    "as fax,(select min(value) from party_contact_mechanism "
-                    "where party = party_party.id and address is null and "
-                    "type = 'website' and active=true) as website from "
-                    "party_party where id != 1")
+        if self.esale:
+            self.crT.\
+                execute("select id,code,active,name,comment,trade_name,"
+                        "write_date,create_date,"
+                        "esale_email,attributes,manual_code,include_347,"
+                        "(select code from party_identifier "
+                        "where party = party_party.id) as vat,"
+                        "(select min(value) from party_contact_mechanism where"
+                        " party = party_party.id and address is null and "
+                        "type = 'email' and active=true) as email,(select "
+                        "min(value) from party_contact_mechanism where party ="
+                        "party_party.id and address is null and type = 'phone'"
+                        " and active=true) as phone,(select min(value) from "
+                        "party_contact_mechanism where party = party_party.id "
+                        "and address is null and type = 'fax' and active=true)"
+                        " as fax,(select min(value) from "
+                        "party_contact_mechanism where party = party_party.id "
+                        "and address is null and type = 'website' and "
+                        "active=true) as website from party_party "
+                        "where id != 1")
+        else:
+            self.crT.\
+                execute("select id,code,active,name,comment,trade_name,"
+                        "write_date,create_date,include_347,"
+                        "(select code from party_identifier "
+                        "where party = party_party.id) as vat,"
+                        "(select min(value) from party_contact_mechanism where"
+                        " party = party_party.id and address is null and "
+                        "type = 'email' and active=true) as email,(select "
+                        "min(value) from party_contact_mechanism where party ="
+                        "party_party.id and address is null and type = 'phone'"
+                        " and active=true) as phone,(select min(value) from "
+                        "party_contact_mechanism where party = party_party.id "
+                        "and address is null and type = 'fax' and active=true)"
+                        " as fax,(select min(value) from "
+                        "party_contact_mechanism where party = party_party.id "
+                        "and address is null and type = 'website' and "
+                        "active=true) as website from party_party "
+                        "where id != 1")
         data = self.crT.fetchall()
         pp = "party_party"
         pa = "party_address"
@@ -243,8 +270,7 @@ class Tryton2Odoo(object):
                         'active': part_data['active'],
                         'name': part_data['name'],
                         'comercial': part_data['trade_name'] or False,
-                        'email': part_data['esale_email'] or part_data['email']
-                        or False,
+                        'email': part_data['email'] or False,
                         'not_in_mod347': not part_data['include_347'] and True
                         or False,
                         'phone': part_data['phone'] or False,
@@ -252,26 +278,30 @@ class Tryton2Odoo(object):
                         'website': part_data['website'] or False,
                         'comment': part_data['comment'] or False,
                         'is_company': True}
+                if part_data.get('esale_email'):
+                    vals['email'] = part_data['esale_email']
 
-                if part_data['attributes']:
+                if part_data.get('attributes'):
                     attributes = eval(part_data['attributes'])
                     if attributes.get('medical_code', False):
                         vals['medical_code'] = attributes['medical_code']
                     if attributes.get('timetable', False):
                         vals['timetable'] = attributes['timetable']
-                if part_data['manual_code']:
-                    if vals.get('medical_code', False) and vals['medical_code'] != part_data['manual_code']:
-                        print('diferencia en codigo medico del partner %s' % part_data['id'])
+                if part_data.get('manual_code'):
+                    if vals.get('medical_code', False) and \
+                            vals['medical_code'] != part_data['manual_code']:
+                        print('diferencia en codigo medico del partner %s' %
+                              part_data['id'])
                     vals['medical_code'] = part_data['manual_code']
 
-                self.crT.execute("select count(*) from sale_sale where party = %s"
-                                 % (part_data["id"]))
+                self.crT.execute("select count(*) from sale_sale where party "
+                                 "= %s" % (part_data["id"]))
                 result = self.crT.fetchone()
                 if result and result["count"]:
                     vals['customer'] = True
 
-                self.crT.execute("select count(*) from purchase_purchase where "
-                                 "party = %s" % (part_data["id"]))
+                self.crT.execute("select count(*) from purchase_purchase where"
+                                 " party = %s" % (part_data["id"]))
                 result = self.crT.fetchone()
                 if result and result["count"]:
                     vals['supplier'] = True
@@ -452,24 +482,27 @@ class Tryton2Odoo(object):
                     journal_id = self.odoo.create("account.journal", vals)
                     self.d[getKey(aj, journal_data["id"])] = journal_id
             else:
-                self.crT.\
-                    execute("select fiscalyear,out_iss.name "
-                            "as out_name,out_iss.number_next_internal as "
-                            "out_number_next,out_iss.padding as out_padding,"
-                            "out_iss.number_increment as out_increment,"
-                            "out_iss.prefix as out_prefix,ref_iss.name as "
-                            "ref_name,ref_iss.number_next_internal as "
-                            "ref_number_next,ref_iss.padding as ref_padding,"
-                            "ref_iss.number_increment as ref_increment,"
-                            "ref_iss.prefix as ref_prefix from "
-                            "account_journal_invoice_sequence inner join "
-                            "ir_sequence_strict out_iss on out_iss.id = "
-                            "out_invoice_sequence inner join "
-                            "ir_sequence_strict ref_iss on ref_iss.id = "
-                            "out_credit_note_sequence where journal = %s "
-                            "order by fiscalyear asc"
-                            % (journal_data["id"]))
-                seq_data = self.crT.fetchall()
+                if self.esale:
+                    self.crT.\
+                        execute("select fiscalyear,out_iss.name "
+                                "as out_name,out_iss.number_next_internal as "
+                                "out_number_next,out_iss.padding as out_padding,"
+                                "out_iss.number_increment as out_increment,"
+                                "out_iss.prefix as out_prefix,ref_iss.name as "
+                                "ref_name,ref_iss.number_next_internal as "
+                                "ref_number_next,ref_iss.padding as ref_padding,"
+                                "ref_iss.number_increment as ref_increment,"
+                                "ref_iss.prefix as ref_prefix from "
+                                "account_journal_invoice_sequence inner join "
+                                "ir_sequence_strict out_iss on out_iss.id = "
+                                "out_invoice_sequence inner join "
+                                "ir_sequence_strict ref_iss on ref_iss.id = "
+                                "out_credit_note_sequence where journal = %s "
+                                "order by fiscalyear asc"
+                                % (journal_data["id"]))
+                    seq_data = self.crT.fetchall()
+                else:
+                    seq_data = []
                 out_invoice_seq = False
                 out_refund_seq = False
                 for jtype in JOURNAL_TYPE_MAP[journal_data['type']]:
@@ -860,18 +893,32 @@ class Tryton2Odoo(object):
         return True
 
     def migrate_product_product(self):
-        self.crT.\
-            execute("select pp.id,category,name,default_uom,pp.active,"
-                    "pp.create_date,pp.write_date,pt.create_date as "
-                    "tcreate_date,pt.write_date as twrite_date,"
-                    "consumable,type,purchasable,purchase_uom,salable,"
-                    "sale_uom,delivery_time,base_code,weight_uom,"
-                    "kit_fixed_list_price,kit,pt.id as template_id,"
-                    "stock_depends_on_kit_components,number,taxes_category "
-                    "from product_product pp inner join product_template pt "
-                    "on pt.id = pp.template left join product_code pc on "
-                    "pc.product = pp.id and barcode='EAN' and "
-                    "pc.active = true")
+        if self.esale:
+            self.crT.\
+                execute("select pp.id,category,name,default_uom,pp.active,"
+                        "pp.create_date,pp.write_date,pt.create_date as "
+                        "tcreate_date,pt.write_date as twrite_date,"
+                        "consumable,type,purchasable,purchase_uom,salable,"
+                        "sale_uom,delivery_time,base_code,weight_uom,"
+                        "kit_fixed_list_price,kit,pt.id as template_id,"
+                        "stock_depends_on_kit_components,number,taxes_category"
+                        " from product_product pp inner join product_template "
+                        "pt on pt.id = pp.template left join product_code pc "
+                        "on pc.product = pp.id and barcode='EAN' and "
+                        "pc.active = true")
+        else:
+            self.crT.\
+                execute("select pp.id,category,name,default_uom,pp.active,"
+                        "pp.create_date,pp.write_date,pt.create_date as "
+                        "tcreate_date,pt.write_date as twrite_date,"
+                        "consumable,type,purchasable,purchase_uom,salable,"
+                        "sale_uom,delivery_time,code,"
+                        "kit_fixed_list_price,kit,pt.id as template_id,"
+                        "stock_depends_on_kit_components,number,taxes_category"
+                        " from product_product pp inner join product_template "
+                        "pt on pt.id = pp.template left join product_code pc "
+                        "on pc.product = pp.id and barcode='EAN' and "
+                        "pc.active = true")
         data = self.crT.fetchall()
         pc = "product_category"
         pp = "product_product"
@@ -909,12 +956,18 @@ class Tryton2Odoo(object):
                     'pack_fixed_price': prod['kit_fixed_list_price'] or False,
                     'sale_delay': prod['delivery_time'] and
                     float(prod['delivery_time']) or 0,
-                    'default_code': prod['base_code'] or "",
-                    'weight': prod['weight_uom'] and float(prod['weight_uom'])
-                    or 0.0,
+                    'default_code': "",
                     'stock_depends': prod['stock_depends_on_kit_components']
                     or False,
                     'categ_id': categ_id}
+            if prod.get('base_code'):
+                vals['default_code'] = prod['base_code']
+            elif prod.get('code'):
+                vals['default_code'] = prod['code']
+
+            if prod.get('weight_uom'):
+                vals['weight'] = prod['weight_uom'] and \
+                    float(prod['weight_uom']) or 0.0
             if prod['taxes_category']:
                 self.crT.execute("select tax from "
                                  "product_category_customer_taxes_rel "
@@ -1576,29 +1629,54 @@ class Tryton2Odoo(object):
         return True
 
     def migrate_pickings(self):
-        self.crT.\
-            execute("select id,code,planned_date,contact_address as "
-                    "address_id,effective_date,supplier as partner_id,"
-                    "comment,'stock_shipment_in' as table,"
-                    "create_date,write_date from "
-                    "stock_shipment_in union select id,code,planned_date,"
-                    "delivery_address as address_id,effective_date,customer "
-                    "as partner_id,comment,'stock_shipment_out_return' as "
-                    "table,create_date,write_date from "
-                    "stock_shipment_out_return union "
-                    "select id,code,planned_date,delivery_address as "
-                    "address_id,effective_date,customer as partner_id,comment,"
-                    "'stock_shipment_out' as table,create_date,write_date "
-                    "from stock_shipment_out "
-                    "union select id,code,planned_date,null as address_id,"
-                    "effective_date,null as partner_id,comment,"
-                    "'stock_shipment_in_return' as table,"
-                    "create_date,write_date from "
-                    "stock_shipment_in_return union select id,code,"
-                    "planned_date,null as address_id,effective_date,"
-                    "null as partner_id,comment,'stock_shipment_internal' "
-                    "as table,create_date,write_date from "
-                    "stock_shipment_internal")
+        if self.esale:
+            self.crT.\
+                execute("select id,code,planned_date,contact_address as "
+                        "address_id,effective_date,supplier as partner_id,"
+                        "comment,'stock_shipment_in' as table,"
+                        "create_date,write_date from stock_shipment_in "
+                        "union select id,code,planned_date,delivery_address "
+                        "as address_id,effective_date,customer as partner_id,"
+                        "comment,'stock_shipment_out_return' as "
+                        "table,create_date,write_date from "
+                        "stock_shipment_out_return union select id,"
+                        "code,planned_date,delivery_address as address_id,"
+                        "effective_date,customer as partner_id,comment,"
+                        "'stock_shipment_out' as table,create_date,write_date "
+                        "from stock_shipment_out "
+                        "union select id,code,planned_date,null as address_id,"
+                        "effective_date,null as partner_id,comment,"
+                        "'stock_shipment_in_return' as table,"
+                        "create_date,write_date from "
+                        "stock_shipment_in_return union select id,code,"
+                        "planned_date,null as address_id,effective_date,"
+                        "null as partner_id,comment,'stock_shipment_internal' "
+                        "as table,create_date,write_date from "
+                        "stock_shipment_internal")
+        else:
+           self.crT.\
+                execute("select id,'IN/' || code as code,planned_date,"
+                        "contact_address as address_id,effective_date,supplier "
+                        "as partner_id,comment,'stock_shipment_in' as table,"
+                        "create_date,write_date from stock_shipment_in union "
+                        "select id,'ROUT/' || code as code,planned_date,"
+                        "delivery_address as address_id,effective_date,"
+                        "customer as partner_id,comment,"
+                        "'stock_shipment_out_return' as table,"
+                        "create_date,write_date from stock_shipment_out_return"
+                        " union select id,'OUT/' || code as code,planned_date,"
+                        "delivery_address as address_id,effective_date,"
+                        "customer as partner_id,comment,'stock_shipment_out'"
+                        " as table,create_date,write_date from "
+                        "stock_shipment_out union select id,'RIN/' || code "
+                        "as code,planned_date,null as address_id,"
+                        "effective_date,null as partner_id,comment,"
+                        "'stock_shipment_in_return' as table,create_date,"
+                        "write_date from stock_shipment_in_return union "
+                        "select id, 'INT/' || code as code,planned_date,null "
+                        "as address_id,effective_date,null as partner_id,"
+                        "comment,'stock_shipment_internal' as table,"
+                        "create_date,write_date from stock_shipment_internal")
         data = self.crT.fetchall()
         pa = "party_address"
         sm = "stock_move"
@@ -1616,15 +1694,17 @@ class Tryton2Odoo(object):
                 pick_id = self.d[getKey(pick['table'], pick["id"])]
                 pick_data = self.odoo.read("stock.picking", pick_id,
                                            ["state"])
-                if pick_data["state"] == "done":
-                    continue
-                else:
-                    move_ids = self.odoo.search("stock.move",
-                                                [('picking_id', '=', pick_id)])
-                    if move_ids:
-                        self.odoo.write("stock.move", move_ids,
-                                        {'picking_id': False})
-                    self.odoo.unlink("stock.picking", [pick_id])
+                if pick_data:
+                    if pick_data["state"] == "done":
+                        continue
+                    else:
+                        move_ids = self.odoo.search("stock.move",
+                                                    [('picking_id', '=',
+                                                      pick_id)])
+                        if move_ids:
+                            self.odoo.write("stock.move", move_ids,
+                                            {'picking_id': False})
+                        self.odoo.unlink("stock.picking", [pick_id])
             picking_type_id = self.odoo.\
                 search("stock.picking.type",
                        [("code", '=', TYPE_MAP[pick['table']])])[0]
@@ -1641,6 +1721,7 @@ class Tryton2Odoo(object):
                     format_date(pick['effective_date']) or False,
                     'partner_id': partner_id,
                     'picking_type_id': picking_type_id}
+            print "PICK vals: ", vals
             pick_id = self.odoo.create("stock.picking", vals)
             self.d[getKey(pick['table'], pick["id"])] = pick_id
 
@@ -1728,16 +1809,18 @@ class Tryton2Odoo(object):
                                                partner_id, ['name'])['name'],
                                 self.odoo.read('product.product', product_id,
                                                ['name'])['name'])
-            self.crT.execute('select code from esale_carrier where carrier=%s'
-                             % carrier_line['id'])
-            codes = [x[0] for x in self.crT.fetchall()]
-            codes = ','.join(codes)
             vals = {
                 'partner_id': partner_id,
                 'product_id': product_id,
                 'name': name,
-                'magento_code': codes,
             }
+            if self.esale:
+                self.crT.execute('select code from esale_carrier where carrier=%s'
+                                 % carrier_line['id'])
+                codes = [x[0] for x in self.crT.fetchall()]
+                codes = ','.join(codes)
+                vals['magento_code'] = codes
+
             if self.d.has_key(getKey('carrier', carrier_line['id'])):
                 self.odoo.write(
                     "delivery.carrier",
@@ -2068,10 +2151,17 @@ class Tryton2Odoo(object):
                 'type': 'sale',
                 'active': True,
             }
-            self.crT.execute("select id,product,sequence,price_list,"
-                             "formula,product,quantity,category "
-                             "from product_price_list_line where party "
-                             "is null and price_list = %s" % pricelist['id'])
+            if self.esale:
+                self.crT.execute("select id,product,sequence,price_list,"
+                                 "formula,product,quantity,category "
+                                 "from product_price_list_line where party "
+                                 "is null and price_list = %s"
+                                 % pricelist['id'])
+            else:
+                self.crT.execute("select id,product,sequence,price_list,"
+                                 "formula,product,quantity,category "
+                                 "from product_price_list_line where "
+                                 "price_list = %s" % pricelist['id'])
             pricelist_line_data = self.crT.fetchall()
             lines = []
             for pricelist_line in pricelist_line_data:
@@ -2139,6 +2229,26 @@ class Tryton2Odoo(object):
                     pricelist_id
 
     def sync_shops(self):
+        self.crT.execute("select id,name,active "
+                         "from sale_shop order by active asc")
+        shop_data = self.crT.fetchall()
+        ss = "sale_shop"
+        for shop in shop_data:
+            vals = {
+                'active': shop['active'],
+                'name': shop['name']
+            }
+            shop_ids = self.odoo.search("sale.store",
+                                        [('name', '=',
+                                          shop['name']),
+                                         ('active', 'in', [True, False])])
+            if not shop_ids:
+                shop_id = self.odoo.create("sale.store", vals)
+            else:
+                shop_id = shop_ids[0]
+            self.d[getKey(ss, shop['id'])] = shop_id
+
+    def sync_ecommerce_shops(self):
         self.crT.execute("select ss.id,ss.name,ss.active,logo,pw.name as "
                          "prestashop_name,ms.name as magento_name,journal "
                          "from sale_shop ss left join magento_storegroup ms "
@@ -2322,15 +2432,26 @@ class Tryton2Odoo(object):
                                         purchase_id)
 
     def migrate_sales(self):
-        self.crT.\
-            execute("select ss.id,comment,reference,payment_term,"
-                    "sale_date,state,ss.party,ss.create_date,"
-                    "shipment_address,description,invoice_method,"
-                    "payment_type,carrier,price_list,shop,reference_external,"
-                    "sale_discount,esale_coupon,asm_return,carrier_notes,"
-                    "carrier_service,invoice_address,ca.party as agent from "
-                    "sale_sale ss left join commission_agent ca on ca.id = "
-                    "ss.agent order by ss.id asc")
+        if self.esale:
+            self.crT.\
+                execute("select ss.id,comment,reference,payment_term,"
+                        "sale_date,state,ss.party,ss.create_date,"
+                        "shipment_address,description,invoice_method,"
+                        "payment_type,carrier,price_list,shop,"
+                        "reference_external,sale_discount,esale_coupon,"
+                        "asm_return,carrier_notes,carrier_service,"
+                        "invoice_address,ca.party as agent from "
+                        "sale_sale ss left join commission_agent ca on ca.id ="
+                        " ss.agent order by ss.id asc")
+        else:
+            self.crT.\
+                execute("select ss.id,comment,reference,payment_term,"
+                        "sale_date,state,ss.party,ss.create_date,"
+                        "shipment_address,description,invoice_method,"
+                        "payment_type,carrier,price_list,shop,sale_discount,"
+                        "invoice_address,ca.party as agent from sale_sale ss "
+                        "left join commission_agent ca on ca.id = ss.agent "
+                        "order by ss.id asc")
         data = self.crT.fetchall()
         PROC_MOVE_STATES_MAP = {'done': 'done',
                                 'draft': 'confirmed',
@@ -2413,7 +2534,7 @@ class Tryton2Odoo(object):
                 price_list_id = self.d[getKey(ppl, sale['price_list'])]
 
             carrier_service_id = False
-            if sale['carrier_service']:
+            if sale.get('carrier_service', False):
                 carrier_service_id = self.\
                     d[getKey(cs, sale['carrier_service'])]
 
@@ -2426,7 +2547,7 @@ class Tryton2Odoo(object):
                 notes += sale['comment'] + "\n"
             if sale['description']:
                 notes += sale['description'] + "\n"
-            if sale['esale_coupon']:
+            if sale.get('esale_coupon', False):
                 notes += "CUPON: " + sale['esale_coupon']
 
             vals = {'name': sale['reference'] or "/",
@@ -2436,7 +2557,6 @@ class Tryton2Odoo(object):
                     'date_order': sale['sale_date'] and
                     format_date(sale['sale_date']) or
                     format_date(sale['create_date']),
-                    'client_order_ref': sale['reference_external'] or "",
                     'warehouse_id': warehouse_id,
                     'pricelist_id': price_list_id,
                     'carrier_id': carrier_id,
@@ -2446,9 +2566,13 @@ class Tryton2Odoo(object):
                     'payment_term': payment_term_id,
                     'payment_mode_id': payment_type_id,
                     'carrier_service_id': carrier_service_id,
-                    'asm_return': sale['asm_return'] or False,
-                    'carrier_notes': sale['carrier_notes'] or "",
                     'sale_store_id': shop_id}
+            if sale.get('reference_external', False):
+                vals['client_order_ref'] = sale['reference_external'] or ""
+            if sale.get('asm_return', False):
+                vals['asm_return'] = sale['asm_return'] or False
+            if sale.get('carrier_notes', False):
+                vals['carrier_notes'] = sale['carrier_notes'] or ""
             print "vals: ", vals
             order_id = self.odoo.create("sale.order", vals)
             partner_data = self.odoo.read("res.partner",
