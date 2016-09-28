@@ -57,61 +57,61 @@ class Tryton2Odoo(object):
             # Proceso
             #self.migrate_account_fiscalyears()
             #self.migrate_account_period()
-            self.migrate_new_accounts() # ACUMULATIVO
-            self.migrate_party_party() # ACUMULATIVO
-            self.migrate_party_category() # ACUMULATIVO
-            self.migrate_account_journal()
-            self.sync_banks() # ACUMULATIVO
-            self.migrate_bank_accounts() # ACUMULATIVO
+            #~ self.migrate_new_accounts() # ACUMULATIVO
+            #~ self.migrate_party_party() # ACUMULATIVO
+            #~ self.migrate_party_category() # ACUMULATIVO
+            #~ self.migrate_account_journal()
+            #~ self.sync_banks() # ACUMULATIVO
+            #~ self.migrate_bank_accounts() # ACUMULATIVO
             self.TAXES_MAP = loadTaxes()
             self.TAX_CODES_MAP = loadTaxCodes()
             self.PAYMENT_MODES_MAP = loadPaymentModes()
             self.FISCAL_POSITIONS_MAP = loadFiscalPositions()
-            self.migrate_account_moves() # ACUMULATIVO
-            self.migrate_account_reconciliation()  # ACUMULATIVO
-            self.migrate_product_category() # ACUMULATIVO
+            #~ self.migrate_account_moves() # ACUMULATIVO
+            #~ self.migrate_account_reconciliation()  # ACUMULATIVO
+            #~ self.migrate_product_category() # ACUMULATIVO
             self.UOM_MAP = loadProductUoms()
-            self.migrate_product_uom() # ACUMULATIVO
-            self.migrate_product_product() # ACUMULATIVO
-            if self.esale:
-                self.migrate_magento_metadata()
-                self.migrate_prestashop_metadata()
-                self.migrate_magento_payment_mode() # ACUMULATIVO
+            #~ self.migrate_product_uom() # ACUMULATIVO
+            #~ self.migrate_product_product() # ACUMULATIVO
+            #~ if self.esale:
+                #~ self.migrate_magento_metadata()
+                #~ self.migrate_prestashop_metadata()
+                #~ self.migrate_magento_payment_mode() # ACUMULATIVO
             self.PAYMENT_TERM_MAP = loadPaymentTerms()
-            self.migrate_invoices() #ACUMULATIVO
-            self.migrate_account_bank_statements() #ACUMULATIVO
+            #~ self.migrate_invoices() #ACUMULATIVO
+            #~ self.migrate_account_bank_statements() #ACUMULATIVO
             self.LOCATIONS_MAP = loadStockLocations()
-            self.migrate_stock_lots() # ACUMULATIVO
-            self.migrate_inventories() # ACUMULATIVO
-            self.migrate_moves() # ACUMULATIVO
-            self.merge_quants()
-            self.migrate_pickings() #ACUMULATIVO
-            self.migrate_orderpoints() # ACUMULATIVO
-            self.migrate_carrier() #ACUMULATIVO
-            if self.esale:
-                self.migrate_carrier_api() #ACUMULATIVO
-                self.migrate_carrier_api_services() # ACUMULATIVO
-                self.migrate_carrier_data() # ACUMULATIVO
-                self.migrate_magento_carrier() # ACUMULATIVO
-            self.migrate_commission_plan() # ACUMULATIVO
-            self.migrate_commission_agent() # ACUMULATIVO
-            self.migrate_users() # ACUMULATIVO
+            #~ self.migrate_stock_lots() # ACUMULATIVO
+            #~ self.migrate_inventories() # ACUMULATIVO
+            #~ self.migrate_moves() # ACUMULATIVO
+            #~ self.merge_quants()
+            #~ self.migrate_pickings() #ACUMULATIVO
+            #~ self.migrate_orderpoints() # ACUMULATIVO
+            #~ self.migrate_carrier() #ACUMULATIVO
+            #~ if self.esale:
+                #~ self.migrate_carrier_api() #ACUMULATIVO
+                #~ self.migrate_carrier_api_services() # ACUMULATIVO
+                #~ self.migrate_carrier_data() # ACUMULATIVO
+                #~ self.migrate_magento_carrier() # ACUMULATIVO
+            #~ self.migrate_commission_plan() # ACUMULATIVO
+            #~ self.migrate_commission_agent() # ACUMULATIVO
+            #~ self.migrate_users() # ACUMULATIVO
             self.GROUPS_MAP = loadGroups()
-            self.migrate_groups()  # ACUMULATIVO
-            self.migrate_product_suppliers() # ACUMULATIVO
-            self.migrate_pricelist() # ACUMULATIVO
-            if self.esale:
-                self.sync_ecommerce_shops() # ACUMULATIVO
-            else:
-                self.sync_shops() # ACUMULATIVO
-            self.migrate_sales()  # ACUMULATIVO
-            self.migrate_sale_invoice_link()  # ACUMULATIVO
-            self.migrate_purchase_order()  # ACUMULATIVO
-            #self.fix_product_migration()
+            #~ self.migrate_groups()  # ACUMULATIVO
+            #~ self.migrate_product_suppliers() # ACUMULATIVO
+            #~ self.migrate_pricelist() # ACUMULATIVO
+            #~ if self.esale:
+                #~ self.sync_ecommerce_shops() # ACUMULATIVO
+            #~ else:
+                #~ self.sync_shops() # ACUMULATIVO
+            #~ self.migrate_sales()  # ACUMULATIVO
+            #~ self.migrate_sale_invoice_link()  # ACUMULATIVO
+            #~ self.migrate_purchase_order()  # ACUMULATIVO
+            self.fix_product_migration()
             #self.fix_party_migration()
             #self.fix_lot_migration()
             #self.fix_product_ean14_migration()
-            #self.fix_partner_payment_data()
+            self.fix_partner_payment_data()
             # self.reimport_medical_code() # Corregido migrate_party_party esta función es innecesaria
             print('Nueva fecha de última actualización: %s' %
                   str(datetime.utcnow()))
@@ -2842,7 +2842,7 @@ class Tryton2Odoo(object):
             if field_value:
                 field_value = field_value['value'].replace(",", "")
                 vals['list_price'] = float(field_value)
-
+            print "VALS: ", vals
             self.odoo.write('product.product', self.d[getKey(pp, prod["id"])],
                             vals)
 
@@ -3000,10 +3000,27 @@ class Tryton2Odoo(object):
             field_value = self.crT.fetchone()
             if field_value:
                 pricelist_id = int(field_value['value'].split(",")[1])
-                vals['property_product_pricelist'] = \
-                    self.d[getKey(ppl, pricelist_id)]
+                if self.d.has_key(getKey(ppl, pricelist_id)):
+                    vals['property_product_pricelist'] = \
+                        self.d[getKey(ppl, pricelist_id)]
+
+            self.crT.\
+                execute("select supplier_payment_type,customer_payment_type "
+                        "from party_account_payment_type where party = %s "
+                        "limit 1" % (party['id']))
+            field_value = self.crT.fetchone()
+            if field_value:
+                if field_value['supplier_payment_type']:
+                    pmode_id = str(field_value['supplier_payment_type'])
+                    vals['supplier_payment_mode'] = \
+                        self.PAYMENT_MODES_MAP[pmode_id]
+                if field_value['customer_payment_type']:
+                    pmode_id = str(field_value['customer_payment_type'])
+                    vals['customer_payment_mode'] = \
+                        self.PAYMENT_MODES_MAP[pmode_id]
 
             if vals:
+                print "VALS: ", vals
                 odoo_partner_id = self.d[getKey('party_party', party['id'])]
                 self.odoo.write('res.partner', odoo_partner_id, vals)
 

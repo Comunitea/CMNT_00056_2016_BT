@@ -14,7 +14,8 @@
     "depends": [
         "base",
         "stock",
-        "sale_payment_method"
+        "sale_payment_method",
+        "sale"
     ],
     "data": [
         'views/payment_method.xml',
