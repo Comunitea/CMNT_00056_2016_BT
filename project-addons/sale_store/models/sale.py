@@ -39,7 +39,7 @@ class SaleStoreConfig(models.Model):
     value = fields.Reference(
         [('product.pricelist', 'Pricelist'),
          ('payment.mode', 'Payment mode'),
-         ('account.payment.term', 'Payment term')], required=True)
+         ('account.payment.term', 'Payment term')])
 
 
 class SaleOrder(models.Model):
