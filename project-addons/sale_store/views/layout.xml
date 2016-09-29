@@ -32,7 +32,7 @@
             </xpath>
 
             <xpath expr="//li[@t-if='company.email'][2]" position="before">
-                <li t-if="store.email">Email: <span t-field="store.email"/></li>
+                <li t-if="store and store.email">Email: <span t-field="store.email"/></li>
             </xpath>
             <xpath expr="//li[@t-if='company.email'][2]" position="attributes">
                 <attribute name="t-if">(not store or not store.email) and company.email</attribute>
