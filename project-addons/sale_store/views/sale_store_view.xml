@@ -43,6 +43,8 @@
                             <field name="journal_id"/>
                             <field name="default_account_id"/>
                             <field name="active"/>
+                            <field name="phone"/>
+                            <field name="email"/>
                         </group>
                     </sheet>
                 </form>

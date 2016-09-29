@@ -21,6 +21,16 @@ msgid "Group By"
 msgstr "Agrupar por"
 
 #. module: sale_store
+#: view:website:report.external_layout_footer
+msgid "VAT:"
+msgstr "NIF:"
+
+#. module: sale_store
+#: field:sale.store,phone:0
+msgid "Phone"
+msgstr "Teléfono"
+
+#. module: sale_store
 #: model:ir.model,name:sale_store.model_account_invoice
 msgid "Invoice"
 msgstr "Factura"
