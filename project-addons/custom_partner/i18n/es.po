@@ -46,3 +46,8 @@ msgstr "Empresa"
 #: field:res.partner,timetable:0
 msgid "Timetable"
 msgstr "Horario"
+
+#. module: custom_partner
+#: view:website:account.report_invoice_document
+msgid "Medical Code:"
+msgstr "Código médico:"

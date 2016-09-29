@@ -15,10 +15,12 @@
         "base",
         "carrier_api",
         "account",
-        "stock"
+        "stock",
+        "account"
     ],
     "data": [
         "views/partner_view.xml",
-        "views/sale.xml"
+        "views/sale.xml",
+        "views/invoice.xml"
     ],
 }

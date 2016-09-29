@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <template id="report_invoice_document_add_medical_code" inherit_id="account.report_invoice_document">
+            <xpath expr="//div[@t-if='o.partner_id.ref']" position="replace">
+                <div class="col-xs-3" t-if="o.partner_id.medical_code">
+                    <strong>Medical Code:</strong>
+                    <p t-field="o.partner_id.medical_code"/>
+                </div>
+            </xpath>
+        </template>
+
+    </data>
+</openerp>
