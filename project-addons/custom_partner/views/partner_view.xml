@@ -35,5 +35,33 @@
             </field>
         </record>
 
+        <record id="view_partner_tree_add_medical_code" model="ir.ui.view">
+            <field name="name">res.partner.tree.add_medical_code</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_tree"/>
+            <field name="arch" type="xml">
+                <field name="function" position="after">
+                    <field name="medical_code"/>
+                    <field name="vat"/>
+                </field>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="res_partner_kanban_view_add_medical_code">
+            <field name="name">res.partner.kanban.add_medical_code</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.res_partner_kanban_view"/>
+            <field name="arch" type="xml">
+                <field name="has_image" position="after">
+                    <field name="medical_code"/>
+                    <field name="vat"/>
+                </field>
+                <xpath expr="//div[@class='oe_kanban_details']/ul/li[@t-if='record.email.raw_value']" position="after">
+                    <li t-if="record.medical_code.raw_value"><field name="medical_code"/></li>
+                    <li t-if="record.vat.raw_value"><field name="vat"/></li>
+                </xpath>
+            </field>
+        </record>
+
     </data>
 </openerp>
