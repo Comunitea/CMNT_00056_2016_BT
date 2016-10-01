@@ -21,7 +21,7 @@ class SaleOrder(models.Model):
         if part:
             partner = self.env['res.partner'].browse(part)
             values['asm_return'] = partner.asm_return
-            values['carrier_service_id'] = partner.carrier_service_id
+            values['carrier_service_id'] = partner.carrier_service_id.id
             values['carrier_notes'] = partner.carrier_notes
             res['value'].update(values)
         return res
