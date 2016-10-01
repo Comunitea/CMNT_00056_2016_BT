@@ -9,6 +9,7 @@
     "83": [59], # 10% IVA Soportado (bienes de inversión)
     "86": [60], # 21% IVA Soportado (bienes de inversión)
     "91": [67], # IVA 10%
+    "232": [9,1], # Retenciones IRPF 7% + 21% IVA Soportado (operaciones corrientes)
     "346": [1,25], # Retenciones IRPF 15% + 21% IVA Soportado (operaciones corrientes)
     "439": [73,80], # Retenciones IRPF 19% + IVA Soportado exento (operaciones corrientes)
     "460": [1,80], # Retenciones IRPF 19% + 21% IVA Soportado (operaciones corrientes)

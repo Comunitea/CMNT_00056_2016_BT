@@ -57,62 +57,63 @@ class Tryton2Odoo(object):
             # Proceso
             #self.migrate_account_fiscalyears()
             #self.migrate_account_period()
-            #~ self.migrate_new_accounts() # ACUMULATIVO
-            #~ self.migrate_party_party() # ACUMULATIVO
-            #~ self.migrate_party_category() # ACUMULATIVO
-            #~ self.migrate_account_journal()
-            #~ self.sync_banks() # ACUMULATIVO
-            #~ self.migrate_bank_accounts() # ACUMULATIVO
+            #self.migrate_new_accounts() # ACUMULATIVO
+            #self.migrate_party_party() # ACUMULATIVO
+            #self.migrate_party_category() # ACUMULATIVO
+            #self.migrate_account_journal()
+            #self.sync_banks() # ACUMULATIVO
+            #self.migrate_bank_accounts() # ACUMULATIVO
             self.TAXES_MAP = loadTaxes()
             self.TAX_CODES_MAP = loadTaxCodes()
             self.PAYMENT_MODES_MAP = loadPaymentModes()
             self.FISCAL_POSITIONS_MAP = loadFiscalPositions()
-            #~ self.migrate_account_moves() # ACUMULATIVO
-            #~ self.migrate_account_reconciliation()  # ACUMULATIVO
-            #~ self.migrate_product_category() # ACUMULATIVO
-            self.UOM_MAP = loadProductUoms()
-            #~ self.migrate_product_uom() # ACUMULATIVO
-            #~ self.migrate_product_product() # ACUMULATIVO
-            #~ if self.esale:
+            #self.migrate_account_moves() # ACUMULATIVO
+            #self.migrate_account_reconciliation()  # ACUMULATIVO
+            #self.migrate_product_category() # ACUMULATIVO
+            #self.UOM_MAP = loadProductUoms()
+            #self.migrate_product_uom() # ACUMULATIVO
+            #self.migrate_product_product() # ACUMULATIVO
+            #if self.esale:
                 #~ self.migrate_magento_metadata()
                 #~ self.migrate_prestashop_metadata()
-                #~ self.migrate_magento_payment_mode() # ACUMULATIVO
+                #self.migrate_magento_payment_mode() # ACUMULATIVO
             self.PAYMENT_TERM_MAP = loadPaymentTerms()
-            #~ self.migrate_invoices() #ACUMULATIVO
-            #~ self.migrate_account_bank_statements() #ACUMULATIVO
+            #self.migrate_invoices() #ACUMULATIVO
+            #self.migrate_account_bank_statements() #ACUMULATIVO
             self.LOCATIONS_MAP = loadStockLocations()
-            #~ self.migrate_stock_lots() # ACUMULATIVO
-            #~ self.migrate_inventories() # ACUMULATIVO
-            #~ self.migrate_moves() # ACUMULATIVO
-            #~ self.merge_quants()
-            #~ self.migrate_pickings() #ACUMULATIVO
-            #~ self.migrate_orderpoints() # ACUMULATIVO
-            #~ self.migrate_carrier() #ACUMULATIVO
+            #self.migrate_stock_lots() # ACUMULATIVO
+            #self.migrate_inventories() # ACUMULATIVO
+            #self.migrate_moves() # ACUMULATIVO
+            #self.merge_quants()
+            #self.migrate_pickings() #ACUMULATIVO
+            #self.migrate_orderpoints() # ACUMULATIVO
+            #self.migrate_carrier() #ACUMULATIVO
             #~ if self.esale:
                 #~ self.migrate_carrier_api() #ACUMULATIVO
                 #~ self.migrate_carrier_api_services() # ACUMULATIVO
                 #~ self.migrate_carrier_data() # ACUMULATIVO
                 #~ self.migrate_magento_carrier() # ACUMULATIVO
-            #~ self.migrate_commission_plan() # ACUMULATIVO
-            #~ self.migrate_commission_agent() # ACUMULATIVO
-            #~ self.migrate_users() # ACUMULATIVO
+            #self.migrate_commission_plan() # ACUMULATIVO
+            #self.migrate_commission_agent() # ACUMULATIVO
+            #self.migrate_users() # ACUMULATIVO
             self.GROUPS_MAP = loadGroups()
-            #~ self.migrate_groups()  # ACUMULATIVO
-            #~ self.migrate_product_suppliers() # ACUMULATIVO
-            #~ self.migrate_pricelist() # ACUMULATIVO
-            #~ if self.esale:
-                #~ self.sync_ecommerce_shops() # ACUMULATIVO
-            #~ else:
-                #~ self.sync_shops() # ACUMULATIVO
-            #~ self.migrate_sales()  # ACUMULATIVO
-            #~ self.migrate_sale_invoice_link()  # ACUMULATIVO
-            #~ self.migrate_purchase_order()  # ACUMULATIVO
-            self.fix_product_migration()
+            #self.migrate_groups()  # ACUMULATIVO
+            #self.migrate_product_suppliers() # ACUMULATIVO
+            #self.migrate_pricelist() # ACUMULATIVO
+            #if self.esale:
+            #    self.sync_ecommerce_shops() # ACUMULATIVO
+            #else:
+            #    self.sync_shops() # ACUMULATIVO
+            #self.migrate_sales()  # ACUMULATIVO
+            self.migrate_sale_invoice_link()  # ACUMULATIVO
+            self.migrate_purchase_order()  # ACUMULATIVO
+            #self.fix_product_migration()
             #self.fix_party_migration()
             #self.fix_lot_migration()
             #self.fix_product_ean14_migration()
             self.fix_partner_payment_data()
             # self.reimport_medical_code() # Corregido migrate_party_party esta función es innecesaria
+            self.fix_product_name_migration()
             print('Nueva fecha de última actualización: %s' %
                   str(datetime.utcnow()))
             self.d['last_update'] = datetime.utcnow()
@@ -671,12 +672,15 @@ class Tryton2Odoo(object):
                 'country_id': owner_data['country_id'] and
                 owner_data['country_id'][0] or False,
             }
+            print "VALS: ", vals
             if self.d.has_key(getKey(ba, acc_data["id"])) and self.odoo.\
                     read("res.partner.bank",
                          self.d[getKey(ba, acc_data["id"])], []):
+                print "WRITE"
                 self.odoo.write("res.partner.bank",
                                 self.d[getKey(ba, acc_data["id"])], vals)
             else:
+                print "CREATE"
                 acc_id = self.odoo.create("res.partner.bank", vals)
                 self.d[getKey(ba, acc_data["id"])] = acc_id
 
@@ -684,21 +688,23 @@ class Tryton2Odoo(object):
 
     def unlink_move(self, move_key):
         move_id = self.d[move_key]
-        invoices = self.odoo.search('account.invoice',
-                                    [('move_id', '=', move_id)])
-        self.odoo.write('account.invoice', invoices, {'move_id': False})
-        move_lines = self.odoo.search('account.move.line',
-                                      [('move_id', '=', move_id)])
-        move_line_data = self.odoo.read('account.move.line', move_lines,
-                                        ['reconcile_id'])
-        for move_line in move_line_data:
-            if move_line['reconcile_id']:
-                self.odoo.unlink('account.move.reconcile',
-                                 move_line['reconcile_id'][0])
-        self.odoo.execute('account.move', 'button_cancel', [move_id])
-        self.odoo.unlink('account.move.line', move_lines)
-        self.odoo.unlink('account.move', move_id)
-        self.d.pop(move_key)
+        move_data = self.odoo.read("account.move", move_id, [])
+        if move_data:
+            invoices = self.odoo.search('account.invoice',
+                                        [('move_id', '=', move_id)])
+            self.odoo.write('account.invoice', invoices, {'move_id': False})
+            move_lines = self.odoo.search('account.move.line',
+                                          [('move_id', '=', move_id)])
+            move_line_data = self.odoo.read('account.move.line', move_lines,
+                                            ['reconcile_id'])
+            for move_line in move_line_data:
+                if move_line['reconcile_id']:
+                    self.odoo.unlink('account.move.reconcile',
+                                     move_line['reconcile_id'][0])
+            self.odoo.execute('account.move', 'button_cancel', [move_id])
+            self.odoo.unlink('account.move.line', move_lines)
+            self.odoo.unlink('account.move', move_id)
+            self.d.pop(move_key)
 
     def migrate_account_moves(self):
         self.crT.execute("select id,post_number,journal,period,date,state,"
@@ -815,6 +821,7 @@ class Tryton2Odoo(object):
         amr = "account_move_reconciliation"
         aml = "account_move_line"
         for rec in data:
+            print "rec"
             vals = {
                 'name': rec['name'],
                 'type': 'auto'
@@ -835,9 +842,14 @@ class Tryton2Odoo(object):
                              "reconciliation = %s" % (rec['id']))
             lines_data = self.crT.fetchall()
             for line in lines_data:
+                print "line: ", line["id"]
                 move_line_id = self.d[getKey(aml, line["id"])]
-                self.odoo.write("account.move.line", [move_line_id],
-                                {'reconcile_id': rec_id})
+                line_data = self.odoo.read("account.move.line", move_line_id,
+                                           [])
+                if line_data:
+                    self.odoo.write("account.move.line", [move_line_id],
+                                    {'reconcile_id': rec_id})
+        print "finish rec"
         return True
 
     def migrate_product_category(self):
@@ -856,6 +868,7 @@ class Tryton2Odoo(object):
                     'type': 'normal'}
             cat_id = self.odoo.create("product.category", vals)
             self.d[getKey(pc, cat["id"])] = cat_id
+        print "finish categ"
         return True
 
     def migrate_product_uom(self):
@@ -890,6 +903,7 @@ class Tryton2Odoo(object):
                 else:
                     uom_id = self.odoo.create("product.uom", vals)
                     self.d[getKey(pu, uom_data["id"])] = uom_id
+        print "finish uom"
         return True
 
     def migrate_product_product(self):
@@ -1384,6 +1398,7 @@ class Tryton2Odoo(object):
                     'balance_start': statement['start_balance'] and
                     float(statement['start_balance']) or 0.0,
                     'date': acc_date}
+            print "vals: ", vals
             bs_id = self.odoo.create("account.bank.statement", vals)
             self.d[getKey(bs, statement["id"])] = bs_id
             move_line_ids = []
@@ -1398,12 +1413,15 @@ class Tryton2Odoo(object):
             for line in lines_data:
                 account_id = False
                 if line['account']:
+                    print "account: ", line['account']
                     account_id = self.d[getKey(aa, line['account'])]
                 partner_id = False
                 if line['party']:
+                    print "party: ", line['party']
                     partner_id = self.d[getKey(pp, line['party'])]
                 journal_entry_id = False
                 if line['move']:
+                    print "move: ", line['move']
                     journal_entry_id = self.d[getKey(am, line['move'])]
                 line_vals = {'name': line['description'] or "-",
                              'date': format_date(line['date']),
@@ -1414,6 +1432,7 @@ class Tryton2Odoo(object):
                              'statement_id': bs_id,
                              'note': line['notes'] or "",
                              'journal_entry_id': journal_entry_id}
+                print "line_vals: ", line_vals
                 absl_id = self.odoo.create("account.bank.statement.line",
                                            line_vals)
                 self.d[getKey(bsl, line["id"])] = absl_id
@@ -1424,10 +1443,14 @@ class Tryton2Odoo(object):
                 reconcile_data = self.crT.fetchall()
                 for reconcile in reconcile_data:
                     move_line_id = self.d[getKey(aml, reconcile['move_line'])]
-                    move_line_ids.append(move_line_id)
+                    line_data = self.odoo.read("account.move.line",
+                                               move_line_id, [])
+                    if line_data:
+                        move_line_ids.append(move_line_id)
             if move_line_ids:
                 self.odoo.write("account.move.line", move_line_ids,
                                 {'statement_id': bs_id})
+        print "end_bank_statement"
         return True
 
     def migrate_stock_lots(self):
@@ -2861,6 +2884,16 @@ class Tryton2Odoo(object):
                                     {'ean14': product_code['number']})
                 except:
                     pass
+
+    def fix_product_name_migration(self):
+        self.crT.execute('select pp.id,name from product_product pp inner'
+                         ' join product_template pt on pt.id = pp.template')
+        data = self.crT.fetchall()
+        pp = 'product_product'
+        for product_code in data:
+            odoo_product = self.d[getKey(pp, product_code['id'])]
+            self.odoo.write("product.product", [odoo_product],
+                            {'name': product_code['name']})
 
     def fix_party_migration(self):
         aa = 'account_account'

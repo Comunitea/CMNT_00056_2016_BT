@@ -40,10 +40,12 @@
     "145": 145, # IRPF Retenciones practicadas Base Imponible 15%
     "147": 147, # IRPF Retenciones practicadas Base Imponible 19%
     "150": 150, # IRPF Retenciones practicadas Base Imponible 21%
+    "151": 151, # IRPF Retenciones practicadas Base Imponible 7%
     "158": 163, # IRPF Retenciones a cuenta Base Imponible 20%
     "165": 126, # IRPF Retenciones practicadas Cuota 15%
     "167": 128, # IRPF Retenciones practicadas Cuota 19%
     "170": 131, # IRPF Retenciones practicadas Cuota 21%
+    "171": 132, # IRPF Retenciones practicadas Cuota 7%
     "178": 168, # IRPF Retenciones a cuenta Cuota 20%
     "186": 76, # Régimen especial criterio de Caja. Base devengada 10%
     "190": 54, # Régimen especial criterio de Caja. IVA Devengado 10%
