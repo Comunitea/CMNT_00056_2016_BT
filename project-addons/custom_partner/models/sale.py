@@ -13,6 +13,7 @@ class SaleOrder(models.Model):
                                          "Carrier service")
     asm_return = fields.Boolean("Asm return")
     carrier_notes = fields.Text("Carrier notes")
+    internal_notes = fields.Text("Internal notes")
 
     @api.multi
     def onchange_partner_id(self, part):
@@ -33,5 +34,6 @@ class SaleOrder(models.Model):
             order.picking_ids.write(
                 {'carrier_service': order.carrier_service_id.id,
                  'asm_return': order.asm_return,
-                 'carrier_notes': order.carrier_notes})
+                 'carrier_notes': order.carrier_notes,
+                 'note': order.internal_notes})
         return res

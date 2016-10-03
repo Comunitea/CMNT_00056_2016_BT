@@ -30,12 +30,12 @@ class Tryton2Odoo(object):
         import ipdb; ipdb.set_trace()
         try:
             self.odoo = OdooConnect()
-            self.connOdoo = psycopg2.\
-                connect("dbname='" + Config.ODOO_DATABASE +
-                        "' user='" + Config.ODOO_DB_USER +
-                        "' host='" + Config.ODOO_DB_HOST +
-                        "' password='" + Config.ODOO_DB_PASSWORD + "'")
-            self.crO = self.connOdoo.cursor(cursor_factory=DictCursor)
+            #~ self.connOdoo = psycopg2.\
+                #~ connect("dbname='" + Config.ODOO_DATABASE +
+                        #~ "' user='" + Config.ODOO_DB_USER +
+                        #~ "' host='" + Config.ODOO_DB_HOST +
+                        #~ "' password='" + Config.ODOO_DB_PASSWORD + "'")
+            #~ self.crO = self.connOdoo.cursor(cursor_factory=DictCursor)
             self.connTryton = psycopg2.\
                 connect("dbname='" + Config.TRYTON_DATABSE +
                         "' user='" + Config.TRYTON_DB_USER +
@@ -70,13 +70,13 @@ class Tryton2Odoo(object):
             #self.migrate_account_moves() # ACUMULATIVO
             #self.migrate_account_reconciliation()  # ACUMULATIVO
             #self.migrate_product_category() # ACUMULATIVO
-            #self.UOM_MAP = loadProductUoms()
+            self.UOM_MAP = loadProductUoms()
             #self.migrate_product_uom() # ACUMULATIVO
             #self.migrate_product_product() # ACUMULATIVO
             #if self.esale:
-                #~ self.migrate_magento_metadata()
-                #~ self.migrate_prestashop_metadata()
-                #self.migrate_magento_payment_mode() # ACUMULATIVO
+            #    self.migrate_magento_metadata()
+            #    self.migrate_prestashop_metadata()
+            #    self.migrate_magento_payment_mode() # ACUMULATIVO
             self.PAYMENT_TERM_MAP = loadPaymentTerms()
             #self.migrate_invoices() #ACUMULATIVO
             #self.migrate_account_bank_statements() #ACUMULATIVO
@@ -88,11 +88,11 @@ class Tryton2Odoo(object):
             #self.migrate_pickings() #ACUMULATIVO
             #self.migrate_orderpoints() # ACUMULATIVO
             #self.migrate_carrier() #ACUMULATIVO
-            #~ if self.esale:
-                #~ self.migrate_carrier_api() #ACUMULATIVO
-                #~ self.migrate_carrier_api_services() # ACUMULATIVO
-                #~ self.migrate_carrier_data() # ACUMULATIVO
-                #~ self.migrate_magento_carrier() # ACUMULATIVO
+            #if self.esale:
+            #    self.migrate_carrier_api() #ACUMULATIVO
+            #    self.migrate_carrier_api_services() # ACUMULATIVO
+            #    self.migrate_carrier_data() # ACUMULATIVO
+            #    self.migrate_magento_carrier() # ACUMULATIVO
             #self.migrate_commission_plan() # ACUMULATIVO
             #self.migrate_commission_agent() # ACUMULATIVO
             #self.migrate_users() # ACUMULATIVO
@@ -105,13 +105,13 @@ class Tryton2Odoo(object):
             #else:
             #    self.sync_shops() # ACUMULATIVO
             #self.migrate_sales()  # ACUMULATIVO
-            self.migrate_sale_invoice_link()  # ACUMULATIVO
-            self.migrate_purchase_order()  # ACUMULATIVO
+            #self.migrate_sale_invoice_link()  # ACUMULATIVO
+            #self.migrate_purchase_order()  # ACUMULATIVO
             #self.fix_product_migration()
             #self.fix_party_migration()
             #self.fix_lot_migration()
             #self.fix_product_ean14_migration()
-            self.fix_partner_payment_data()
+            #self.fix_partner_payment_data()
             # self.reimport_medical_code() # Corregido migrate_party_party esta función es innecesaria
             self.fix_product_name_migration()
             print('Nueva fecha de última actualización: %s' %

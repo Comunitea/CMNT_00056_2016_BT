@@ -20,7 +20,7 @@ class StockPicking(models.Model):
         help='The package has been delivered', copy=False)
     carrier_printed = fields.Boolean('Printed', readonly=True,
         help='Picking is already printed', copy=False)
-    carrier_notes = fields.Char('Carrier Notes',
+    carrier_notes = fields.Text('Carrier Notes',
         states={'done': [('readonly', True)]},
         help='Add notes when send API shipment')
     carrier_send_employee = fields.Many2one('hr.employee', readonly=True)

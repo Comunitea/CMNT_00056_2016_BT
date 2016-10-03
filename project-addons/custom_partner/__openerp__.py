@@ -16,7 +16,8 @@
         "carrier_api",
         "account",
         "stock",
-        "account"
+        "account",
+        "l10n_es_partner"
     ],
     "data": [
         "views/partner_view.xml",

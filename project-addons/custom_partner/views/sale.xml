@@ -14,6 +14,7 @@
                     <field name="carrier_service_id"/>
                     <field name="asm_return"/>
                     <field name="carrier_notes"/>
+                    <field name="internal_notes"/>
                 </field>
             </field>
         </record>

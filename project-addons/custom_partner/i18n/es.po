@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 8.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-06-08 15:30+0000\n"
-"PO-Revision-Date: 2016-06-08 15:30+0000\n"
+"POT-Creation-Date: 2016-10-03 21:06+0000\n"
+"PO-Revision-Date: 2016-10-03 21:06+0000\n"
 "Last-Translator: <>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -17,19 +17,37 @@ msgstr ""
 
 #. module: custom_partner
 #: field:res.partner,asm_return:0
+#: field:sale.order,asm_return:0
 msgid "Asm return"
 msgstr "Devolución Asm"
 
 #. module: custom_partner
 #: view:res.partner:custom_partner.view_partner_property_form_add_custom_fields
 #: field:res.partner,carrier_notes:0
+#: field:sale.order,carrier_notes:0
 msgid "Carrier notes"
 msgstr "Notas transportista"
 
 #. module: custom_partner
 #: field:res.partner,carrier_service_id:0
+#: field:sale.order,carrier_service_id:0
 msgid "Carrier service"
 msgstr "Servicio transporte"
+
+#. module: custom_partner
+#: view:website:account.report_invoice_document
+msgid "Customer Code:"
+msgstr "Código de cliente"
+
+#. module: custom_partner
+#: field:sale.order,internal_notes:0
+msgid "Internal notes"
+msgstr "Notas internas"
+
+#. module: custom_partner
+#: model:ir.model,name:custom_partner.model_account_journal
+msgid "Journal"
+msgstr "Diario"
 
 #. module: custom_partner
 #: field:res.partner,medical_code:0
@@ -42,12 +60,17 @@ msgid "Partner"
 msgstr "Empresa"
 
 #. module: custom_partner
+#: model:ir.model,name:custom_partner.model_stock_quant
+msgid "Quants"
+msgstr "Quants"
+
+#. module: custom_partner
+#: model:ir.model,name:custom_partner.model_sale_order
+msgid "Sales Order"
+msgstr "Pedido de venta"
+
+#. module: custom_partner
 #: view:res.partner:custom_partner.view_partner_property_form_add_custom_fields
 #: field:res.partner,timetable:0
 msgid "Timetable"
 msgstr "Horario"
-
-#. module: custom_partner
-#: view:website:account.report_invoice_document
-msgid "Medical Code:"
-msgstr "Código médico:"
