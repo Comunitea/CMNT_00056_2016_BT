@@ -5,3 +5,4 @@ from . import payment_method
 from . import sale
 from . import product
 from . import stock
+from . import invoice
