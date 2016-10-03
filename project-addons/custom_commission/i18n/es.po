@@ -37,6 +37,11 @@ msgid "Commission"
 msgstr "Comisión"
 
 #. module: custom_commission
+#: view:sale.order:custom_commission.view_sale_update_commission
+msgid "Update Commissions"
+msgstr "Actualizar comisiones"
+
+#. module: custom_commission
 #: view:agent.plan.add.category:custom_commission.agent_plan_add_category_form
 msgid "or"
 msgstr "O"

@@ -16,6 +16,7 @@
         "sale_commission_product_plan"
     ],
     "data": [
-        "wizard/plan_add_category_wizard.xml"
+        "wizard/plan_add_category_wizard.xml",
+        "views/sale_view.xml"
     ],
 }
