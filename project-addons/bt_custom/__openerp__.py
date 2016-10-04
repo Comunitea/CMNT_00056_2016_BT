@@ -18,8 +18,7 @@
         "sale",
         "sale_early_payment_discount",
         "purchase",
-        "account_payment_sale",
-        "mrp"
+        "account_payment_sale"
     ],
     "data": [
         'views/payment_method.xml',
