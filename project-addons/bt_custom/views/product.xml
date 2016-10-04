@@ -16,6 +16,9 @@
                 <field name="lst_price" position="after">
                     <field name="takes"/>
                 </field>
+                <page string="Procurements" position="attributes">
+                    <attribute name="groups">purchase.group_purchase_user</attribute>
+                </page>
             </field>
         </record>
 

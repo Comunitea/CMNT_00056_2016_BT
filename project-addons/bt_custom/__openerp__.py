@@ -16,7 +16,9 @@
         "stock",
         "sale_payment_method",
         "sale",
-        "sale_early_payment_discount"
+        "sale_early_payment_discount",
+        "purchase",
+        "account_payment_sale"
     ],
     "data": [
         'views/payment_method.xml',

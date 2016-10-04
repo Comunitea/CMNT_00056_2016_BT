@@ -3,7 +3,6 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 from openerp import models, fields, api
-import openerp.addons.decimal_precision as dp
 
 
 class SaleOrder(models.Model):
@@ -16,6 +15,17 @@ class SaleOrder(models.Model):
                     self).onchange_payment_method_id_set_payment_term()
         if self.payment_method_id and self.payment_method_id.payment_mode_id:
             self.payment_mode_id = self.payment_method_id.payment_mode_id.id
+
+    @api.model
+    def _prepare_invoice(self, order, lines):
+        """Copy bank partner from sale order to invoice"""
+        vals = super(SaleOrder, self)._prepare_invoice(order, lines)
+        if vals.get('partner_bank_id'):
+            account_id = self.env["res.partner.bank"].\
+                browse(vals["partner_bank_id"])
+            if account_id.state == 'bank':
+                del vals["partner_bank_id"]
+        return vals
 
 
 class SaleOrderLine(models.Model):
