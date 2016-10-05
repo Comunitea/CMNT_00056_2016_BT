@@ -11,7 +11,7 @@ class StockPicking(models.Model):
     _inherit = 'stock.picking'
 
     asm_return = fields.Boolean(
-        'ASM Return', states={'done': [('readonly', True)]},
+        'ASM Return', related="sale_id.asm_return", readonly=True,
         help='Active return when send API shipment')
 
     carrier_service = fields.Many2one('carrier.api.service',
