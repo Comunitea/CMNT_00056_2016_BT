@@ -16,6 +16,6 @@
         "magento_sale_store",
         "custom_partner"
     ],
-    "data": [
+    "data": ["views/sale_view.xml"
     ],
 }
