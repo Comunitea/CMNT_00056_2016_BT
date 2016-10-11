@@ -51,6 +51,7 @@ msgstr "Diario"
 
 #. module: custom_partner
 #: field:res.partner,medical_code:0
+#: field:sale.order,medical_code:0
 msgid "Medical code"
 msgstr "Código médico"
 

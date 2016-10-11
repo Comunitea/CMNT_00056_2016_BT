@@ -18,7 +18,8 @@
         "stock",
         "account",
         "l10n_es_partner",
-        "account_due_dates_str"
+        "account_due_dates_str",
+        "sale"
     ],
     "data": [
         "views/partner_view.xml",

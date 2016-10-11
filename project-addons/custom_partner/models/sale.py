@@ -14,6 +14,9 @@ class SaleOrder(models.Model):
     asm_return = fields.Boolean("Asm return")
     carrier_notes = fields.Text("Carrier notes")
     internal_notes = fields.Text("Internal notes")
+    medical_code = fields.\
+        Char('Medical code', readonly=True,
+             related="partner_id.commercial_partner_id.medical_code")
 
     @api.multi
     def onchange_partner_id(self, part):
