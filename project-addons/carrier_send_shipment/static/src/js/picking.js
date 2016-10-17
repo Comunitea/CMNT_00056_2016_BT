@@ -5,7 +5,6 @@ openerp.carrier_send_shipment = function(instance){
         hide_shipment_fields: function(){
             // Se ocultan los div que contienen los label e input.
             this.$('.js_weight_edit').parent().hide();
-            this.$('.js_asm_return').parent().hide();
             this.$('.js_number_of_packages').parent().hide();
             this.$('.js_carrier_notes').parent().hide();
         },
@@ -28,7 +27,6 @@ openerp.carrier_send_shipment = function(instance){
                         }
                         else{
                             self.$('.js_weight_edit').val(picking.weight_edit);
-                            self.$('.js_asm_return').val(picking.asm_return);
                             self.$('.js_number_of_packages').val(picking.number_of_packages);
                             self.$('.js_carrier_notes').val(picking.carrier_notes || '');
                         }
@@ -46,7 +44,6 @@ openerp.carrier_send_shipment = function(instance){
                         data = {}
                         if(!self.getParent().picking.carrier_delivery){
                             data.weight_edit = self.$('.js_weight_edit').val()
-                            data.asm_return = self.$('.js_asm_return').val()
                             data.number_of_packages = self.$('.js_number_of_packages').val()
                             data.carrier_notes = self.$('.js_carrier_notes').val()
                         }

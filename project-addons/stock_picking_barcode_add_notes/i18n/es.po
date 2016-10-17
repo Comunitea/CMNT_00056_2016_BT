@@ -21,3 +21,10 @@ msgstr ""
 #, python-format
 msgid "Internal notes..."
 msgstr "Notas internas..."
+
+#. module: stock_picking_barcode_add_notes
+#. openerp-web
+#: code:addons/stock_picking_barcode_add_notes/static/src/xml/picking.xml:15
+#, python-format
+msgid "Print Invoice"
+msgstr "Imprimir factura"

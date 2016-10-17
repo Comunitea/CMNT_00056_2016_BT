@@ -31,13 +31,6 @@
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-xs-6">
-                                    <div class="form-group">
-                                        <label>ASM return <input class='js_asm_return' type='checkbox'/></label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
                                 <div class="col-xs-12">
                                     <div class="form-group">
                                         <label>Carrier notes</label>

@@ -10,5 +10,9 @@
                 <textarea class='form-control js_picking_note' rows="4" placeholder="Internal notes..."/>
             </div>
         </t>
+
+        <t t-jquery=".js_pick_print" t-operation="append">
+            <button type="button" class='btn btn-default js_invoice_print'> Print Invoice</button>
+        </t>
     </t>
 </templates>
