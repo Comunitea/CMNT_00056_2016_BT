@@ -11,5 +11,11 @@ class StockPicking(models.Model):
 
     @api.multi
     def do_print_invoice(self):
-        if self.sale_id.invoice_ids:
+        if self.sale_id.invoice_ids and len(self.sale_id.invoice_ids) == 1:
             return self.sale_id.invoice_ids.invoice_print()
+        elif not self.sale_id.invoice_ids:
+            raise exceptions.Warning(_("Any invoice related to this picking"))
+        else:
+            raise exceptions.Warning(_("It was found more than one invoice "
+                                       "related to this picking, please "
+                                       "print your choice from backend"))

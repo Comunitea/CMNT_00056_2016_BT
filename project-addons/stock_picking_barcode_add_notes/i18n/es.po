@@ -28,3 +28,15 @@ msgstr "Notas internas..."
 #, python-format
 msgid "Print Invoice"
 msgstr "Imprimir factura"
+
+#. module: stock_picking_barcode_add_notes
+#: code:addons/stock_picking_barcode_add_notes/models/stock.py:17
+#, python-format
+msgid "Any invoice related to this picking"
+msgstr "Ninguna factura relacionada con este albarán"
+
+#. module: stock_picking_barcode_add_notes
+#: code:addons/stock_picking_barcode_add_notes/models/stock.py:19
+#, python-format
+msgid "It was found more than one invoice related to this picking, please print your choice from backend"
+msgstr "Se ha encontrado más de una factura relacionada con este albarán, por favor imprima la que necesite desde Odoo"
