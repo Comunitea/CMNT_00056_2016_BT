@@ -12,7 +12,8 @@
     "application": False,
     "installable": True,
     "depends": [
-        "sale_stock", "account_payment", "delivery"
+        "sale_stock", "account_payment", "delivery",
+        "account_payment_partner"
     ],
     "data": ['security/ir.model.access.csv',
              'views/layout.xml',
@@ -20,5 +21,6 @@
              'views/sale.xml',
              'views/sale_store_view.xml',
              'views/stock.xml',
-             'views/product.xml'],
+             'views/product.xml',
+             'views/invoice.xml'],
 }
