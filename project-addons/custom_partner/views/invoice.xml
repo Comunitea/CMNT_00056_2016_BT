@@ -14,9 +14,7 @@
                     <span t-field="o.expiration_dates_str"/>
                 </p>
             </xpath>
-            <xpath expr="//div[@t-if='o.name']" position="attributes">
-                <attribute name="invisible">1</attribute>
-            </xpath>
+            <xpath expr="//div[@t-if='o.name']" position="replace"/>
             <xpath expr="//address[@t-field='o.partner_id']" position="after">
                 <span t-if="o.partner_id.phone"><span t-field="o.partner_id.phone"/><br/></span>
             </xpath>
