@@ -17,6 +17,7 @@
     ],
     "data": [
         "wizard/plan_add_category_wizard.xml",
-        "views/sale_view.xml"
+        "views/sale_view.xml",
+        "views/account.xml"
     ],
 }
