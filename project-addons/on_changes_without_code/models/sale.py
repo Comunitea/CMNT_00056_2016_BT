@@ -25,7 +25,8 @@ class SaleOrderLine(models.Model):
         product_obj = self.pool.get('product.product')
         if product and res.get('value') and res['value'].get('name'):
             context_partner = context.copy()
-            context_partner.update({'lang': lang, 'partner_id': partner_id})
+            partner = self.pool.get('res.partner').browse(cr, uid, partner_id, context)
+            context_partner.update({'lang': partner.lang, 'partner_id': partner_id})
             product_obj = product_obj.browse(cr, uid, product,
                                              context=context_partner)
             res['value']['name'] = product_obj.name
