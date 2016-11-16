@@ -12,10 +12,24 @@ class SaleOrder(models.Model):
     @api.multi
     def compute_commissions(self):
         for sale in self:
+            partner = sale.partner_id.commercial_partner_id
             for line in sale.order_line:
+                agents = []
                 if line.agents:
                     line.agents.unlink()
                 if not line.commission_free:
-                    vals = line.with_context(partner_id=sale.partner_id.id).\
-                        _default_agents()
+                    for agent in partner.agents:
+                        if not line.product_id:
+                            commission = agent.plan.get_product_commission()
+                        else:
+                            commission = agent.plan.\
+                                get_product_commission(product=
+                                                       line.product_id.id)
+                        if commission:
+                            vals = {
+                                'agent': agent.id,
+                                'commission': commission.id,
+                            }
+                            agents.append(vals)
+                    vals = [(0, 0, x) for x in agents]
                     line.write({'agents': vals})
