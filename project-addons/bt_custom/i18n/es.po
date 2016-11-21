@@ -16,6 +16,12 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: bt_custom
+#: field:account.invoice,autoinvoice:0
+#: field:account.journal,autoinvoice:0
+msgid "Autoinvoice"
+msgstr "Autofactura"
+
+#. module: bt_custom
 #: field:product.product,ean14:0
 msgid "Code EAN14"
 msgstr "Código EAN14"
@@ -28,12 +34,17 @@ msgstr "Método de pago"
 #. module: bt_custom
 #: field:payment.method,payment_mode_id:0
 msgid "Payment mode"
-msgstr "Payment mode"
+msgstr "Modo de pago"
 
 #. module: bt_custom
 #: model:ir.model,name:bt_custom.model_stock_picking
 msgid "Picking List"
 msgstr "Albarán"
+
+#. module: bt_custom
+#: view:product.product:bt_custom.product_add_ean14_form
+msgid "Procurements"
+msgstr "Abastecimientos"
 
 #. module: bt_custom
 #: model:ir.model,name:bt_custom.model_product_product
@@ -59,3 +70,8 @@ msgstr "Takes change flag"
 #: field:product.product,takes:0
 msgid "Takes per unit"
 msgstr "Tomas por unidad"
+
+#. module: bt_custom
+#: field:product.product,without_early_payment:0
+msgid "Without early payment"
+msgstr "Sin pronto pago"

@@ -16,5 +16,35 @@
             </field>
         </record>
 
+        <record id="l10n_es_aeat_mod340.invoice_supplier_mod340_form" model="ir.ui.view">
+            <field name="name">account.invoice.supplier.mod340.form</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_supplier_form"/>
+            <field name="arch" type="xml">
+                <field name="reference" position="replace">
+                    <field name="autoinvoice" invisible="1"/>
+                    <field name="reference" nolabel="1" attrs="{'required': [('autoinvoice', '=', False)]}"/>
+                </field>
+            </field>
+        </record>
+
+        <record id="view_account_journal_form_add_autoinvoice" model="ir.ui.view">
+            <field name="name">account.journal.form.add_autoinvoice</field>
+            <field name="model">account.journal</field>
+            <field name="inherit_id" ref="account.view_account_journal_form"/>
+            <field name="arch" type="xml">
+                <field name="allow_date" position="after">
+                    <field name="autoinvoice"/>
+                </field>
+            </field>
+        </record>
+
+        <template id="report_invoice_document_change_supp_label" inherit_id="account.report_invoice_document">
+            <xpath expr="//h2/span[7]" position="replace">
+                <span t-if="o.type == 'in_invoice' and not o.autoinvoice">Supplier Invoice</span>
+                <span t-if="o.type == 'in_invoice' and o.autoinvoice">Invoice</span>
+            </xpath>
+        </template>
+
     </data>
 </openerp>

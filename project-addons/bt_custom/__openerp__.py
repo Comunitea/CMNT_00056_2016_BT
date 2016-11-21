@@ -18,7 +18,9 @@
         "sale",
         "sale_early_payment_discount",
         "purchase",
-        "account_payment_sale"
+        "account_payment_sale",
+        "l10n_es_aeat_mod340",
+        "l10n_es_account_invoice_sequence"
     ],
     "data": [
         'views/payment_method.xml',
