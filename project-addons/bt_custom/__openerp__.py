@@ -27,5 +27,6 @@
         'views/product.xml',
         'views/sale.xml',
         'views/stock.xml',
+        'views/report_autoinvoice.xml'
     ],
 }

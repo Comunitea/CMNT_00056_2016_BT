@@ -1,13 +1,13 @@
 # Translation of Odoo Server.
 # This file contains the translation of the following modules:
-#   * bt_custom
+#       * bt_custom
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 8.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-07-11 15:00+0000\n"
-"PO-Revision-Date: 2016-07-11 15:00+0000\n"
+"POT-Creation-Date: 2016-11-22 19:55+0000\n"
+"PO-Revision-Date: 2016-11-22 19:55+0000\n"
 "Last-Translator: <>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -16,10 +16,30 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: bt_custom
+#: view:website:bt_custom.report_autoinvoice_document
+msgid "Amount"
+msgstr "Importe"
+
+#. module: bt_custom
 #: field:account.invoice,autoinvoice:0
 #: field:account.journal,autoinvoice:0
 msgid "Autoinvoice"
 msgstr "Autofactura"
+
+#. module: bt_custom
+#: model:ir.actions.report.xml,name:bt_custom.account_autoinvoices
+msgid "Autoinvoices"
+msgstr "Autofacturas"
+
+#. module: bt_custom
+#: view:website:bt_custom.report_autoinvoice_document
+msgid "Base"
+msgstr "Base"
+
+#. module: bt_custom
+#: view:website:bt_custom.report_autoinvoice_document
+msgid "Cancelled Invoice"
+msgstr "Factura cancelada"
 
 #. module: bt_custom
 #: field:product.product,ean14:0
@@ -27,14 +47,101 @@ msgid "Code EAN14"
 msgstr "Código EAN14"
 
 #. module: bt_custom
+#: view:website:bt_custom.report_autoinvoice_document
+msgid "Comment:"
+msgstr "Comentario:"
+
+#. module: bt_custom
+#: view:website:bt_custom.report_autoinvoice_document
+msgid "Customer Code:"
+msgstr "Código de cliente"
+
+#. module: bt_custom
+#: view:website:bt_custom.report_autoinvoice_document
+msgid "Description"
+msgstr "Descripción"
+
+#. module: bt_custom
+#: view:website:bt_custom.report_autoinvoice_document
+msgid "Description:"
+msgstr "Descripción:"
+
+#. module: bt_custom
+#: view:website:bt_custom.report_autoinvoice_document
+msgid "Discount (%)"
+msgstr "Descuento (%)"
+
+#. module: bt_custom
+#: view:website:bt_custom.report_autoinvoice_document
+msgid "Draft Invoice"
+msgstr "Factura borrador"
+
+#. module: bt_custom
+#: view:website:bt_custom.report_autoinvoice_document
+msgid "Email:"
+msgstr "Correo electrónico:"
+
+#. module: bt_custom
+#: view:website:bt_custom.report_autoinvoice_document
+msgid "Fax:"
+msgstr "Fax:"
+
+#. module: bt_custom
+#: view:website:bt_custom.report_autoinvoice_document
+msgid "Fiscal Position Remark:"
+msgstr "Observaciones de la posición fiscal"
+
+#. module: bt_custom
+#: model:ir.model,name:bt_custom.model_account_invoice
+#: view:website:account.report_invoice_document
+#: view:website:bt_custom.report_autoinvoice_document
+msgid "Invoice"
+msgstr "Factura"
+
+#. module: bt_custom
+#: view:website:bt_custom.report_autoinvoice_document
+msgid "Invoice Date:"
+msgstr "Fecha de factura:"
+
+#. module: bt_custom
+#: model:ir.model,name:bt_custom.model_account_journal
+msgid "Journal"
+msgstr "Diario"
+
+#. module: bt_custom
+#: model:ir.model,name:bt_custom.model_mrp_production
+msgid "Manufacturing Order"
+msgstr "Órden de producción"
+
+#. module: bt_custom
+#: view:website:bt_custom.report_autoinvoice_document
+msgid "PRO-FORMA"
+msgstr "PRO-FORMA"
+
+#. module: bt_custom
+#: view:website:bt_custom.report_autoinvoice_document
+msgid "Page:"
+msgstr "Página:"
+
+#. module: bt_custom
 #: model:ir.model,name:bt_custom.model_payment_method
 msgid "Payment Method"
 msgstr "Método de pago"
 
 #. module: bt_custom
+#: view:website:bt_custom.report_autoinvoice_document
+msgid "Payment Term:"
+msgstr "Plazo de pago:"
+
+#. module: bt_custom
 #: field:payment.method,payment_mode_id:0
 msgid "Payment mode"
 msgstr "Modo de pago"
+
+#. module: bt_custom
+#: view:website:bt_custom.report_autoinvoice_document
+msgid "Phone:"
+msgstr "Teléfono:"
 
 #. module: bt_custom
 #: model:ir.model,name:bt_custom.model_stock_picking
@@ -52,9 +159,44 @@ msgid "Product"
 msgstr "Producto"
 
 #. module: bt_custom
+#: view:website:bt_custom.report_autoinvoice_document
+msgid "Quantity"
+msgstr "Cantidad"
+
+#. module: bt_custom
+#: view:website:bt_custom.report_autoinvoice_document
+msgid "Reference:"
+msgstr "Referencia:"
+
+#. module: bt_custom
+#: view:website:bt_custom.report_autoinvoice_document
+msgid "Refund"
+msgstr "Factura rectificativa"
+
+#. module: bt_custom
 #: model:ir.model,name:bt_custom.model_sale_order
 msgid "Sales Order"
 msgstr "Pedido de venta"
+
+#. module: bt_custom
+#: model:ir.model,name:bt_custom.model_sale_order_line
+msgid "Sales Order Line"
+msgstr "Línea pedido de venta"
+
+#. module: bt_custom
+#: view:website:bt_custom.report_autoinvoice_document
+msgid "Source:"
+msgstr "Origen:"
+
+#. module: bt_custom
+#: view:website:account.report_invoice_document
+msgid "Supplier Invoice"
+msgstr "Factura de proveedor"
+
+#. module: bt_custom
+#: view:website:bt_custom.report_autoinvoice_document
+msgid "TIN:"
+msgstr "NIF:"
 
 #. module: bt_custom
 #: field:sale.order.line,takes:0
@@ -62,16 +204,51 @@ msgid "Takes"
 msgstr "Tomas"
 
 #. module: bt_custom
-#: field:sale.order.line,takes_change_flag:0
-msgid "Takes change flag"
-msgstr "Takes change flag"
-
-#. module: bt_custom
 #: field:product.product,takes:0
 msgid "Takes per unit"
 msgstr "Tomas por unidad"
 
 #. module: bt_custom
+#: view:website:bt_custom.report_autoinvoice_document
+msgid "Tax"
+msgstr "Impuesto"
+
+#. module: bt_custom
+#: view:website:bt_custom.report_autoinvoice_document
+msgid "Taxes"
+msgstr "Impuestos"
+
+#. module: bt_custom
+#: view:website:bt_custom.report_autoinvoice_document
+msgid "Total"
+msgstr "Total"
+
+#. module: bt_custom
+#: view:website:bt_custom.report_autoinvoice_document
+msgid "Total Without Taxes"
+msgstr "Base imponible"
+
+#. module: bt_custom
+#: view:website:bt_custom.report_autoinvoice_document
+msgid "Unit Price"
+msgstr "Precio unidad"
+
+#. module: bt_custom
+#: view:website:bt_custom.report_autoinvoice_document
+msgid "VAT:"
+msgstr "NIF:"
+
+#. module: bt_custom
+#: view:website:bt_custom.report_autoinvoice_document
+msgid "Website:"
+msgstr "Sitio web:"
+
+#. module: bt_custom
 #: field:product.product,without_early_payment:0
 msgid "Without early payment"
 msgstr "Sin pronto pago"
+
+#. module: bt_custom
+#: view:product.product:bt_custom.product_add_ean14_form
+msgid "purchase.group_purchase_user"
+msgstr "purchase.group_purchase_user"
