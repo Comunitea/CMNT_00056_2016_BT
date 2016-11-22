@@ -8,8 +8,8 @@
          <field name="model">commission.report</field>
          <field name="arch" type="xml">
              <graph string="Commissions Analysis" type="pivot" stacked="True">
-                 <field name="product_id" type="row"/>
                  <field name="agent_id" type="row"/>
+                 <field name="partner_id" type="row"/>
                  <field name="inv_date" type="col"/>
                  <field name="settled" type="col"/>
                  <field name="qty" type="measure"/>
@@ -25,12 +25,14 @@
             <search string="Commission Analysis">
                 <field name="product_id"/>
                 <field name="agent_id"/>
+                <field name="partner_id"/>
                 <filter string="This Year" name="thisyear" domain="['|', ('inv_date', '=', False), '&amp;',('inv_date','&lt;=', time.strftime('%%Y-12-31')),('inv_date','&gt;=',time.strftime('%%Y-01-01'))]" help="commissions of the current year"/>
                 <filter string="Settled" name="settled" domain="[('settled', '=', True)]"/>
                 <filter string="Not settled" name="nosettled" domain="[('settled', '=', False)]"/>
                 <group expand="1" string="Group By">
                     <filter string="Product" name="product" context="{'group_by':'product_id'}" />
                     <filter string="Agent" name="agent" context="{'group_by':'agent_id'}" />
+                    <filter string="Customer" name="agent" context="{'group_by':'partner_id'}" />
                     <filter string="Date" name="date" context="{'group_by':'inv_date'}" />
                     <filter string="Settled" name="settled" context="{'group_by':'settled'}" />
                 </group>

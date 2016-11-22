@@ -33,6 +33,7 @@ class commission_report(models.Model):
     qty = fields.Float('Quantity')
     settled = fields.Boolean('Settled')
     inv_date = fields.Date('Date invoice')
+    partner_id = fields.Many2one("res.partner", "Customer")
 
     def init(self, cr):
         tools.drop_view_if_exists(cr, self._table)
@@ -43,10 +44,11 @@ class commission_report(models.Model):
                 c_line.amount  AS qty,
                 c_line.settled  AS settled,
                 inv.date_invoice  AS inv_date,
-                inv.state  AS state
+                inv.state  AS state,
+                inv.partner_id as partner_id
             FROM account_invoice_line AS i_line
                 JOIN account_invoice_line_agent  AS c_line ON i_line.id=c_line.invoice_line
                 JOIN account_invoice  AS inv ON i_line.invoice_id=inv.id
             WHERE inv.state IN ('open', 'paid')
-            GROUP BY i_line.product_id, c_line.agent, c_line.amount, c_line.settled, inv.date_invoice, inv.state, c_line.id
+            GROUP BY i_line.product_id, c_line.agent, c_line.amount, c_line.settled, inv.date_invoice, inv.state, c_line.id, inv.partner_id
         )""" % (self._table,))

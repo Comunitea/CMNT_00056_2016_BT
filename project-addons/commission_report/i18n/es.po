@@ -53,6 +53,12 @@ msgstr "Análisis de comisiones"
 
 #. module: commission_report
 #: view:commission.report:commission_report.commission_report_filter
+#: field:commission.report,partner_id:0
+msgid "Customer"
+msgstr "Cliente"
+
+#. module: commission_report
+#: view:commission.report:commission_report.commission_report_filter
 msgid "Date"
 msgstr "Fecha"
 
