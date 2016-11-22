@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- © 2016 Comunitea
+     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
+
+<openerp>
+    <data>
+
+        <record id="invoice_line_agent_tree2" model="ir.ui.view">
+            <field name="model">account.invoice.line.agent</field>
+            <field name="priority">80</field>
+            <field name="arch" type="xml">
+                <tree string="Invoice line agents and commissions">
+                    <field name="invoice"/>
+                    <field name="invoice_date"/>
+                    <field name="product"/>
+                    <field name="agent"/>
+                    <field name="commission"/>
+                    <field name="amount"/>
+                    <field name="settled"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="add_line_tosettlement_wzd_form" model="ir.ui.view">
+            <field name="name">add.line.tosettlement.wzd.form</field>
+            <field name="model">add.line.tosettlement.wzd</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form>
+                    <group cols="4" colspan="4">
+                        <field name="agent_id"/>
+                        <separator string="Agents lines" colspan="4"/>
+                        <field name="agent_lines" colspan="4" nolabel="1" domain="[('agent', '=', agent_id),('settled', '=', False)]" context="{'tree_view_ref': 'custom_commission.invoice_line_agent_tree2'}">
+                            <tree>
+                                <field name="invoice"/>
+                                <field name="invoice_date"/>
+                                <field name="product"/>
+                                <field name="agent"/>
+                                <field name="commission"/>
+                                <field name="amount"/>
+                                <field name="settled"/>
+                            </tree>
+                        </field>
+                    </group>
+                    <footer>
+                        <button name="add_lines_to_settlement" string="Add lines" type="object" class="oe_highlight"/>
+                        or
+                        <button string="Cancel" class="oe_link" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <act_window name="Add lines"
+            res_model="add.line.tosettlement.wzd"
+            src_model="sale.commission.settlement"
+            view_id="add_line_tosettlement_wzd_form"
+            view_mode="form"
+            target="new"
+            id="action_add_line_tosettlement_wzd"/>
+
+    </data>
+</openerp>

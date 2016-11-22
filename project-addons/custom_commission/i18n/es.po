@@ -1,13 +1,13 @@
 # Translation of Odoo Server.
 # This file contains the translation of the following modules:
-#   * custom_commission
+#       * custom_commission
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 8.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-07-19 09:35+0000\n"
-"PO-Revision-Date: 2016-07-19 09:35+0000\n"
+"POT-Creation-Date: 2016-11-22 17:57+0000\n"
+"PO-Revision-Date: 2016-11-22 17:57+0000\n"
 "Last-Translator: <>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -22,6 +22,24 @@ msgid "Add category"
 msgstr "Añadir categoría"
 
 #. module: custom_commission
+#: view:add.line.tosettlement.wzd:custom_commission.add_line_tosettlement_wzd_form
+#: model:ir.actions.act_window,name:custom_commission.action_add_line_tosettlement_wzd
+#: view:sale.commission.settlement:custom_commission.view_settlement_form_add_lines
+msgid "Add lines"
+msgstr "Añadir lineas"
+
+#. module: custom_commission
+#: field:add.line.tosettlement.wzd,agent_id:0
+msgid "Agent"
+msgstr "Agente"
+
+#. module: custom_commission
+#: view:add.line.tosettlement.wzd:custom_commission.add_line_tosettlement_wzd_form
+msgid "Agents lines"
+msgstr "Lineas agentes"
+
+#. module: custom_commission
+#: view:add.line.tosettlement.wzd:custom_commission.add_line_tosettlement_wzd_form
 #: view:agent.plan.add.category:custom_commission.agent_plan_add_category_form
 msgid "Cancel"
 msgstr "Cancelar"
@@ -37,16 +55,75 @@ msgid "Commission"
 msgstr "Comisión"
 
 #. module: custom_commission
+#: field:add.line.tosettlement.wzd,create_uid:0
+#: field:agent.plan.add.category,create_uid:0
+msgid "Created by"
+msgstr "Creado por"
+
+#. module: custom_commission
+#: field:add.line.tosettlement.wzd,create_date:0
+#: field:agent.plan.add.category,create_date:0
+msgid "Created on"
+msgstr "Creado el"
+
+#. module: custom_commission
+#: field:add.line.tosettlement.wzd,display_name:0
+#: field:agent.plan.add.category,display_name:0
+msgid "Display Name"
+msgstr "Nombre a mostrar"
+
+#. module: custom_commission
+#: field:add.line.tosettlement.wzd,id:0
+#: field:agent.plan.add.category,id:0
+msgid "ID"
+msgstr "ID"
+
+#. module: custom_commission
+#: model:ir.model,name:custom_commission.model_account_invoice
+msgid "Invoice"
+msgstr "Factura"
+
+#. module: custom_commission
+#: view:account.invoice.line.agent:custom_commission.invoice_line_agent_tree2
+msgid "Invoice line agents and commissions"
+msgstr "Agentes y comisiones de línea de factura"
+
+#. module: custom_commission
+#: field:add.line.tosettlement.wzd,__last_update:0
+#: field:agent.plan.add.category,__last_update:0
+msgid "Last Modified on"
+msgstr "Últ. actualización el"
+
+#. module: custom_commission
+#: field:add.line.tosettlement.wzd,write_uid:0
+#: field:agent.plan.add.category,write_uid:0
+msgid "Last Updated by"
+msgstr "Últ. actualización por"
+
+#. module: custom_commission
+#: field:add.line.tosettlement.wzd,write_date:0
+#: field:agent.plan.add.category,write_date:0
+msgid "Last Updated on"
+msgstr "Últ. actualización el"
+
+#. module: custom_commission
+#: model:ir.model,name:custom_commission.model_sale_order
+msgid "Sales Order"
+msgstr "Pedido de venta"
+
+#. module: custom_commission
+#: field:add.line.tosettlement.wzd,agent_lines:0
+msgid "Settlement lines"
+msgstr "Lineas liquidación"
+
+#. module: custom_commission
+#: view:account.invoice:custom_commission.view_invoice_update_commission
 #: view:sale.order:custom_commission.view_sale_update_commission
 msgid "Update Commissions"
 msgstr "Actualizar comisiones"
 
 #. module: custom_commission
-#: view:account.invoice:custom_commission.view_invoice_update_commission
-msgid "Update Commissions"
-msgstr "Actualizar comisiones"
-
-#. module: custom_commission
+#: view:add.line.tosettlement.wzd:custom_commission.add_line_tosettlement_wzd_form
 #: view:agent.plan.add.category:custom_commission.agent_plan_add_category_form
 msgid "or"
 msgstr "O"

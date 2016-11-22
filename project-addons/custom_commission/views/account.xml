@@ -17,5 +17,16 @@
             </field>
         </record>
 
+        <record model="ir.ui.view" id="view_settlement_form_add_lines">
+            <field name="name">Settlements all lines</field>
+            <field name="model">sale.commission.settlement</field>
+            <field name="inherit_id" ref="sale_commission.view_settlement_form"/>
+            <field name="arch" type="xml">
+                <button name="action_invoice" position="after">
+                    <button name="%(action_add_line_tosettlement_wzd)d" type="action" string="Add lines" states="settled"/>
+                </button>
+            </field>
+        </record>
+
     </data>
 </openerp>

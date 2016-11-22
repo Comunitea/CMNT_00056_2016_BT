@@ -16,8 +16,9 @@
         "sale_commission_product_plan"
     ],
     "data": [
+        "wizard/add_line_to_settlement_wzd_view.xml",
         "wizard/plan_add_category_wizard.xml",
         "views/sale_view.xml",
-        "views/account.xml"
+        "views/account.xml",
     ],
 }

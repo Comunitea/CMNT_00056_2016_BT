@@ -29,12 +29,12 @@ class SaleCommissionMakeSettle(models.TransientModel):
 
     def _get_line_to_settle(self, agent, date_to_agent):
         agent_line_obj = self.env['account.invoice.line.agent']
-        agent_lines = agent_line_obj.search([('invoice_date', '<',
-                                              date_to_agent),
-                                             ('agent', '=', agent.id),
-                                             ('settled', '=', False),
-                                             ('invoice.state', '=', 'paid')],
-                                            order='invoice_date')
+        agent_lines = agent_line_obj.search(
+                [('invoice_date', '<', date_to_agent),
+                 ('agent', '=', agent.id),
+                 ('settled', '=', False),
+                 ('invoice.type', 'in', ('out_invoice', 'out_refund'))],
+                order='invoice_date')
         return agent_lines
 
     @api.multi
