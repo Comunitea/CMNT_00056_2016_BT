@@ -12,7 +12,7 @@
             <field name="inherit_id" ref="account.invoice_form"/>
             <field name="arch" type="xml">
                 <button name="action_invoice_sent" position="before">
-                    <button name="compute_commissions" type="object" states="draft" string="Update Commissions"/>
+                    <button name="compute_commissions" type="object" states="draft,open,paid" string="Update Commissions"/>
                 </button>
             </field>
         </record>
