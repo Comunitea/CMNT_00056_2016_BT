@@ -20,6 +20,8 @@
 ##############################################################################
 import math
 from openerp.osv import fields, orm
+from openerp import api
+from collections import Counter
 import openerp.addons.decimal_precision as dp
 
 
@@ -180,3 +182,19 @@ class product_product(orm.Model):
     _defaults = {
         'pack_fixed_price': True,
     }
+
+
+    @api.multi
+    def get_pack(self):
+        pack = Counter({})
+        if not self.pack_line_ids:
+            return {}
+        for line in self.pack_line_ids:
+            if line.product_id.pack_line_ids:
+                line_pack = line.product_id.get_pack()
+                pack += Counter({x: line_pack[x] * line.quantity for x in line_pack})
+                if line.product_id.type != 'service':
+                    pack[line.product_id.id] = line.quantity
+            else:
+                pack[line.product_id.id] = line.quantity
+        return dict(pack)

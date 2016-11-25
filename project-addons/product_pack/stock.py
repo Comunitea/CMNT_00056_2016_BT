@@ -26,6 +26,45 @@ class stock_pciking(orm.Model):
 
     _inherit = 'stock.picking'
 
+    @api.model
+    def process_product_id_from_ui(self, picking_id, product_id, op_id,
+                                   increment=True):
+        product = self.env['product.product'].browse(product_id)
+        pack = product.get_pack()
+        for product_pack in pack.keys():
+            for i in range(int(pack[product_pack])):
+                self.env['stock.pack.operation']._search_and_increment(
+                    picking_id, [('product_id', '=', product_pack)],
+                    increment=increment)
+        return self.env['stock.pack.operation']._search_and_increment(
+            picking_id,
+            [('product_id', '=', product_id),('id', '=', op_id)],
+            increment=increment)
+
+    @api.model
+    def process_barcode_from_ui(self, picking_id, barcode_str, visible_op_ids):
+        answer = {'filter_loc': False, 'operation_id': []}
+        #check if the barcode correspond to a product pack
+        matching_product_ids = self.env['product.product'].search(
+            ['|', ('ean13', '=', barcode_str),
+             ('default_code', '=', barcode_str)])
+        if matching_product_ids:
+            for product in matching_product_ids:
+                pack = product.get_pack()
+                for product_pack in pack.keys():
+                    for i in range(int(pack[product_pack])):
+                        op_id = self.env['stock.pack.operation'].\
+                            _search_and_increment(
+                            picking_id, [('product_id', '=', product_pack)],
+                            filter_visible=True, visible_op_ids=visible_op_ids,
+                            increment=True)
+                        answer['operation_id'].append(op_id)
+        res = super(stock_pciking, self).process_barcode_from_ui(
+            picking_id, barcode_str, visible_op_ids)
+        answer['operation_id'].append(res['operation_id'])
+        answer['filter_loc'] = res['filter_loc']
+        return answer
+
     def action_invoice_create(self, cr, uid, ids, journal_id, group=False,
                               type='out_invoice', context=None):
         """ Creates invoice based on the invoice state selected for picking.

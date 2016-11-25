@@ -46,6 +46,7 @@ as children of the pack product.
     ],
     "data": [
         'security/ir.model.access.csv',
+        'views/assets.xml',
         'pack_view.xml',
     ],
     "installable": True
