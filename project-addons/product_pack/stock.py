@@ -46,7 +46,8 @@ class stock_pciking(orm.Model):
         answer = {'filter_loc': False, 'operation_id': []}
         #check if the barcode correspond to a product pack
         matching_product_ids = self.env['product.product'].search(
-            ['|', ('ean13', '=', barcode_str),
+            ['|', '|', ('ean13', '=', barcode_str),
+             ('ean14', '=', barcode_str),
              ('default_code', '=', barcode_str)])
         if matching_product_ids:
             for product in matching_product_ids:

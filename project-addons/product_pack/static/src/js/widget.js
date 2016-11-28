@@ -23,7 +23,7 @@ openerp.product_pack = function(instance){
                         }
                         if (result.operation_id !== false){
                             self.refresh_ui(self.picking.id).then(function(){
-                                    result.operation_id.forEach(function(entry) {
+                                    Array.from(result.operation_id).forEach(function(entry) {
                                         self.picking_editor.blink(entry);
                                     });
                             });
