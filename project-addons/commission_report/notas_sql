@@ -1,0 +1,58 @@
+
+
+
+
+SELECT sum(settled_amount)
+  FROM sale_commission_settlement_line
+  where settlement = 2;
+(alejandra)
+
+-----------------------
+
+SON 9 FACTURAS, 8 CLIENTES
+
+SELECT partner_id, id as id_factura
+
+FROM account_invoice
+
+		where id in (
+		SELECT invoice
+		  FROM sale_commission_settlement_line
+			where settlement = 7
+			group by invoice
+		)
+
+order by partner_id
+  ;
+
+
+-------------------------------- 
+SON 9 FACTURAS: aquí os totais para cada unha
+
+SELECT invoice, sum(settled_amount)
+
+  FROM sale_commission_settlement_line
+
+where settlement = 7
+
+group by invoice
+
+  ;
+
+
+-------------------------------- 
+SON 9 FACTURAS, 8 CLIENTES
+select * from account_invoice 
+where id in 
+(
+	SELECT id 
+	  FROM account_invoice
+			where id in (
+			SELECT invoice
+			  FROM sale_commission_settlement_line
+				where settlement = 7
+				group by invoice
+			)
+	order by partner_id
+	  
+);

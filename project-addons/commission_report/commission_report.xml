@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<openerp>
+    <data>
+
+		<report
+			id="commission_report"
+			model="account.invoice"   
+			string="Liquidaciones agentes"
+			name="commission_report.commission_report_document"
+			file="commission_report.commission_report_document"
+			report_type="qweb-pdf" />
+
+		<template id="commission_report_document">
+			<t t-call="report.html_container">
+				 <t t-foreach="docs" t-as="o">  
+					<t t-call="report.external_layout">						
+						<div class="page">							
+							<t t-set="acumulador_agente" t-value="0"/>
+							<table class="table table-condensed">
+									<tr><td colspan="2" style="border: none !important"><p></p></td></tr> <!--espacio branco -->
+									<tr><td colspan="2" style="border: 1px solid black !important">
+										<h4>Liquidaciones Agente: <t t-esc="o.partner_id.name"/> (<t t-esc="o.partner_id.id"/>)</h4>
+										<p>Número de factura: <t t-esc="o.number"/><br/>
+											Periodo facturado: del <span t-field="commission_settlement[o.id].date_from"/> al 
+															<span t-field="commission_settlement[o.id].date_to"/>
+										</p>
+									
+									</td></tr>
+
+						
+									<t t-foreach="facturasComisionistas4[o.id]" t-as="cliente">									
+										<t t-set="acumulador_cliente" t-value="0"/>
+										<tr>
+											<td colspan="2" style="border: none !important">
+												<strong>CLIENTE: <t t-esc="cliente.name"/> (<t t-esc="cliente.id"/>)</strong>
+											</td>
+										</tr>
+										
+
+												
+										<t t-foreach="facturasComisionistas4[o.id][cliente]" t-as="factura_cliente">
+											<t t-set="acumulador_factura" t-value="0"/>
+											<tr style="background-color: #ddd">
+												<td colspan="2">
+													Fecha factura cliente: <span t-field="factura_cliente.date_invoice"/>; 
+													Número factura cliente: <t t-esc="factura_cliente.number"/>
+												</td>
+											</tr>
+											<tr style="font-size: 10px; color: grey">
+												<td style="padding: 1px 8px 1px 8px">Producto:</td>
+												<td class="col-md-3" style="padding: 1px 8px 1px 8px">Comisión:</td>
+											</tr>
+											<tr t-foreach="facturasComisionistas4[o.id][cliente][factura_cliente]" t-as="product" 
+												style="font-size: 12px">
+												<t t-set="comision" t-value="facturasComisionistas4[o.id][cliente][factura_cliente][product]"/>
+												<td style="padding: 2px 8px 2px 8px">[<t t-esc="product.default_code"/>] <t t-esc="product.name_template"/></td>					
+												<td style="padding: 2px 8px 2px 8px">															
+													<t t-raw="'{:n}'.format(comision)"/> <t t-esc="o.currency_id.symbol"/>
+
+													<!-- QWebException: unexpected EOF while parsing (, line 1)		
+													<span t-field="facturasComisionistas4[o.id][cliente][factura_cliente][product]"
+														t-field-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/>	-->	
+													
+
+
+												</td>	
+												<t t-set="acumulador_factura" t-value="acumulador_factura + comision"/>	
+												<t t-set="acumulador_cliente" t-value="acumulador_cliente + comision"/>			
+												<t t-set="acumulador_agente" t-value="acumulador_agente + comision"/>	
+											</tr>
+											<tr>
+												<td class="text-right">Subtotal factura:</td>
+												<td style="background-color: #ddd">
+													<em style="color:grey" t-raw="acumulador_factura"/><br/>
+													<t t-raw="'{:n}'.format(round(acumulador_factura,2))"/> <t t-esc="o.currency_id.symbol"/>
+													<!-- 													
+													<t t-raw="round(acumulador_factura,2)"/><t t-esc="o.currency_id.symbol"/><br/>
+													<t t-raw="(str(round(acumulador_factura,2)))"/><t t-esc="o.currency_id.symbol"/><br/>
+													-->
+												</td>
+											</tr>
+											<tr><td colspan="2" style="border: none !important"><p></p></td></tr> <!-- espacio en branco despois de cada factura-->										
+
+										</t> <!-- fin factura-->
+										<tr>
+											<td class="text-right" style="border: none !important"><strong>SUBTOTAL CLIENTE:</strong></td>
+											<td style="border: none !important"><strong>
+												<em style="color:grey" t-raw="acumulador_cliente"/><br/>
+												<t t-raw="'{:n}'.format(round(acumulador_cliente,2))"/> <t t-esc="o.currency_id.symbol"/>
+											</strong></td>
+										</tr>
+										<tr><td colspan="2" style="border: none !important"><p></p></td></tr>
+									</t><!-- fin cliente-->
+									<tr>
+										<td style="border: 1px solid black !important"><h4>Total comisión:</h4></td>
+										<td style="border: 1px solid black !important"><h4>
+											<em style="color:grey" t-raw="acumulador_agente"/><br/>
+											<t t-raw="'{:n}'.format(round(acumulador_agente,2))"/> <t t-esc="o.currency_id.symbol"/>			
+										</h4></td> 
+									</tr>										
+							</table>				
+						</div> <!-- fin da páxina -->
+					</t>
+				</t>
+			</t>
+		</template>		
+    
+		<template id="report_commission_report_document">
+	    	<t t-call="report.html_container">
+	        	<t t-foreach="doc_ids" t-as="doc_id">
+	            	<t t-raw="translate_doc(doc_id, doc_model, 'partner_id.lang', 'commission_report.commission_report_document')"/>
+	        	</t>
+	    	</t>
+		</template>
+		
+    </data>
+</openerp>
+		

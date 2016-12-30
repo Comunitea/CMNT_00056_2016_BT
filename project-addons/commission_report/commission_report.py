@@ -19,7 +19,7 @@
 #
 ##############################################################################
 
-from openerp import models, fields, tools
+from openerp import models, fields, tools, api
 
 
 class commission_report(models.Model):
@@ -52,3 +52,68 @@ class commission_report(models.Model):
             WHERE inv.state IN ('open', 'paid')
             GROUP BY i_line.product_id, c_line.agent, c_line.amount, c_line.settled, inv.date_invoice, inv.state, c_line.id, inv.partner_id
         )""" % (self._table,))
+
+
+class particular_report(models.AbstractModel):
+	_name = 'report.commission_report.commission_report_document'
+	
+	@api.multi
+	def render_html(self, data=None):		
+		report_obj = self.env['report']
+		report = report_obj._get_report_from_name('commission_report.commission_report_document')  
+
+		# import ipdb; ipdb.set_trace()
+
+		commission_settlement = {}
+		facturasComisionistas4 = {}
+		for docu in self.env[report.model].browse(self._ids):
+			dic3 = {}
+			
+			# import ipdb; ipdb.set_trace()
+			settlement = self.env['sale.commission.settlement'].search([('invoice', '=', docu.id)]) # unha factura de comisionista ten un commission.settlement
+			commission_settlement[docu.id] = settlement
+			for sett_line in settlement.lines:  # para cada liña do asentamento					
+
+				if sett_line.invoice.partner_id.commercial_partner_id not in dic3: # se o cliente non esta,
+					dic3[sett_line.invoice.partner_id.commercial_partner_id]={sett_line.invoice: {}} # engade cliente e factura
+				if sett_line.invoice not in dic3[sett_line.invoice.partner_id.commercial_partner_id]: # se a factura non esta
+					dic3[sett_line.invoice.partner_id.commercial_partner_id][sett_line.invoice] = {} 
+				print "----------currency_id.symbol:-----------------",sett_line.invoice.currency_id.symbol
+				# print "line: ", sett_line.invoice.number
+				if sett_line.invoice_line.product_id not in dic3[sett_line.invoice.partner_id.commercial_partner_id][sett_line.invoice]: # se o producto non esta 
+					# print "if: ", sett_line.invoice_line.product_id.name
+					dic3[sett_line.invoice.partner_id.commercial_partner_id][sett_line.invoice][sett_line.invoice_line.product_id] = sett_line.settled_amount
+					# print "res: ", dic3[sett_line.invoice.partner_id.commercial_partner_id][sett_line.invoice] 				
+				else: # o producto si que esta 
+					# print "else: ", sett_line.invoice_line.product_id.name
+					dic3[sett_line.invoice.partner_id.commercial_partner_id][sett_line.invoice][sett_line.invoice_line.product_id] += sett_line.settled_amount
+					# print "res: ", dic3[sett_line.invoice.partner_id.commercial_partner_id][sett_line.invoice] 				
+					
+				
+				# print "dic3__________________: ", dic3
+			
+			
+				
+			# import ipdb; ipdb.set_trace()		
+			facturasComisionistas4[docu.id] = dic3
+
+		# print "facturasComisionistas4: ", facturasComisionistas4
+
+
+
+
+
+
+		docargs = {
+			'doc_ids': self._ids,
+			'doc_model': report.model,
+			'docs': self.env['account.invoice'].browse(self._ids),
+			'facturasComisionistas4': facturasComisionistas4,
+			'commission_settlement': commission_settlement,
+			}
+		return report_obj.render('commission_report.commission_report_document', docargs)
+
+
+
+
+
