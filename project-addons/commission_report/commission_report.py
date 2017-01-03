@@ -78,7 +78,7 @@ class particular_report(models.AbstractModel):
 					dic3[sett_line.invoice.partner_id.commercial_partner_id]={sett_line.invoice: {}} # engade cliente e factura
 				if sett_line.invoice not in dic3[sett_line.invoice.partner_id.commercial_partner_id]: # se a factura non esta
 					dic3[sett_line.invoice.partner_id.commercial_partner_id][sett_line.invoice] = {} 
-				print "----------currency_id.symbol:-----------------",sett_line.invoice.currency_id.symbol
+				# print "----------currency_id.symbol:-----------------",sett_line.invoice.currency_id.symbol
 				# print "line: ", sett_line.invoice.number
 				if sett_line.invoice_line.product_id not in dic3[sett_line.invoice.partner_id.commercial_partner_id][sett_line.invoice]: # se o producto non esta 
 					# print "if: ", sett_line.invoice_line.product_id.name
