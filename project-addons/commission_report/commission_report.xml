@@ -20,7 +20,9 @@
 							<table class="table table-condensed">
 									<tr><td colspan="2" style="border: none !important"><p></p></td></tr> <!--espacio branco -->
 									<tr><td colspan="2" style="border: 1px solid black !important">
-										<h4>Liquidaciones Agente: <t t-esc="o.partner_id.name"/> (<t t-esc="o.partner_id.id"/>)</h4>
+										<h4>Liquidaciones Agente: <t t-esc="o.partner_id.name"/>
+											<!-- (<t t-esc="o.partner_id.id"/>)--> 
+										</h4>
 										<p>Número de factura: <t t-esc="o.number"/><br/>
 											Periodo facturado: del <span t-field="commission_settlement[o.id].date_from"/> al 
 															<span t-field="commission_settlement[o.id].date_to"/>
@@ -33,7 +35,9 @@
 										<t t-set="acumulador_cliente" t-value="0"/>
 										<tr>
 											<td colspan="2" style="border: none !important">
-												<strong>CLIENTE: <t t-esc="cliente.name"/> (<t t-esc="cliente.id"/>)</strong>
+												<strong>CLIENTE: <t t-esc="cliente.name"/> 
+												<!-- (<t t-esc="cliente.id"/>)-->
+												</strong>
 											</td>
 										</tr>
 										
@@ -64,7 +68,7 @@
 											</tr>
 											<tr>
 												<td class="text-right">Subtotal factura:</td>
-												<td style="background-color: #ddd">															
+												<td style="background-color: #ddd">										
 													<t t-set="ac_str" t-value="'{:n}'.format(float('{0:.2f}'.format(acumulador_factura)))"/>
 													<t t-set="parte_decimal" t-value="ac_str.split(',')[1]"/>
 													<t t-if="len(parte_decimal) == 1">
@@ -95,7 +99,7 @@
 									</t><!-- fin cliente-->
 									<tr>
 										<td style="border: 1px solid black !important"><h4>Total comisión:</h4></td>
-										<td style="border: 1px solid black !important"><h4>									
+										<td style="border: 1px solid black !important" class="text-right"><h4>								
 											<t t-set="ac_str" t-value="'{:n}'.format(float('{0:.2f}'.format(acumulador_agente)))"/>
 											<t t-set="parte_decimal" t-value="ac_str.split(',')[1]"/>
 											<t t-if="len(parte_decimal) == 1">
