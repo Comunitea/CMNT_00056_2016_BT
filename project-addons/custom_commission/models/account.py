@@ -53,3 +53,10 @@ class AccountInvoiceLine(models.Model):
             del res['value']['agents']
 
         return res
+
+    @api.multi
+    def unlink(self):
+        for line in self:
+            if line.agents:
+                line.agents.unlink()
+        return super(AccountInvoiceLine, self).unlink()
