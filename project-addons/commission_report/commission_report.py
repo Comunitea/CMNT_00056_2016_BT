@@ -55,92 +55,92 @@ class commission_report(models.Model):
 
 
 class particular_report(models.AbstractModel):
-	_name = 'report.commission_report.commission_report_document'
-	
-	@api.multi
-	def render_html(self, data=None):		
-		report_obj = self.env['report']
-		report = report_obj._get_report_from_name('commission_report.commission_report_document')  
+        _name = 'report.commission_report.commission_report_document'
 
-		# import ipdb; ipdb.set_trace()
+        @api.multi
+        def render_html(self, data=None):
+                report_obj = self.env['report']
+                report = report_obj._get_report_from_name('commission_report.commission_report_document')
 
-		commission_settlement = {}
-		facturasComisionistas4 = {}
-		desglosePorComision = {}
-		for docu in self.env[report.model].browse(self._ids):
-			dic3 = {}
-			dic_perc = {}
-			# import ipdb; ipdb.set_trace()
-			settlement = self.env['sale.commission.settlement'].search([('invoice', '=', docu.id)]) # unha factura de comisionista ten un commission.settlement
-			commission_settlement[docu.id] = settlement
-			
-			default_commission = 0.0
-			
-			for plan_l in settlement.agent.plan.lines:  # creo o diccionario de porcentaxes de comisi´ons 
-				commission_perc = plan_l.commission.fix_qty
-				dic_perc[commission_perc] = 0.0
-				if not plan_l.product:
-					default_commission = commission_perc
-				
+                # import ipdb; ipdb.set_trace()
 
-			for sett_line in settlement.lines:  # para cada liña do asentamento					
-				
-				plan_line = self.env['sale.agent.plan.line'].search([('product', '=', sett_line.invoice_line.product_id.id),('plan', '=', sett_line.agent.plan.id)])						
-				ventas = (self.env['account.invoice.line'].search([('id', '=', sett_line.invoice_line.id)])).price_subtotal
-				
-				if plan_line:  # se o producto est´a en sale.agent.plan.line
-					commission_percentage = plan_line.commission.fix_qty
-					dic_perc[commission_percentage] += ventas
-				else:  # PRODUCTO QUE NON APARECE EN sale.agent.plan.line'
-					dic_perc[default_commission] += ventas
+                commission_settlement = {}
+                facturasComisionistas4 = {}
+                desglosePorComision = {}
+                for docu in self.env[report.model].browse(self._ids):
+                        dic3 = {}
+                        dic_perc = {}
+                        # import ipdb; ipdb.set_trace()
+                        settlement = self.env['sale.commission.settlement'].search([('invoice', '=', docu.id)]) # unha factura de comisionista ten un commission.settlement
+                        commission_settlement[docu.id] = settlement
 
-				# print 'dic_perc: =================', dic_perc
+                        default_commission = 0.0
+
+                        for plan_l in settlement.agent.plan.lines:  # creo o diccionario de porcentaxes de comisi´ons
+                                commission_perc = plan_l.commission.fix_qty
+                                dic_perc[commission_perc] = 0.0
+                                if not plan_l.product:
+                                        default_commission = commission_perc
 
 
+                        for sett_line in settlement.lines:  # para cada liña do asentamento
 
+                                plan_line = self.env['sale.agent.plan.line'].search([('product', '=', sett_line.invoice_line.product_id.id),('plan', '=', sett_line.agent.plan.id)])
+                                ventas =  not sett_line.invoice_line.commission_free and sett_line.invoice_line.price_subtotal or 0.0
 
+                                if plan_line:  # se o producto est´a en sale.agent.plan.line
+                                        commission_percentage = plan_line.commission.fix_qty
+                                        dic_perc[commission_percentage] += ventas
+                                else:  # PRODUCTO QUE NON APARECE EN sale.agent.plan.line'
+                                        dic_perc[default_commission] += ventas
 
-
-
-				if sett_line.invoice.partner_id.commercial_partner_id not in dic3: # se o cliente non esta,
-					dic3[sett_line.invoice.partner_id.commercial_partner_id]={sett_line.invoice: {}} # engade cliente e factura
-				if sett_line.invoice not in dic3[sett_line.invoice.partner_id.commercial_partner_id]: # se a factura non esta
-					dic3[sett_line.invoice.partner_id.commercial_partner_id][sett_line.invoice] = {} 
-				# print "----------currency_id.symbol:-----------------",sett_line.invoice.currency_id.symbol
-				# print "line: ", sett_line.invoice.number
-				if sett_line.invoice_line.product_id not in dic3[sett_line.invoice.partner_id.commercial_partner_id][sett_line.invoice]: # se o producto non esta 
-					# print "if: ", sett_line.invoice_line.product_id.name
-					dic3[sett_line.invoice.partner_id.commercial_partner_id][sett_line.invoice][sett_line.invoice_line.product_id] = sett_line.settled_amount
-					# print "res: ", dic3[sett_line.invoice.partner_id.commercial_partner_id][sett_line.invoice] 				
-				else: # o producto si que esta 
-					# print "else: ", sett_line.invoice_line.product_id.name
-					dic3[sett_line.invoice.partner_id.commercial_partner_id][sett_line.invoice][sett_line.invoice_line.product_id] += sett_line.settled_amount
-					# print "res: ", dic3[sett_line.invoice.partner_id.commercial_partner_id][sett_line.invoice] 				
-					
-				
-				# print "dic3__________________: ", dic3
-			
-			
-				
-			# import ipdb; ipdb.set_trace()		
-			facturasComisionistas4[docu.id] = dic3
-			desglosePorComision[docu.id] = dic_perc
-		# print "facturasComisionistas4: ", facturasComisionistas4
+                                # print 'dic_perc: =================', dic_perc
 
 
 
 
 
 
-		docargs = {
-			'doc_ids': self._ids,
-			'doc_model': report.model,
-			'docs': self.env['account.invoice'].browse(self._ids),
-			'facturasComisionistas4': facturasComisionistas4,
-			'commission_settlement': commission_settlement,
-			'desglosePorComision': desglosePorComision,
-			}
-		return report_obj.render('commission_report.commission_report_document', docargs)
+
+                                if sett_line.invoice.partner_id.commercial_partner_id not in dic3: # se o cliente non esta,
+                                        dic3[sett_line.invoice.partner_id.commercial_partner_id]={sett_line.invoice: {}} # engade cliente e factura
+                                if sett_line.invoice not in dic3[sett_line.invoice.partner_id.commercial_partner_id]: # se a factura non esta
+                                        dic3[sett_line.invoice.partner_id.commercial_partner_id][sett_line.invoice] = {}
+                                # print "----------currency_id.symbol:-----------------",sett_line.invoice.currency_id.symbol
+                                # print "line: ", sett_line.invoice.number
+                                if sett_line.invoice_line.product_id not in dic3[sett_line.invoice.partner_id.commercial_partner_id][sett_line.invoice]: # se o producto non esta
+                                        # print "if: ", sett_line.invoice_line.product_id.name
+                                        dic3[sett_line.invoice.partner_id.commercial_partner_id][sett_line.invoice][sett_line.invoice_line.product_id] = sett_line.settled_amount
+                                        # print "res: ", dic3[sett_line.invoice.partner_id.commercial_partner_id][sett_line.invoice]
+                                else: # o producto si que esta
+                                        # print "else: ", sett_line.invoice_line.product_id.name
+                                        dic3[sett_line.invoice.partner_id.commercial_partner_id][sett_line.invoice][sett_line.invoice_line.product_id] += sett_line.settled_amount
+                                        # print "res: ", dic3[sett_line.invoice.partner_id.commercial_partner_id][sett_line.invoice]
+
+
+                                # print "dic3__________________: ", dic3
+
+
+
+                        # import ipdb; ipdb.set_trace()
+                        facturasComisionistas4[docu.id] = dic3
+                        desglosePorComision[docu.id] = dic_perc
+                # print "facturasComisionistas4: ", facturasComisionistas4
+
+
+
+
+
+
+                docargs = {
+                        'doc_ids': self._ids,
+                        'doc_model': report.model,
+                        'docs': self.env['account.invoice'].browse(self._ids),
+                        'facturasComisionistas4': facturasComisionistas4,
+                        'commission_settlement': commission_settlement,
+                        'desglosePorComision': desglosePorComision,
+                        }
+                return report_obj.render('commission_report.commission_report_document', docargs)
 
 
 
