@@ -66,13 +66,41 @@ class particular_report(models.AbstractModel):
 
 		commission_settlement = {}
 		facturasComisionistas4 = {}
+		desglosePorComision = {}
 		for docu in self.env[report.model].browse(self._ids):
 			dic3 = {}
-			
+			dic_perc = {}
 			# import ipdb; ipdb.set_trace()
 			settlement = self.env['sale.commission.settlement'].search([('invoice', '=', docu.id)]) # unha factura de comisionista ten un commission.settlement
 			commission_settlement[docu.id] = settlement
+			
+			default_commission = 0.0
+			
+			for plan_l in settlement.agent.plan.lines:  # creo o diccionario de porcentaxes de comisi´ons 
+				commission_perc = plan_l.commission.fix_qty
+				dic_perc[commission_perc] = 0.0
+				if not plan_l.product:
+					default_commission = commission_perc
+				
+
 			for sett_line in settlement.lines:  # para cada liña do asentamento					
+				
+				plan_line = self.env['sale.agent.plan.line'].search([('product', '=', sett_line.invoice_line.product_id.id),('plan', '=', sett_line.agent.plan.id)])						
+				ventas = (self.env['account.invoice.line'].search([('id', '=', sett_line.invoice_line.id)])).price_subtotal
+				
+				if plan_line:  # se o producto est´a en sale.agent.plan.line
+					commission_percentage = plan_line.commission.fix_qty
+					dic_perc[commission_percentage] += ventas
+				else:  # PRODUCTO QUE NON APARECE EN sale.agent.plan.line'
+					dic_perc[default_commission] += ventas
+
+				# print 'dic_perc: =================', dic_perc
+
+
+
+
+
+
 
 				if sett_line.invoice.partner_id.commercial_partner_id not in dic3: # se o cliente non esta,
 					dic3[sett_line.invoice.partner_id.commercial_partner_id]={sett_line.invoice: {}} # engade cliente e factura
@@ -96,7 +124,7 @@ class particular_report(models.AbstractModel):
 				
 			# import ipdb; ipdb.set_trace()		
 			facturasComisionistas4[docu.id] = dic3
-
+			desglosePorComision[docu.id] = dic_perc
 		# print "facturasComisionistas4: ", facturasComisionistas4
 
 
@@ -110,6 +138,7 @@ class particular_report(models.AbstractModel):
 			'docs': self.env['account.invoice'].browse(self._ids),
 			'facturasComisionistas4': facturasComisionistas4,
 			'commission_settlement': commission_settlement,
+			'desglosePorComision': desglosePorComision,
 			}
 		return report_obj.render('commission_report.commission_report_document', docargs)
 

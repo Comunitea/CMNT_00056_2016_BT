@@ -5,7 +5,7 @@
 SELECT sum(settled_amount)
   FROM sale_commission_settlement_line
   where settlement = 2;
-(alejandra)
+
 
 -----------------------
 
