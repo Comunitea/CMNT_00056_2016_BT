@@ -86,7 +86,8 @@ class particular_report(models.AbstractModel):
                         for sett_line in settlement.lines:  # para cada liña do asentamento
 
                                 plan_line = self.env['sale.agent.plan.line'].search([('product', '=', sett_line.invoice_line.product_id.id),('plan', '=', sett_line.agent.plan.id)])
-                                ventas =  not sett_line.invoice_line.commission_free and sett_line.invoice_line.price_subtotal or 0.0
+                                sign = 'refund' in sett_line.invoice_line.invoice_id.type and -1 or 1
+                                ventas = sign * (not sett_line.invoice_line.commission_free and sett_line.invoice_line.price_subtotal or 0.0)
 
                                 if plan_line:  # se o producto est´a en sale.agent.plan.line
                                         commission_percentage = plan_line.commission.fix_qty
