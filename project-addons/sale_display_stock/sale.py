@@ -28,6 +28,6 @@ class sale_order_line(models.Model):
 
     qty_available = fields.\
         Float('Qty available', readonly=True,
-              related='product_id.qty_available',
+              related='product_id.virtual_stock_conservative',
               digits_compute=dp.get_precision('Product Unit of Measure'))
 
