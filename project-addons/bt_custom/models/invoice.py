@@ -20,17 +20,17 @@ class AccountInvoice(models.Model):
                                  related="journal_id.autoinvoice")
 
     @api.multi
-    def invoice_validate(self):
-        for inv in self:
-            if inv.early_payment_discount:
-                inv.button_compute_early_payment_disc()
-        res = super(AccountInvoice, self).invoice_validate()
-        return res
-
-    @api.multi
     def action_number(self):
         res = super(AccountInvoice, self).action_number()
         for inv in self:
             if inv.autoinvoice and inv.invoice_number and not inv.reference:
                 inv.reference = inv.invoice_number
+        return res
+
+    @api.multi
+    def action_move_create(self):
+        for inv in self:
+            if inv.early_payment_discount:
+                inv.button_compute_early_payment_disc()
+        res = super(AccountInvoice, self).action_move_create()
         return res

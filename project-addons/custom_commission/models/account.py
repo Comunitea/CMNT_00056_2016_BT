@@ -34,6 +34,12 @@ class AccountInvoice(models.Model):
                     vals = [(0, 0, x) for x in agents]
                     line.write({'agents': vals})
 
+    @api.multi
+    def action_move_create(self):
+        self.compute_commissions()
+        res = super(AccountInvoice, self).action_move_create()
+        return res
+
 
 class AccountInvoiceLine(models.Model):
 
