@@ -19,7 +19,8 @@
         "account",
         "l10n_es_partner",
         "account_due_dates_str",
-        "sale"
+        "sale",
+        "sale_commission"
     ],
     "data": [
         "views/partner_view.xml",
