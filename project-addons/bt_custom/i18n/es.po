@@ -87,6 +87,12 @@ msgid "Fax:"
 msgstr "Fax:"
 
 #. module: bt_custom
+#: view:sale.report:bt_custom.view_order_product_search_add_fed_state
+#: field:sale.report,state_id:0
+msgid "Fed. state"
+msgstr "Provincia"
+
+#. module: bt_custom
 #: view:website:bt_custom.report_autoinvoice_document
 msgid "Fiscal Position Remark:"
 msgstr "Observaciones de la posición fiscal"

@@ -21,5 +21,16 @@
             </field>
         </record>
 
+        <record id="view_order_product_search_add_fed_state" model="ir.ui.view">
+            <field name="name">sale.report.search.add_fed_state</field>
+            <field name="inherit_id" ref="sale.view_order_product_search"/>
+            <field name="model">sale.report</field>
+            <field name="arch" type="xml">
+                <filter name="Customer" position="after">
+                    <filter string="Fed. state" name="Fed_State" context="{'group_by':'state_id'}"/>
+                </filter>
+            </field>
+        </record>
+
     </data>
 </openerp>
