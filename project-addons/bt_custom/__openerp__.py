@@ -16,6 +16,7 @@
         "stock",
         "sale_payment_method",
         "sale",
+        "hr_holidays",
         "sale_early_payment_discount",
         "purchase",
         "account_payment_sale",
@@ -27,6 +28,7 @@
         'views/product.xml',
         'views/sale.xml',
         'views/stock.xml',
-        'views/report_autoinvoice.xml'
+        'views/report_autoinvoice.xml',
+        'views/hr_holidays_view.xml'
     ],
 }
