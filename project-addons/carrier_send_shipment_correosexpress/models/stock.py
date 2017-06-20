@@ -5,7 +5,6 @@ import logging
 import tempfile
 from correosexpress.picking import Picking
 from datetime import datetime
-from correosexpress.utils import services as correosexpress_services
 from openerp import models, api, exceptions, _
 from openerp.addons.carrier_send_shipment.tools import unaccent
 
@@ -79,15 +78,9 @@ class StockPicking(models.Model):
             'seguro': str(api.insurance),
             'entrSabado': 'N',
             'tipoEtiqueta': '1',
+            'producto': service.code
         }
         data['lista_bultos'] = [{'orden': x} for x in range(1, packages + 1)]
-        correosexpress_service = correosexpress_services().get(service.code)
-        if correosexpress_service:
-            data['producto'] = correosexpress_service
-        else:
-            raise exceptions.Warning(
-                _('Product error'),
-                _('Service with code %s not found') % service.code)
 
         if self.cash_on_delivery and price:
             data['reembolso'] = str(price)

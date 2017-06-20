@@ -1,0 +1,95 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#   * carrier_send_shipment_correosexpress
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 8.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-06-20 09:53+0000\n"
+"PO-Revision-Date: 2017-06-20 09:53+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: carrier_send_shipment_correosexpress
+#: code:addons/carrier_send_shipment_correosexpress/models/stock.py:129
+#, python-format
+msgid "API Error"
+msgstr "API Error"
+
+#. module: carrier_send_shipment_correosexpress
+#: code:addons/carrier_send_shipment_correosexpress/models/stock.py:112
+#, python-format
+msgid "Api service error"
+msgstr "Api service error"
+
+#. module: carrier_send_shipment_correosexpress
+#: view:carrier.api:carrier_send_shipment_correosexpress.carrier_api_correosexpress
+msgid "Correos express"
+msgstr "Correos express"
+
+#. module: carrier_send_shipment_correosexpress
+#: field:carrier.api,cod_rte:0
+msgid "Código remitente"
+msgstr "Código remitente"
+
+#. module: carrier_send_shipment_correosexpress
+#: field:carrier.api,insurance:0
+msgid "Insurance"
+msgstr "Cantidad asegurada"
+
+#. module: carrier_send_shipment_correosexpress
+#: code:addons/carrier_send_shipment_correosexpress/models/stock.py:160
+#, python-format
+msgid "Label error"
+msgstr "Error de etiqueta"
+
+#. module: carrier_send_shipment_correosexpress
+#: code:addons/carrier_send_shipment_correosexpress/models/stock.py:160
+#, python-format
+msgid "No label"
+msgstr "No label"
+
+#. module: carrier_send_shipment_correosexpress
+#: model:ir.model,name:carrier_send_shipment_correosexpress.model_stock_picking
+msgid "Picking List"
+msgstr "Albarán"
+
+#. module: carrier_send_shipment_correosexpress
+#: code:addons/carrier_send_shipment_correosexpress/models/stock.py:121
+#, python-format
+msgid "Picking error"
+msgstr "Error de albarán"
+
+#. module: carrier_send_shipment_correosexpress
+#: code:addons/carrier_send_shipment_correosexpress/models/stock.py:89
+#, python-format
+msgid "Product error"
+msgstr "Error de producto"
+
+#. module: carrier_send_shipment_correosexpress
+#: code:addons/carrier_send_shipment_correosexpress/models/stock.py:113
+#, python-format
+msgid "Select a service or default service in ºCorreos express API"
+msgstr "Seleccione un servicio o un servicio por defecto en la API"
+
+#. module: carrier_send_shipment_correosexpress
+#: code:addons/carrier_send_shipment_correosexpress/models/stock.py:90
+#, python-format
+msgid "Service with code %s not found"
+msgstr "Servicio con código %s no encontrado"
+
+#. module: carrier_send_shipment_correosexpress
+#: code:addons/carrier_send_shipment_correosexpress/models/stock.py:122
+#, python-format
+msgid "Shipment \"%s\" not have price and send cashondelivery"
+msgstr "El envío \"%s\" con contrareembolso no tiene precio establecido"
+
+#. module: carrier_send_shipment_correosexpress
+#: field:carrier.api,solicitante:0
+msgid "Solicitante"
+msgstr "Solicitante"
