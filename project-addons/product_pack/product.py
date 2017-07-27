@@ -39,6 +39,25 @@ class product_pack(orm.Model):
         ),
     }
 
+    def update_pack_products(self, cr, uid, ids, context=None):
+        for update_line in self.browse(cr, uid, ids):
+            cost_price = 0.0
+            for pack_line in update_line.parent_product_id.pack_line_ids:
+                cost_price += (pack_line.product_id.standard_price *
+                               pack_line.quantity)
+            update_line.parent_product_id.write({'standard_price': cost_price})
+        return True
+
+    def create(self, cr, uid, vals, context=None):
+        res = super(product_pack, self).create(cr, uid, vals, context=context)
+        self.update_pack_products(cr, uid, [res], context=context)
+        return res
+
+    def write(self, cr, uid, ids, vals, context):
+        res = super(product_pack, self).write(cr, uid, ids, vals,
+                                              context=context)
+        self.update_pack_products(cr, uid, ids, context=context)
+        return res
 
 class product_product(orm.Model):
     _inherit = 'product.product'
@@ -183,6 +202,22 @@ class product_product(orm.Model):
         'pack_fixed_price': True,
     }
 
+    def write(self, cr, uid, ids, vals, context=None):
+        pack_lines_to_update = []
+        if 'standard_price' in vals:
+            for prod in self.browse(cr, uid, ids, context=context):
+                if vals['standard_price'] != prod.standard_price:
+                    pline_ids = self.pool.get('product.pack.line').\
+                        search(cr, uid, [('product_id', '=', prod.id)])
+                    if pline_ids:
+                        pack_lines_to_update.extend(pline_ids)
+        res = super(product_product, self).write(cr, uid, ids, vals,
+                                                 context=context)
+        if pack_lines_to_update:
+            self.pool.get('product.pack.line').\
+                update_pack_products(cr, uid, pack_lines_to_update,
+                                     context=context)
+        return res
 
     @api.multi
     def get_pack(self):
