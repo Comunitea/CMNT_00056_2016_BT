@@ -7,3 +7,4 @@ from . import product
 from . import stock
 from . import invoice
 from . import sale_report
+from . import mrp
