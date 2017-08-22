@@ -14,7 +14,8 @@
     "depends": [
         "base",
         "magentoerpconnect",
-        "sale_store"
+        "sale_store",
+        "prestashoperpconnect"
     ],
     "data": [
         'views/magento_store_view.xml',
