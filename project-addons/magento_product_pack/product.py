@@ -2,7 +2,7 @@
 # © 2016 Comunitea
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 from openerp import models, api, exceptions, _
-from openerp.addons.magentoerpconnect.product import ProductImportMapper
+from openerp.addons.magentoerpconnect_product_tax.models.product import TaxProductImportMapper
 from openerp.addons.magentoerpconnect.backend import magento
 from openerp.addons.connector.unit.mapper import mapping
 
@@ -17,8 +17,8 @@ class MagentoProductProduct(models.Model):
         return res
 
 
-@magento(replacing=ProductImportMapper)
-class ProductPackMapper(ProductImportMapper):
+@magento(replacing=TaxProductImportMapper)
+class ProductPackMapper(TaxProductImportMapper):
 
     @mapping
     def pack_line_ids(self, record):

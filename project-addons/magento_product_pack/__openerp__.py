@@ -14,7 +14,8 @@
     "depends": [
         "base",
         "magentoerpconnect",
-        "product_pack"
+        "product_pack",
+        "magentoerpconnect_product_tax"
     ],
     "data": [
     ],
