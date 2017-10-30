@@ -31,7 +31,9 @@ class StockPicking(models.Model):
         if not packages:
             packages = 1
 
-        remitente_partner = self.picking_type_id.warehouse_id.partner_id or self.company_id.partner_id
+        remitente_partner = self.sale_store_id.partner_id or \
+            self.picking_type_id.warehouse_id.partner_id or \
+            self.company_id.partner_id
 
         if api.reference_origin and hasattr(self, 'origin'):
             code = self.origin

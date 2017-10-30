@@ -16,7 +16,8 @@
     },
     "depends": [
         "base",
-        "carrier_send_shipment"
+        "carrier_send_shipment",
+        "sale_store"
     ],
     "data": [
         'views/stock.xml'
