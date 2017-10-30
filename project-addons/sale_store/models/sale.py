@@ -12,9 +12,10 @@ class SaleStore(models.Model):
     name = fields.Char(required=True)
     journal_id = fields.Many2one('account.journal', 'Journal')
     active = fields.Boolean("Active", default=True)
-    logo = fields.Binary()
-    email = fields.Char()
-    phone = fields.Char()
+    partner_id = fields.Many2one('res.partner', 'partner', required=True)
+    logo = fields.Binary(related='partner_id.image', readonly=True)
+    email = fields.Char(related='partner_id.email', readonly=True)
+    phone = fields.Char(related='partner_id.phone', readonly=True)
     default_account_id = fields.\
         Many2one('account.account',
                  'Default account for ecommerce customers importations')

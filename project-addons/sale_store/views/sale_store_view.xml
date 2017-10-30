@@ -40,6 +40,7 @@
                             </h1>
                         </div>
                         <group>
+                            <field name="partner_id"/>
                             <field name="journal_id"/>
                             <field name="default_account_id"/>
                             <field name="active"/>

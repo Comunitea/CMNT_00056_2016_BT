@@ -18,6 +18,21 @@
                 <attribute name="t-if">not store or not store.logo and company.logo</attribute>
             </xpath>
 
+            <xpath expr="//div[@t-field='company.partner_id']" position="before">
+                <t t-if="o._name in ('sale.order', 'stock.picking', 'account.invoice') and o.sale_store_id">
+                    <t t-set="store" t-value="o.sale_store_id"></t>
+                    <div t-field="store.partner_id"
+                        t-field-options='{"widget": "contact", "fields": ["address", "name"], "no_marker": true}'
+                        style="border-bottom: 1px solid black;"
+                        class="pull-left"
+                    />
+                </t>
+            </xpath>
+
+            <xpath expr="//div[@t-field='company.partner_id']" position="attributes">
+                <attribute name="t-if">not store or not store.logo and company.logo</attribute>
+            </xpath>
+
         </template>
 
         <template id="footer_sale_store" inherit_id="report.external_layout_footer">
@@ -42,8 +57,9 @@
             </xpath>
 
             <xpath expr="//li[@t-if='company.website'][2]" position="after">
-                <li t-if="company.vat">&amp;bull;</li>
-                <li t-if="company.vat">VAT: <span t-field="company.vat"/></li>
+                <li t-if="store.partner_id.vat or company.vat">&amp;bull;</li>
+                <li t-if="store.partner_id.vat">VAT: <span t-field="store.partner_id.vat"/></li>
+                <li t-if="not store.partner_id.vat and company.vat">VAT: <span t-field="company.vat"/></li>
             </xpath>
         </template>
 
