@@ -46,6 +46,7 @@
                             <field name="active"/>
                             <field name="phone"/>
                             <field name="email"/>
+                            <field name="not_create_invoice_moves"/>
                         </group>
                     </sheet>
                 </form>

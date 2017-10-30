@@ -19,6 +19,7 @@ class SaleStore(models.Model):
     default_account_id = fields.\
         Many2one('account.account',
                  'Default account for ecommerce customers importations')
+    not_create_invoice_moves = fields.Boolean()
 
     @api.multi
     def action_view_config(self):
