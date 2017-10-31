@@ -29,6 +29,7 @@
         'views/sale.xml',
         'views/stock.xml',
         'views/report_autoinvoice.xml',
-        'views/hr_holidays_view.xml'
+        'views/hr_holidays_view.xml',
+        'wizard/account_invoice_mass_cancel_wizard.xml'
     ],
 }
