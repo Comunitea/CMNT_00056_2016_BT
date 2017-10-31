@@ -12,14 +12,33 @@ class SaleStore(models.Model):
     name = fields.Char(required=True)
     journal_id = fields.Many2one('account.journal', 'Journal')
     active = fields.Boolean("Active", default=True)
-    partner_id = fields.Many2one('res.partner', 'partner', required=True)
-    logo = fields.Binary(related='partner_id.image', readonly=True)
-    email = fields.Char(related='partner_id.email', readonly=True)
-    phone = fields.Char(related='partner_id.phone', readonly=True)
+    partner_id_in = fields.Many2one('res.partner', 'partner')
+    logo_in = fields.Binary(string='logo')
+    email_in = fields.Char(string='email')
+    phone_in = fields.Char(string='phone')
+    logo = fields.Binary(compute='_compute_partner_fields', readonly=True)
+    email = fields.Char(compute='_compute_partner_fields', readonly=True)
+    phone = fields.Char(compute='_compute_partner_fields', readonly=True)
+    partner_id = fields.Many2one('res.partner', compute='_compute_partner_fields', readonly=True)
     default_account_id = fields.\
         Many2one('account.account',
                  'Default account for ecommerce customers importations')
     not_create_invoice_moves = fields.Boolean()
+
+    @api.multi
+    def _compute_partner_fields(self):
+        for store in self:
+            partner = store.partner_id_in
+            if partner:
+                store.logo = partner.image
+                store.email = partner.email
+                store.phone = partner.phone
+                store.partner_id = partner
+            else:
+                store.logo = store.logo_in
+                store.email = store.email_in
+                store.phone = store.phone_in
+                store.partner_id = self.env.user.company_id.partner_id
 
     @api.multi
     def action_view_config(self):
