@@ -47,7 +47,7 @@
                             <field name="active"/>
                             <field name="phone_in" attrs="{'invisible': [('partner_id_in', '!=', False)]}"/>
                             <field name="email_in" attrs="{'invisible': [('partner_id_in', '!=', False)]}"/>
-                            <field name="not_create_invoice_moves" attrs="{'invisible': [('partner_id_in', '!=', False)]}"/>
+                            <field name="not_create_invoice_moves"/>
                         </group>
                     </sheet>
                 </form>
