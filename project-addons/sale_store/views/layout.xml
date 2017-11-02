@@ -10,7 +10,7 @@
             <xpath expr="//img[@t-if='company.logo']" position="before">
                 <t t-if="o._name in ('sale.order', 'stock.picking', 'account.invoice') and o.sale_store_id">
                     <t t-set="store" t-value="o.sale_store_id"></t>
-                    <img t-if="store and store.logo" t-att-src="'data:image/png;base64,%s' % store.logo" style="max-height: 60px;"/>
+                    <img t-if="store and store.logo" t-att-src="'data:image/png;base64,%s' % store.logo" style="max-height: 30px;"/>
                 </t>
             </xpath>
 
@@ -29,16 +29,23 @@
                 </t>
             </xpath>
 
-            <xpath expr="//div[@t-field='company.partner_id']" position="attributes">
-                <attribute name="t-if">not store or not store.logo and company.logo</attribute>
+            <xpath expr="//div[@t-field='company.partner_id']" position="replace">
+
+                <t t-if="o._name not in ('sale.order', 'stock.picking', 'account.invoice') or not o.sale_store_id">
+                    <div t-field="company.partner_id"
+                    t-field-options='{"widget": "contact", "fields": ["address", "name"], "no_marker": true}'
+                    style="border-bottom: 1px solid black;"
+                    class="pull-left"
+                />
+                </t>
             </xpath>
 
         </template>
 
         <template id="footer_sale_store" inherit_id="report.external_layout_footer">
             <xpath expr="//li[@t-if='company.phone']" position="before">
+                <t t-set="store" t-value="o.sale_store_id"></t>
                 <t t-if="o._name in ('sale.order', 'stock.picking', 'account.invoice') and o.sale_store_id">
-                    <t t-set="store" t-value="o.sale_store_id"></t>
                     <li t-if="store.phone">Phone: <span t-field="store.phone"/></li>
                 </t>
             </xpath>
