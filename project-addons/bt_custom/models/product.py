@@ -16,6 +16,8 @@ class ProductProduct(models.Model):
     def name_search(self, name, args=None, operator='ilike', limit=100):
         res = super(ProductProduct, self).name_search(
             name, args=args, operator=operator, limit=limit)
+        if not args:
+            args = []
         if not res:
             prods = self.search([('ean14', operator, name)] + args,
                                 limit=limit)
