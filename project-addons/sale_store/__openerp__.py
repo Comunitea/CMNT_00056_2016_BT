@@ -13,7 +13,7 @@
     "installable": True,
     "depends": [
         "sale_stock", "account_payment", "delivery",
-        "account_payment_partner", "bt_custom"
+        "account_payment_partner"
     ],
     "data": ['security/ir.model.access.csv',
              'views/layout.xml',
