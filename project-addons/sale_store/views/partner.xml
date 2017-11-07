@@ -10,15 +10,16 @@
             <field name="model">res.partner</field>
             <field name="inherit_id" ref="delivery.view_partner_property_form" />
             <field name="arch" type="xml">
-                <field name="bank_ids" position="after">
-                    <separator string="Store configuration"/>
+                <notebook position="inside">
+                    <page string="Store configuration">
                     <field name="store_values" nolabel="1">
                         <tree editable="bottom">
                             <field name="store"/>
                             <field name="value"/>
                         </tree>
                     </field>
-                </field>
+                  </page>
+                </notebook>
             </field>
         </record>
 
