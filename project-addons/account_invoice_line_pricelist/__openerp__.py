@@ -14,6 +14,8 @@
     'depends': [
         'account',
         'product',
+        'sale',
+        'sale_stock'
     ],
     'data': [
         'views/account_invoice.xml',

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record id="view_invoice_form" model="ir.ui.view">
+            <field name="name">account.invoice.form</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_form"/>
+            <field name="arch" type="xml">
+                <field name="invoice_line" position="after">
+                    <button name="recalculate_prices"
+                            string="Recalculate prices"
+                            attrs="{'invisible': [('state', '!=', 'draft')]}"
+                            type="object" colspan="4" class="oe_inline"/>
+                </field>
+            </field>
+        </record>
+
+        <record id="view_supplier_invoice_form" model="ir.ui.view">
+            <field name="name">account.invoice.form</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_supplier_form"/>
+            <field name="arch" type="xml">
+                <field name="invoice_line" position="after">
+                    <button name="recalculate_prices"
+                            string="Recalculate prices"
+                            attrs="{'invisible': [('state', '!=', 'draft')]}"
+                            type="object" colspan="4" class="oe_inline"/>
+                </field>
+            </field>
+        </record>
+
+    </data>
+</openerp>
