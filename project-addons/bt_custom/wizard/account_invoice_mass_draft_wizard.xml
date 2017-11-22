@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- © 2017 Comunitea
+     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
+
+<openerp>
+    <data>
+
+        <record id="account_invoice_mass_draft_wizard_form" model="ir.ui.view">
+            <field name="name">account.invoice_mass_draft_wizard</field>
+            <field name="model">account.invoice_mass_draft_wizard</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form>
+                    <footer>
+                        <button name="apply" string="Set to draft invoices" type="object" class="oe_highlight"/>
+                        or
+                        <button string="Cancel" class="oe_link" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <act_window name="Set to draft invoices"
+            res_model="account.invoice_mass_draft_wizard"
+            src_model="account.invoice"
+            view_id="account_invoice_mass_draft_wizard_form"
+            view_mode="form"
+            target="new"
+            key2="client_action_multi"
+            id="action_account_invoice_mass_draft_wizard"/>
+
+    </data>
+</openerp>
