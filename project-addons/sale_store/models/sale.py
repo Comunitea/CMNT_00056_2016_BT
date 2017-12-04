@@ -59,6 +59,8 @@ class SaleStoreConfig(models.Model):
 
     partner = fields.Many2one('res.partner', required=True)
     store = fields.Many2one('sale.store', required=True)
+    zip = fields.Char(related='partner.zip', readonly=True)
+    state_id = fields.Many2one('res.country.state', related='partner.state_id', readonly=True)
     value = fields.Reference(
         [('product.pricelist', 'Pricelist'),
          ('payment.mode', 'Payment mode'),

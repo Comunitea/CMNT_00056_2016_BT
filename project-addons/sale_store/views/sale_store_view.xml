@@ -84,6 +84,8 @@
             <field name="arch" type="xml">
                 <tree editable="top">
                     <field name="partner"/>
+                    <field name="zip"/>
+                    <field name="state_id"/>
                     <field name="store"/>
                     <field name="value"/>
                 </tree>
@@ -98,6 +100,8 @@
                 <search>
                    <field name="partner"/>
                    <field name="value"/>
+                   <field name="zip"/>
+                   <field name="state_id"/>
                    <group expand="0" string="Group By">
                        <filter string="partner" context="{'group_by': 'partner'}"/>
                    </group>
