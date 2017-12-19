@@ -17,7 +17,8 @@
         "carrier_api",
         "stock",
         "hr",
-        "stock_cashondelivery"
+        "stock_cashondelivery",
+        "custom_partner"
     ],
     "data": [
         'views/stock.xml',

@@ -13,7 +13,7 @@
     'application': False,
     'installable': True,
     'depends': [
-        'base', 'delivery'
+        'base', 'delivery', 'sale_store'
     ],
     'data': [
         'views/carrier_api.xml',

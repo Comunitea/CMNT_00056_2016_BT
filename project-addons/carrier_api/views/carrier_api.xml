@@ -60,6 +60,7 @@
                                         <field name="weight"/>
                                         <field name="weight_unit"/>
                                         <field name="weight_api_unit"/>
+                                        <field name="sale_store_ids"/>
                                     </group>
                                 </group>
                             </page>

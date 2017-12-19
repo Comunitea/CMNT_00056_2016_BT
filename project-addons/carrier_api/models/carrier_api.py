@@ -12,6 +12,7 @@ class CarrierApiService(models.Model):
     code = fields.Char('Code', required=True)
     default = fields.Boolean()
     carrier_api = fields.Many2one('carrier.api', 'API')
+    sale_store_ids = fields.Many2many('sale.store', related='carrier_api.sale_store_ids')
 
 
 class CarrierApi(models.Model):
@@ -38,6 +39,7 @@ class CarrierApi(models.Model):
     zips = fields.Text(
         'Zip', help='Zip codes not send to carrier, separated by comma')
     debug = fields.Boolean('Debug')
+    sale_store_ids = fields.Many2many('sale.store', string='Stores')
 
     @api.multi
     def get_default_carrier_service(self):
