@@ -25,6 +25,7 @@
     "data": [
         "views/partner_view.xml",
         "views/sale.xml",
-        "views/invoice.xml"
+        "views/invoice.xml",
+        "views/stock_report.xml"
     ],
 }
