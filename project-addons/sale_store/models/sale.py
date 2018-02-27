@@ -78,8 +78,9 @@ class SaleOrder(models.Model):
     def _prepare_invoice(self, order, lines):
         res = super(SaleOrder, self)._prepare_invoice(order, lines)
         if order.sale_store_id:
-            journal = order.sale_store_id.journal_id
-            res['journal_id'] = journal.id
+            if order.sale_store_id.journal_id:
+                journal = order.sale_store_id.journal_id
+                res['journal_id'] = journal.id
             res['sale_store_id'] = order.sale_store_id.id
         return res
 
