@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- © 2018 Comunitea
+     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
+<openerp>
+    <data>
+
+        <template id="report_picking_alt" inherit_id="stock.report_picking">
+            <xpath expr="//span[@t-field='pack_operation.product_id']" position="replace">
+                <span t-field="pack_operation.linked_move_operation_ids[0].move_id.name"/>
+            </xpath>
+        </template>
+
+    </data>
+</openerp>
