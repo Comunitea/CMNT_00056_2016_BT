@@ -16,6 +16,17 @@ class SaleOrder(models.Model):
         if self.payment_method_id and self.payment_method_id.payment_mode_id:
             self.payment_mode_id = self.payment_method_id.payment_mode_id.id
 
+    @api.multi
+    def onchange_partner_id(self, part):
+        res = super(SaleOrder, self).onchange_partner_id(part)
+        if 'value' in res and 'payment_mode_id' in res['value']:
+            if self._context.get('payment_method', False):
+                payment_method = self.env['payment.method'].browse(
+                    self._context.get('payment_method', False))
+                if payment_method.payment_mode_id:
+                    res['value']['payment_mode_id'] = payment_method.payment_mode_id.id
+        return res
+
     @api.model
     def _prepare_invoice(self, order, lines):
         """Copy bank partner from sale order to invoice"""
