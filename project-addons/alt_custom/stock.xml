@@ -8,6 +8,9 @@
             <xpath expr="//span[@t-field='pack_operation.product_id']" position="replace">
                 <span t-field="pack_operation.linked_move_operation_ids[0].move_id.name"/>
             </xpath>
+            <xpath expr="//t[@t-foreach='docs']" position="attributes">
+                <attribute name="t-foreach">o</attribute>
+            </xpath>
         </template>
 
     </data>
