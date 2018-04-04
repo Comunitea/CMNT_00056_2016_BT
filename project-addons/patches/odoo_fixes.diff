@@ -1,0 +1,26 @@
+diff --git a/addons/delivery/sale.py b/addons/delivery/sale.py
+index c6b89de..3a11e54 100644
+--- a/addons/delivery/sale.py
++++ b/addons/delivery/sale.py
+@@ -94,7 +94,7 @@ class sale_order(osv.Model):
+                 'tax_id': [(6, 0, taxes_ids)],
+                 'is_delivery': True,
+             }
+-            res = line_obj.product_id_change(cr, uid, ids, order.pricelist_id.id, values['product_id'],
++            res = line_obj.product_id_change(cr, uid, [], order.pricelist_id.id, values['product_id'],
+                                              qty=values['product_uom_qty'], uom=False, qty_uos=0, uos=False, name='', partner_id=order.partner_id.id,
+                                              lang=False, update_tax=True, date_order=False, packaging=False, fiscal_position=False, flag=False, context=None)
+             if res['value'].get('purchase_price'):
+diff --git a/addons/sale_stock/stock_view.xml b/addons/sale_stock/stock_view.xml
+index 2c7c80b..dd16293 100644
+--- a/addons/sale_stock/stock_view.xml
++++ b/addons/sale_stock/stock_view.xml
+@@ -13,7 +13,7 @@
+             <field name="context">{'default_type': 'out', 'contact_display': 'partner_address', 'search_default_to_invoice': 1, 'search_default_done': 1}</field>
+             <field name="search_view_id" ref="stock.view_picking_internal_search"/>
+         </record>
+-        <menuitem id="base.menu_invoiced" name="Invoicing" parent="base.menu_base_partner" sequence="5"/>
++        <menuitem id="base.menu_invoiced" name="Invoicing" parent="base.menu_base_partner" sequence="5" groups="base.group_sale_salesman_all_leads"/>
+         <menuitem action="outgoing_picking_list_to_invoice" id="menu_action_picking_list_to_invoice" parent="base.menu_invoiced" groups="sale_stock.group_invoice_deli_orders" sequence="20"/>
+         
+ 
