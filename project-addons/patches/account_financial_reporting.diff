@@ -1,0 +1,37 @@
+diff --git a/account_financial_report_webkit/report/common_partner_reports.py b/account_financial_report_webkit/report/common_partner_reports.py
+index 55ce8ef..02cc3ac 100644
+--- a/account_financial_report_webkit/report/common_partner_reports.py
++++ b/account_financial_report_webkit/report/common_partner_reports.py
+@@ -273,7 +273,7 @@ class CommonPartnersReportHeaderWebkit(CommonReportHeaderWebkit):
+         period_ids = force_period_ids \
+             if force_period_ids \
+             else self._get_period_range_from_start_period(
+-                start_period, fiscalyear=False, include_opening=False)
++                start_period, fiscalyear=False, include_opening=True)
+ 
+         if not period_ids:
+             period_ids = [-1]
+diff --git a/account_financial_report_webkit/report/webkit_parser_header_fix.py b/account_financial_report_webkit/report/webkit_parser_header_fix.py
+index 9484aaf..8a66366 100644
+--- a/account_financial_report_webkit/report/webkit_parser_header_fix.py
++++ b/account_financial_report_webkit/report/webkit_parser_header_fix.py
+@@ -137,7 +137,18 @@ class HeaderFooterTextWebKitParser(webkit_report.WebKitParser):
+ 
+         if parser_instance.localcontext.get('additional_args', False):
+             for arg in parser_instance.localcontext['additional_args']:
+-                command.extend(arg)
++                if isinstance(arg, tuple):
++                    new_arg = tuple()
++                    for i in arg:
++                        if isinstance(i, unicode):
++                            i = i.encode('ascii', 'replace')
++                            i = (str(i), )
++                            new_arg += i
++                        else:
++                            new_arg += (i, )
++                    command.extend(new_arg)
++                else:
++                    command.extend(arg)
+ 
+         count = 0
+         for html in html_list:

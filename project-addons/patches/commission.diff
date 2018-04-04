@@ -1,0 +1,40 @@
+diff --git a/sale_commission/migrations/8.0.3.0.0/pre-migration.py b/sale_commission/migrations/8.0.3.0.0/pre-migration.py
+index 307cfc2..15e4d29 100644
+--- a/sale_commission/migrations/8.0.3.0.0/pre-migration.py
++++ b/sale_commission/migrations/8.0.3.0.0/pre-migration.py
+@@ -4,9 +4,9 @@
+ 
+ 
+ def migrate(cr, version):
+-    cr.execute("""ALTER TABLE sale_commission_settlement
+-                  ADD COLUMN company_id int""")
+-    cr.execute("""ALTER TABLE sale_commission ADD COLUMN company_id int""")
++    #cr.execute("""ALTER TABLE sale_commission_settlement
++    #              ADD COLUMN company_id int""")
++    #cr.execute("""ALTER TABLE sale_commission ADD COLUMN company_id int""")
+     cr.execute("""
+         UPDATE sale_commission_settlement scs
+         SET company_id = res_partner.company_id
+diff --git a/sale_commission/models/account_invoice.py b/sale_commission/models/account_invoice.py
+index 3bbbd09..72151d0 100644
+--- a/sale_commission/models/account_invoice.py
++++ b/sale_commission/models/account_invoice.py
+@@ -11,7 +11,8 @@ class AccountInvoice(models.Model):
+     """Invoice inherit to add salesman"""
+     _inherit = "account.invoice"
+ 
+-    @api.depends('invoice_line.agents.amount')
++    #@api.depends('invoice_line.agents.amount')
++    @api.multi
+     def _compute_commission_total(self):
+         for record in self:
+             record.commission_total = 0.0
+@@ -20,7 +21,7 @@ class AccountInvoice(models.Model):
+ 
+     commission_total = fields.Float(
+         string="Commissions", compute="_compute_commission_total",
+-        store=True)
++        store=False)
+ 
+     @api.multi
+     def action_cancel(self):
