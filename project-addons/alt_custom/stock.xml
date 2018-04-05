@@ -3,10 +3,14 @@
      License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
 <openerp>
     <data>
-
         <template id="report_picking_alt" inherit_id="stock.report_picking">
             <xpath expr="//span[@t-field='pack_operation.product_id']" position="replace">
                 <span t-field="pack_operation.linked_move_operation_ids[0].move_id.name"/>
+            </xpath>
+            <xpath expr="//t[@t-foreach='docs']" position="before">
+                <t t-if="not o">
+                    <t t-set="o" t-value="docs"/>
+                </t>
             </xpath>
             <xpath expr="//t[@t-foreach='docs']" position="attributes">
                 <attribute name="t-foreach">o</attribute>
