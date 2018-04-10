@@ -34,3 +34,9 @@ class AccountInvoice(models.Model):
                 inv.button_compute_early_payment_disc()
         res = super(AccountInvoice, self).action_move_create()
         return res
+
+    @api.model
+    def _get_invoice_line_key_cols(self):
+        res = super(AccountInvoice, self)._get_invoice_line_key_cols()
+        res.remove('origin')
+        return res
