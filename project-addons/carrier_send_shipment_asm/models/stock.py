@@ -76,8 +76,8 @@ class StockPicking(models.Model):
         data['destinatario_provincia'] = self.partner_id.state_id and unaccent(self.partner_id.state_id.name) or ''
         data['destinatario_pais'] = self.partner_id.country_id and self.partner_id.country_id.code or ''
         data['destinatario_cp'] = self.partner_id.zip
-        data['destinatario_telefono'] = self.partner_id.phone or ''
-        data['destinatario_movil'] = self.partner_id.mobile or ''
+        data['destinatario_telefono'] = self.partner_id.phone and unaccent(self.partner_id.phone) or ''
+        data['destinatario_movil'] = self.partner_id.mobile and unaccent(self.partner_id.mobile) or ''
         data['destinatario_email'] = self.partner_id.email or ''
         data['destinatario_observaciones'] = unaccent(notes)
         data['destinatario_att'] = unaccent(remitente_partner.name if remitente_partner.name else self.partner_id.name)
@@ -94,7 +94,6 @@ class StockPicking(models.Model):
         #~ data['cliente_codigo'] =
         #~ data['cliente_plaza'] =
         #~ data['cliente_agente'] =
-
         asm_service = asm_services().get(service.code)
         if asm_service:
             data['servicio'] = asm_service['servicio']
