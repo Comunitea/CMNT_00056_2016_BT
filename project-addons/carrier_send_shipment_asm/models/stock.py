@@ -146,6 +146,7 @@ class StockPicking(models.Model):
 
                 data = picking.asm_picking_data(api, service, price, api.weight)
                 reference, label, error = picking_api.create(data)
+                logger.info('Sended picking: %s received: reference: %s label: %s error: %s' % (picking.name, reference, label and '1' or '0', error))
                 if reference:
                     picking.write({
                         'carrier_tracking_ref': reference,
