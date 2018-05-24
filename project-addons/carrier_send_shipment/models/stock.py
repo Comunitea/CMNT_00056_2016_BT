@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 # © 2016 Comunitea
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
-
+import logging
 from openerp import models, fields, api, exceptions, _
 from datetime import datetime
 import base64
 
+logger = logging.getLogger(__name__)
 
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
@@ -56,6 +57,7 @@ class StockPicking(models.Model):
 
     @api.multi
     def send_shipment_api(self):
+        logger.info('ASM: Se llama a api desde asistente: %s' % self[0].name)
         self.ensure_one()
         if not self.carrier_id:
             raise exceptions.Warning(_('No carrier'), _('Shipment "%s" not have carrier') % self.name)
@@ -87,6 +89,7 @@ class StockPicking(models.Model):
 
     @api.multi
     def barcode_send_shipment(self):
+        logger.info(u'ASM: llamada a servidor de envío pick: %s con user: %s' % (self[0].name, self.env.user.name))
         if self.carrier_delivery:
             model = 'carrier.print.shipment'
         else:
