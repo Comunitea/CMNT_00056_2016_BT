@@ -9,6 +9,16 @@ class SaleOrder(models.Model):
 
     _inherit = 'sale.order'
 
+    @api.multi
+    def apply_promotions(self):
+        res = super(SaleOrder, self).apply_promotions()
+        for order in self:
+            taxes = order.order_line[0].tax_id
+            for line in order.order_line:
+                if line.promotion_line:
+                    line.tax_id = taxes
+        return res
+
     @api.onchange('payment_method_id')
     def onchange_payment_method_id_set_payment_term(self):
         res = super(SaleOrder,

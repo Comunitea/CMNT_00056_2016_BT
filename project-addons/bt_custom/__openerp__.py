@@ -22,7 +22,8 @@
         "account_payment_sale",
         "l10n_es_aeat_mod340",
         "l10n_es_account_invoice_sequence",
-        "account_invoice_merge"
+        "account_invoice_merge",
+        "openerp_sale_promotions"
     ],
     "data": [
         'views/payment_method.xml',
