@@ -143,8 +143,11 @@ class StockPicking(models.Model):
                     price = picking.amount_total
                     if not price:
                         raise exceptions.Warning(_('Picking error'), _('Shipment "%s" not have price and send cashondelivery') % picking.name)
-
-                data = picking.asm_picking_data(api, service, price, api.weight)
+                try:
+                    data = picking.asm_picking_data(api, service, price, api.weight)
+                except Exception as inst:
+                    logger.info('Error sending picking data:' % str(data))
+                    raise Exception(inst.args)
                 reference, label, error = picking_api.create(data)
                 logger.info('Sended picking: %s received: reference: %s label: %s error: %s' % (picking.name, reference, label and '1' or '0', error))
                 if reference:
