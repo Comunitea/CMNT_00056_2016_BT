@@ -40,3 +40,8 @@ class SaleOrder(models.Model):
                  'carrier_notes': order.carrier_notes,
                  'note': order.internal_notes})
         return res
+
+    @api.onchange('carrier_id')
+    def onchange_carrier_id(self):
+        if self.carrier_id:
+            self.carrier_service_id = self.carrier_id.service.id
