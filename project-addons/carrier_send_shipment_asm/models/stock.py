@@ -78,7 +78,7 @@ class StockPicking(models.Model):
         data['destinatario_cp'] = self.partner_id.zip
         data['destinatario_telefono'] = self.partner_id.phone and unaccent(self.partner_id.phone) or ''
         data['destinatario_movil'] = self.partner_id.mobile and unaccent(self.partner_id.mobile) or ''
-        data['destinatario_email'] = self.partner_id.email and unaccent(self.partner_id.email) or ''
+        data['destinatario_email'] = self.partner_id.email and unaccent(self.partner_id.email) or self.partner_id.commercial_partner_id.email and unaccent(self.partner_id.commercial_partner_id.email) or ''
         data['destinatario_observaciones'] = unaccent(notes)
         data['destinatario_att'] = unaccent(remitente_partner.name if remitente_partner.name else self.partner_id.name)
         #~ data['destinatario_departamento'] =
