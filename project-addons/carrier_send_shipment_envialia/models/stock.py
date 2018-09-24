@@ -55,7 +55,7 @@ class StockPicking(models.Model):
 
                 data = {}
                 data['agency_cargo'] = agency
-                data['agency_origin'] = customer
+                data['agency_origin'] = agency
                 if not carrier_api.reference:
                     data['reference'] = code
                 data['picking_date'] = date.today()
