@@ -60,7 +60,7 @@ class StockPicking(models.Model):
                     data['reference'] = code
                 data['picking_date'] = date.today()
                 data['service_code'] = str(service.code)
-                data['company_name'] = unaccent(carrier_api.company.name)
+                data['company_name'] = unaccent(picking.sale_store_id.partner_id.name)
                 data['company_code'] = customer
                 if carrier_api.phone:
                     data['company_phone'] = unspaces(carrier_api.phone)
