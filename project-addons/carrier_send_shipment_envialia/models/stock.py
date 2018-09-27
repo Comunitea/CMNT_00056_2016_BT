@@ -69,8 +69,8 @@ class StockPicking(models.Model):
                 data['customer_street'] = unaccent(picking.partner_id.street)
                 data['customer_city'] = unaccent(picking.partner_id.city)
                 data['customer_zip'] = picking.partner_id.zip
-                if picking.partner_id.phone:
-                    data['customer_phone'] = unspaces(picking.partner_id.phone)
+                if picking.partner_id.phone or picking.partner_id.mobile:
+                    data['customer_phone'] = unspaces(picking.partner_id.phone or picking.partner_id.mobile)
                 data['document'] = packages
                 if picking.cash_on_delivery:
                     price_ondelivery = picking.amount_total
