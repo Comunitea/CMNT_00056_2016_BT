@@ -60,6 +60,7 @@ class StockPicking(models.Model):
                     data['reference'] = code
                 data['picking_date'] = date.today()
                 data['service_code'] = str(service.code)
+                data['saturday'] = service.envialia_saturday
                 data['company_name'] = unaccent(picking.sale_store_id.partner_id.name)
                 data['company_code'] = customer
                 if carrier_api.phone:

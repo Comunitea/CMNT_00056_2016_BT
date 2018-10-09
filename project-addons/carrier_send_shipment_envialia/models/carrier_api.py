@@ -34,3 +34,9 @@ class CarrierApi(models.Model):
             else:
                 message = 'connection_error'
             raise exceptions.Warning(_('Connection test'), message)
+
+
+class CarrierApiService(models.Model):
+    _inherit = 'carrier.api.service'
+
+    envialia_saturday = fields.Boolean()
