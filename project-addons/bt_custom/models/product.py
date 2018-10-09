@@ -31,5 +31,6 @@ class ProductProduct(models.Model):
             for product in self:
                 boms = self.env['mrp.bom.line'].search(
                     [('product_id', '=', product.id)]).mapped('bom_id')
-                boms.update_standard_price_production()
+                if boms:
+                    boms.update_standard_price_production()
         return res
