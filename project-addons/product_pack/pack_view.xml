@@ -67,7 +67,7 @@
                     <field name="pack_parent_line_id" invisible="1"/>
                 </xpath>
                 <xpath expr="//field[@name='order_line']/tree" position="attributes">
-                    <attribute name="colors">red: pack_parent_line_id != False</attribute>
+                    <attribute name="colors">#afafaf: pack_parent_line_id != False</attribute>
                 </xpath>
             </field>
         </record>
