@@ -58,6 +58,19 @@
             </field>
         </record>
 
+        <record id="sale_order_line_pack_view" model="ir.ui.view">
+            <field name="name">sale.order.form</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='order_line']/tree" position="inside">
+                    <field name="pack_parent_line_id" invisible="1"/>
+                </xpath>
+                <xpath expr="//field[@name='order_line']/tree" position="attributes">
+                    <attribute name="colors">red: pack_parent_line_id != False</attribute>
+                </xpath>
+            </field>
+        </record>
+
     </data>
 </openerp>
-
