@@ -9,7 +9,7 @@
             <field name="arch" type="xml">
                 <field name="property_delivery_carrier" position="after">
                     <field name="carrier_service_id" domain="[('carrier_api.carriers', 'in', [property_delivery_carrier])]"/>
-                    <field name="asm_return"/>
+                    <field name="ship_return"/>
                     <separator string="Carrier notes" colspan="2"/>
                     <field name="carrier_notes" nolabel="1" colspan="2"/>
                 </field>

@@ -13,7 +13,7 @@ class ResPartner(models.Model):
     medical_code = fields.Char("Medical code", size=32)
     carrier_service_id = fields.Many2one("carrier.api.service",
                                          "Carrier service")
-    asm_return = fields.Boolean("Asm return")
+    ship_return = fields.Boolean("return")
     carrier_notes = fields.Text("Carrier notes")
 
     @api.onchange('medical_code')

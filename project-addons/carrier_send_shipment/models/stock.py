@@ -11,8 +11,8 @@ logger = logging.getLogger(__name__)
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
 
-    asm_return = fields.Boolean(
-        'ASM Return', related="sale_id.asm_return", readonly=True,
+    ship_return = fields.Boolean(
+        'Return', related="sale_id.ship_return", readonly=True,
         help='Active return when send API shipment')
 
     carrier_service = fields.Many2one('carrier.api.service',

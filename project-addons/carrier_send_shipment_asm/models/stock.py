@@ -52,7 +52,7 @@ class StockPicking(models.Model):
         #~ data['declarado'] =
         #~ data['dninob'] =
         #~ data['fechaentrega'] =
-        data['retorno'] = '1' if self.asm_return else '0'
+        data['retorno'] = '1' if self.ship_return else '0'
         #~ data['pod'] =
         #~ data['podobligatorio'] =
         #~ data['remite_plaza'] =
