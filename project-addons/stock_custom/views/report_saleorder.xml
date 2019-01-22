@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <template id="custom_report_saleorder" inherit_id="sale.report_saleorder_document">
+            <xpath expr="//span[@t-field='l.product_uom_qty']/.." position="after">
+                <td groups="stock.group_production_lot"><span t-field="l.lot_id.name"/></td>
+                <td groups="stock.group_production_lot"><span t-field="l.lot_id.life_date_date"/></td>
+            </xpath>
+            <xpath expr="//table[1]/thead/tr/th[3]" position="after">
+                <th groups="stock.group_production_lot">Lot</th>
+                <th groups="stock.group_production_lot">Life date</th>
+            </xpath>
+        </template>
+    </data>
+</openerp>

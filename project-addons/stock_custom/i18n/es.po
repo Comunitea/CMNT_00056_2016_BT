@@ -1,0 +1,38 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#	* stock_custom
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 8.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-01-22 10:41+0000\n"
+"PO-Revision-Date: 2019-01-22 10:41+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: stock_custom
+#: view:website:sale.report_saleorder_document
+#: view:website:stock.report_picking
+msgid "Life date"
+msgstr "Fecha de caducidad"
+
+#. module: stock_custom
+#: field:stock.production.lot,life_date_date:0
+msgid "Life date date"
+msgstr "Life date date"
+
+#. module: stock_custom
+#: view:website:sale.report_saleorder_document
+msgid "Lot"
+msgstr "Lote"
+
+#. module: stock_custom
+#: model:ir.model,name:stock_custom.model_stock_production_lot
+msgid "Lot/Serial"
+msgstr "Lote/Nº de serie"
+
