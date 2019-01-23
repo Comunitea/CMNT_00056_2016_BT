@@ -7,13 +7,13 @@ from openerp import api, fields, models
 class StockProductionLot(models.Model):
     _inherit = 'stock.production.lot'
 
-    life_date_date = fields.Date(compute='_compute_life_date_date', store=True)
+    use_date_date = fields.Date(compute='_compute_use_date_date', store=True)
 
-    @api.depends('life_date')
-    def _compute_life_date_date(self):
+    @api.depends('use_date')
+    def _compute_use_date_date(self):
         for lot in self:
-            if not lot.life_date:
-                lot.life_date_date = None
+            if not lot.use_date:
+                lot.use_date_date = None
                 continue
-            life_date_datetime = fields.Datetime.from_string(lot.life_date)
-            lot.life_date_date = fields.Date.to_string(life_date_datetime.date())
+            use_date_datetime = fields.Datetime.from_string(lot.use_date)
+            lot.use_date_date = fields.Date.to_string(use_date_datetime.date())

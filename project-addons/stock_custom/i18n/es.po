@@ -22,7 +22,7 @@ msgid "Life date"
 msgstr "Fecha de caducidad"
 
 #. module: stock_custom
-#: field:stock.production.lot,life_date_date:0
+#: field:stock.production.lot,use_date_date:0
 msgid "Life date date"
 msgstr "Life date date"
 

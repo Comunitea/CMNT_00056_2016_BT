@@ -4,7 +4,7 @@
         <template id="report_picking" inherit_id="stock.report_picking">
 
             <xpath expr="//span[@t-field='operation.lot_id']/.." position="after">
-                <td class="text-right"><span t-field="operation.lot_id.life_date_date"/></td>
+                <td class="text-right"><span t-field="operation.lot_id.use_date_date"/></td>
             </xpath>
             <xpath expr="//table[@name='moves_table']/thead/tr/th[3]" position="after">
                 <th class="text-right" t-if="o.state == 'done'">Life date</th>
