@@ -36,3 +36,13 @@ msgstr "Lote"
 msgid "Lot/Serial"
 msgstr "Lote/Nº de serie"
 
+
+#. module: stock_custom
+#: view:website:stock.report_picking
+msgid "Date of Transfer"
+msgstr "Fecha de transferencia"
+
+#. module: stock_custom
+#: view:website:stock.report_picking
+msgid "Source Document"
+msgstr "Documento de origen"
