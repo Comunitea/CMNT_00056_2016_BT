@@ -22,5 +22,50 @@
             </field>
         </record>
 
+        <record id="product_product_view_tree" model="ir.ui.view">
+            <field name="name">product.product.view.tree</field>
+            <field name="model">product.product</field>
+            <field name="priority">1</field>
+            <field name="groups_id" eval="[(4, ref('bt_custom.group_interno'))]"/>
+            <field name="arch" type="xml">
+                <tree string="Product Variants">
+                    <field name="default_code"/>
+                    <field name="name"/>
+                    <field name="attribute_value_ids" widget="many2many_tags"/>
+                    <field name="lst_price"/>
+                    <field name="price" invisible="not context.get('pricelist',False)"/>
+                    <field name="uom_id"/>
+                    <field name="ean13"/>
+                    <field name="state" invisible="1"/>
+                    <field name="product_tmpl_id" invisible="1"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- product.product form view -->
+        <record id="product_product_view_form" model="ir.ui.view">
+            <field name="name">product.product.view.form</field>
+            <field name="model">product.product</field>
+            <field name="priority">1</field>
+            <field name="groups_id" eval="[(4, ref('bt_custom.group_interno'))]"/>
+            <field name="arch" type="xml">
+                <form string="Product">
+                    <sheet>
+                        <group>
+                            <field name="name"/>
+                            <field name="default_code"/>
+                            <field name="ean13"/>
+                            <field name="ean14"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
+        <record id="stock.product_template_kanban_stock_view" model="ir.ui.view">
+            <field name="groups_id" eval="[(4, ref('bt_custom.group_interno'))]"/>
+        </record>
+
     </data>
 </openerp>
