@@ -25,7 +25,8 @@ class SaleOrder(models.Model):
         if part:
             partner = self.env['res.partner'].browse(part)
             values['ship_return'] = partner.ship_return
-            values['carrier_service_id'] = partner.carrier_service_id.id
+            if partner.carrier_service_id:
+                values['carrier_service_id'] = partner.carrier_service_id.id
             values['carrier_notes'] = partner.carrier_notes
             res['value'].update(values)
         return res
@@ -43,5 +44,7 @@ class SaleOrder(models.Model):
 
     @api.onchange('carrier_id')
     def onchange_carrier_id(self):
-        if self.carrier_id:
+        if self.carrier_id and not self.partner_id.carrier_service_id:
             self.carrier_service_id = self.carrier_id.service.id
+        else:
+            self.carrier_service_id = self.partner_id.carrier_service_id.id
