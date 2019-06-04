@@ -42,6 +42,7 @@ openerp.carrier_send_shipment = function(instance){
                     //button action
                     self.$('.js_send_shipment').click(function(){
                         self.$('.js_send_shipment').prop('disabled', true);
+                        self.$('.js_send_shipment').hide()
                         data = {}
                         if(!self.getParent().picking.carrier_delivery){
                             data.weight_edit = self.$('.js_weight_edit').val()
