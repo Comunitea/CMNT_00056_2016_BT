@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- © 2016 Comunitea
+     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
+
+<openerp>
+    <data>
+        <record id="carrier_api_add_envialia_fields" model="ir.ui.view">
+            <field name="name">carrier.api.form</field>
+            <field name="model">carrier.api</field>
+            <field name="inherit_id" ref="carrier_api.carrier_api_view_form"/>
+            <field name="arch" type="xml">
+                <notebook position="inside">
+                    <page string="Envialia">
+                        <group>
+                            <group>
+                                <field name="envialia_agency"/>
+                            </group>
+                        </group>
+                    </page>
+                </notebook>
+            </field>
+        </record>
+    </data>
+</openerp>

@@ -1,0 +1,9 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:dir="http://www.direcline.com/">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <dir:DesconectarUsuarioBPoint>
+         <dir:Nombre>${Nombre}</dir:Nombre>
+         <dir:Password>${Password}</dir:Password>
+      </dir:DesconectarUsuarioBPoint>
+   </soapenv:Body>
+</soapenv:Envelope>

@@ -1,0 +1,83 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#   * carrier_send_shipment_envialia
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 8.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-10-09 16:08+0000\n"
+"PO-Revision-Date: 2018-10-09 18:09+0200\n"
+"Last-Translator: Jesús Ventosinos Mayor <jesus@comunitea.com>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: carrier_send_shipment_envialia
+#: field:carrier.api,envialia_agency:0
+msgid "Agency"
+msgstr "Agency"
+
+#. module: carrier_send_shipment_envialia
+#: code:addons/carrier_send_shipment_envialia/models/stock.py:115
+#, python-format
+msgid "Api error"
+msgstr "Api error"
+
+#. module: carrier_send_shipment_envialia
+#: code:addons/carrier_send_shipment_envialia/models/stock.py:41
+#, python-format
+msgid "Api service error"
+msgstr "Api service error"
+
+#. module: carrier_send_shipment_envialia
+#: code:addons/carrier_send_shipment_envialia/models/carrier_api.py:36
+#, python-format
+msgid "Connection test"
+msgstr "Connection test"
+
+#. module: carrier_send_shipment_envialia
+#: view:carrier.api:carrier_send_shipment_envialia.carrier_api_add_envialia_fields
+msgid "Envialia"
+msgstr "Envialia"
+
+#. module: carrier_send_shipment_envialia
+#: help:carrier.api,envialia_agency:0
+msgid "Envialia Agency"
+msgstr "Envialia Agency"
+
+#. module: carrier_send_shipment_envialia
+#: field:carrier.api.service,envialia_saturday:0
+msgid "Envialia saturday"
+msgstr "Envialia sabados"
+
+#. module: carrier_send_shipment_envialia
+#: code:addons/carrier_send_shipment_envialia/models/stock.py:115
+#, python-format
+msgid "Not send shipment %s. %s"
+msgstr "Not send shipment %s. %s"
+
+#. module: carrier_send_shipment_envialia
+#: code:addons/carrier_send_shipment_envialia/models/stock.py:79
+#, python-format
+msgid "Picking \"%s\" not have price and send cashondelivery"
+msgstr "Picking \"%s\" not have price and send cashondelivery"
+
+#. module: carrier_send_shipment_envialia
+#: model:ir.model,name:carrier_send_shipment_envialia.model_stock_picking
+msgid "Picking List"
+msgstr "Albarán"
+
+#. module: carrier_send_shipment_envialia
+#: code:addons/carrier_send_shipment_envialia/models/stock.py:79
+#, python-format
+msgid "Picking error"
+msgstr "Picking error"
+
+#. module: carrier_send_shipment_envialia
+#: code:addons/carrier_send_shipment_envialia/models/stock.py:41
+#, python-format
+msgid "Select a service or default service in Envialia API"
+msgstr "Select a service or default service in Envialia API"
