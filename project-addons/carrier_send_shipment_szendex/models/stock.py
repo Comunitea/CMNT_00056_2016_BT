@@ -23,6 +23,8 @@ class StockPicking(models.Model):
         Return references, labels, errors
         '''
 
+        if self._context.get('from_barcode'):
+            self = self.with_context(lang=self.env.user.lang)
         references = []
         labels = []
 
@@ -43,7 +45,6 @@ class StockPicking(models.Model):
             company_partner = self.sale_store_id.partner_id or \
                 self.picking_type_id.warehouse_id.partner_id or \
                 self.company_id.partner_id
-
             data = {
                 'GUID': guid,
                 'remitente_nombre': company_partner.name,
