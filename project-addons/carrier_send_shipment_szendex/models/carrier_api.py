@@ -30,9 +30,9 @@ class CarrierApi(models.Model):
         :param debug: If set to true, use Envialia test URL
         """
         if self.debug:
-            return 'http://217.116.2.197/WSNexus/ControladorWSCliente.asmx?WSDL'
+            return 'http://81.46.230.160/WSNexus/ControladorWSCliente.asmx?WSDL'
         else:
-            return 'http://217.116.2.197/WSNexus/ControladorWSCliente.asmx?WSDL'
+            return 'http://81.46.230.160/WSNexus/ControladorWSCliente.asmx?WSDL'
 
     def connect_szendex(self, url, xml):
         """
