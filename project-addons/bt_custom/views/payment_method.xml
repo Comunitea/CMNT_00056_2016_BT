@@ -44,6 +44,12 @@
                 <span t-if="o.type == 'in_invoice' and not o.autoinvoice">Supplier Invoice</span>
                 <span t-if="o.type == 'in_invoice' and o.autoinvoice">Invoice</span>
             </xpath>
+            <xpath expr="//table/thead/tr/th[1]" position="before">
+                <th>Ref.</th>
+            </xpath>
+            <xpath expr="//span[@t-field='l.name']/.." position="before">
+                <td><span t-field="l.product_id.default_code"/></td>
+            </xpath>
         </template>
 
     </data>
