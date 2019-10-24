@@ -42,8 +42,7 @@ class StockPicking(models.Model):
             packages = picking.number_of_packages
             if not packages:
                 packages = 1
-            company_partner = self.sale_store_id.partner_id or \
-                self.picking_type_id.warehouse_id.partner_id or \
+            company_partner = self.picking_type_id.warehouse_id.partner_id or \
                 self.company_id.partner_id
             data = {
                 'GUID': guid,
