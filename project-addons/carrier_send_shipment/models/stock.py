@@ -76,15 +76,16 @@ class StockPicking(models.Model):
         refs, labs = send_shipment(api)
 
         if labs:
-            fname = _('%s label %s.pdf') % (api.method, datetime.now().strftime("%d/%m/%y %H:%M:%S"))
-            self.env['ir.attachment'].create({
-                'name': fname,
-                'datas': base64.b64encode(open(labs[0], "rb").read()),
-                'datas_fname': fname,
-                'res_model':  'stock.picking',
-                'res_id': self.id,
-                'type': 'binary'
-            })
+            for returned_label in labs:
+                fname = _('%s label %s.pdf') % (api.method, datetime.now().strftime("%d/%m/%y %H:%M:%S"))
+                self.env['ir.attachment'].create({
+                    'name': fname,
+                    'datas': base64.b64encode(open(returned_label, "rb").read()),
+                    'datas_fname': fname,
+                    'res_model':  'stock.picking',
+                    'res_id': self.id,
+                    'type': 'binary'
+                })
         return refs, labs
 
     @api.multi
