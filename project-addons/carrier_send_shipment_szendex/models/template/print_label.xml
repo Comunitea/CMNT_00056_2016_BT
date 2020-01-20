@@ -1,0 +1,9 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:dir="http://www.direcline.com/">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <dir:ImprimirEtiqueta>
+         <dir:GUID>${guid}</dir:GUID>
+         <dir:Numero>${reference}</dir:Numero>
+      </dir:ImprimirEtiqueta>
+   </soapenv:Body>
+</soapenv:Envelope>

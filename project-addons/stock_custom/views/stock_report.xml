@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <template id="report_picking" inherit_id="stock.report_picking">
+
+            <xpath expr="//span[@t-field='operation.lot_id']/.." position="after">
+                <td class="text-right"><span t-field="operation.lot_id.use_date_date"/></td>
+            </xpath>
+            <xpath expr="//table[@name='moves_table']/thead/tr/th[3]" position="after">
+                <th class="text-right" t-if="o.state == 'done'">Life date</th>
+            </xpath>
+            <xpath expr="//tr[@t-foreach='o.pack_operation_ids.sorted(key=lambda r: r.product_id.id)']" position="attributes">
+                <attribute name="t-foreach">o.pack_operation_ids</attribute>
+            </xpath>
+
+            <xpath expr="//span[@t-field='o.picking_type_id']/.." position="replace">
+                <h2>
+                    <span t-field="o.name"/>
+                </h2>
+            </xpath>
+            <xpath expr="//div[@name='partner_header']/.." position="attributes">
+                <attribute name="class">col-xs-6</attribute>
+            </xpath>
+            <xpath expr="//div[@t-field='o.picking_type_id.warehouse_id.partner_id']/../.." position="replace">
+            </xpath>
+            <xpath expr="//div[@name='partner_header']/../.." position="after">
+                <div class="row">
+                    <div class="col-xs-5">
+                        <div t-if="o.move_lines and o.move_lines[0].partner_id and o.move_lines[0].partner_id.id != o.partner_id.id">
+                            <span><strong>Delivery Address:</strong></span>
+                            <div t-field="o.move_lines[0].partner_id"
+                                t-field-options='{"widget": "contact", "fields": ["address", "name", "phone", "fax"], "no_marker": true}'/>
+                        </div>
+                        <div t-if="o.picking_type_id.code != 'internal' and (not o.move_lines or not o.move_lines[0].partner_id) and o.picking_type_id.warehouse_id.partner_id">
+                            <span><strong>Warehouse Address:</strong></span>
+                            <div t-field="o.picking_type_id.warehouse_id.partner_id"
+                                t-field-options='{"widget": "contact", "fields": ["address", "name", "phone", "fax"], "no_marker": true}'/>
+                        </div>
+                    </div>
+                </div>
+
+            </xpath>
+        </template>
+
+        <template id="report_delivery" inherit_id="delivery.report_shipping2">
+            <xpath expr="//table[1]/thead/tr/th[3]/strong" position="replace">
+                <strong>Date of Transfer</strong>
+            </xpath>
+            <xpath expr="//table[1]/thead/tr/th[4]" position="replace">
+                <th t-if="o.picking_type_id.code == 'outgoing'"><strong>Source Document</strong></th>
+            </xpath>
+            <xpath expr="//table[1]/thead/tr/th[6]" position="replace">
+            </xpath>
+            <xpath expr="//table[1]/thead/tr/th[5]" position="replace">
+            </xpath>
+            <xpath expr="//span[@t-field='o.date']" position="attributes">
+                <attribute name="t-field">o.date_done</attribute>
+            </xpath>
+            <xpath expr="//span[@t-field='o.min_date']/.." position="replace">
+                <td name="td_sched_date" t-if="o.picking_type_id.code == 'outgoing'">
+                    <span t-field="o.sale_id.origin"/>
+                </td>
+            </xpath>
+            <xpath expr="//span[@t-field='o.carrier_id']/.." position="replace">
+            </xpath>
+            <xpath expr="//span[@t-field='o.weight']/.." position="replace">
+            </xpath>
+            <xpath expr="//div[@name='invoice_partner']" position="replace">
+            </xpath>
+            <xpath expr="//div[@name='partner_header']/.." position="after">
+                <div class="col-xs-6">
+                    <div name="invoice_partner" t-if="o.picking_type_id.code == 'outgoing' and o.sale_id and o.sale_id.partner_invoice_id">
+                        Will be invoiced to:
+                        <div t-field="o.sale_id.partner_invoice_id"
+                        t-field-options='{"widget": "contact", "fields": ["address", "name", "phone", "fax"], "no_marker": true}'/>
+                    </div>
+                </div>
+            </xpath>
+        </template>
+    </data>
+</openerp>

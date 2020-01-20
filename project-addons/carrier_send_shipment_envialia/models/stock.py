@@ -60,8 +60,10 @@ class StockPicking(models.Model):
                     data['reference'] = code
                 data['picking_date'] = date.today()
                 data['service_code'] = str(service.code)
+                data['saturday'] = service.envialia_saturday
                 data['company_name'] = unaccent(picking.sale_store_id.partner_id.name)
                 data['company_code'] = customer
+                data['return'] = self.ship_return
                 if carrier_api.phone:
                     data['company_phone'] = unspaces(carrier_api.phone)
                 data['customer_name'] = unaccent(picking.partner_id.name)

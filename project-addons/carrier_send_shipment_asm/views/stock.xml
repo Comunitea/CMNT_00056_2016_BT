@@ -11,7 +11,7 @@
             <field name="inherit_id" ref="delivery.view_picking_withcarrier_out_form"/>
             <field name="arch" type="xml">
                 <field name="carrier_tracking_ref" position="after">
-                    <field name="asm_return"/>
+                    <field name="ship_return"/>
                 </field>
             </field>
         </record>

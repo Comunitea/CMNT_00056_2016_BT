@@ -1,0 +1,87 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:dir="http://www.direcline.com/" xmlns:py="http://genshi.edgewall.org/">
+   <soapenv:Header/>
+   <py:def function="Bulto()">
+        <Bulto  py:for="i in range(1, total_bultos + 1)">
+          <BultoNumero>${i}</BultoNumero>
+          <BultoAlto>0</BultoAlto>
+          <BultoAncho>0</BultoAncho>
+          <BultoLargo>0</BultoLargo>
+          <BultoPeso>${peso_bulto}</BultoPeso>
+          <BultoCodigoContenido>PAQ</BultoCodigoContenido>
+          <BultoObservacion />
+          <BultoReferencia />
+        </Bulto>
+    </py:def>
+   <soapenv:Body>
+      <dir:GrabarExpedicionSolicitudOSXML>
+         <dir:Valor><![CDATA[<?xml version="1.0" encoding="utf-16"?>
+<RAIZ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <GUID>${GUID}</GUID>
+  <Remitente>${remitente_nombre}</Remitente>
+  <RecogidaReferencia>direccion</RecogidaReferencia>
+  <RecogidaCodigoDomicilioHabitual />
+  <RecogidaDireccion>${RecogidaDireccion}</RecogidaDireccion>
+  <RecogidaTipoDireccion />
+  <RecogidaNumeroDireccion />
+  <RecogidaCodigoPostal>${RecogidaCodigoPostal}</RecogidaCodigoPostal>
+  <RecogidaPais>${RecogidaPais}</RecogidaPais>
+  <RecogidaPoblacion>${RecogidaPoblacion}</RecogidaPoblacion>
+  <RecogidaPisoDireccion>0</RecogidaPisoDireccion>
+  <RecogidaNombre2></RecogidaNombre2>
+  <RecogidaMasDatos />
+  <RecogidaTelefono>${RecogidaTelefono}</RecogidaTelefono>
+  <RecogidaEmail>${RecogidaEmail}</RecogidaEmail>
+  <RecogidaObservacion>${RecogidaObservacion}</RecogidaObservacion>
+  <RecogidaMovil />
+  <RecogidaNif />
+  <RecogidaPointer>0</RecogidaPointer>
+  <RecogidaAvisoEmail>0</RecogidaAvisoEmail>
+  <RecogidaAvisoSms>0</RecogidaAvisoSms>
+  <RecogidaCodigoTipoServicio>${RecogidaCodigoTipoServicio}</RecogidaCodigoTipoServicio>
+  <RecogidaGestion>false</RecogidaGestion>
+  <RecogidaFecha>${RecogidaFecha}</RecogidaFecha>
+  <RecogidaHoraInicial>${RecogidaFecha}</RecogidaHoraInicial>
+  <RecogidaHoraFinal>${RecogidaFecha}</RecogidaHoraFinal>
+  <RecogerCliente>true</RecogerCliente>
+  <Destinatario>${destinatario_nombre}</Destinatario>
+  <EntregaCodigoDomicilioHabitual />
+  <EntregaDireccion>${EntregaDireccion}</EntregaDireccion>
+  <EntregaTipoDireccion />
+  <EntregaNumeroDireccion />
+  <EntregaCodigoPostal>${EntregaCodigoPostal}</EntregaCodigoPostal>
+  <EntregaPais>${EntregaPais}</EntregaPais>
+  <EntregaPoblacion>${EntregaPoblacion}</EntregaPoblacion>
+  <EntregaPisoDireccion>0</EntregaPisoDireccion>
+  <EntregaNombre2></EntregaNombre2>
+  <EntregaMasDatos />
+  <EntregaTelefono>${EntregaTelefono}</EntregaTelefono>
+  <EntregaEmail>${EntregaEmail}</EntregaEmail>
+  <EntregaObservacion>${RecogidaObservacion}</EntregaObservacion>
+  <EntregaMovil>${EntregaMovil}</EntregaMovil>
+  <EntregaNif />
+  <EntregaPointer>0</EntregaPointer>
+  <EntregaAvisoEmail>0</EntregaAvisoEmail>
+  <EntregaAvisoSms>0</EntregaAvisoSms>
+  <EntregaCodigoTipoServicio>${RecogidaCodigoTipoServicio}</EntregaCodigoTipoServicio>
+  <EntregaGestion>false</EntregaGestion>
+  <EntregaFecha>${RecogidaFecha}</EntregaFecha>
+  <Retorno>false</Retorno>
+  <AcuseRecibo>false</AcuseRecibo>
+  <ImporteValor>0</ImporteValor>
+  <ImporteReembolso>0</ImporteReembolso>
+  <ImporteCobroACuenta>0</ImporteCobroACuenta>
+  <ImporteDebido>0</ImporteDebido>
+  <BultoTotal>${total_bultos}</BultoTotal>
+  <Bultos>
+        ${Bulto()}
+  </Bultos>
+  <Referencia>direccion</Referencia>
+  <EntregaSabado>false</EntregaSabado>
+  <ImporteAdelanto>0</ImporteAdelanto>
+</RAIZ>
+
+			]]>
+		</dir:Valor>
+      </dir:GrabarExpedicionSolicitudOSXML>
+   </soapenv:Body>
+</soapenv:Envelope>

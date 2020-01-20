@@ -13,7 +13,7 @@ class ResPartner(models.Model):
     medical_code = fields.Char("Medical code", size=32)
     carrier_service_id = fields.Many2one("carrier.api.service",
                                          "Carrier service")
-    asm_return = fields.Boolean("Asm return")
+    ship_return = fields.Boolean("return")
     carrier_notes = fields.Text("Carrier notes")
 
     @api.onchange('medical_code')
@@ -23,13 +23,16 @@ class ResPartner(models.Model):
             if code_search != self.medical_code:
                 partners = self.search([('medical_code', '=', code_search)])
                 if partners:
-                    agent_ids = [partners[0].id]
-                    if partners[0].agents:
-                        agent_ids.\
-                            extend([x.id for x in partners[0].agents])
+                    agent_ids = [x.id for x in partners]
+                    for partner in partners:
+                        if partner.agents:
+                            agent_ids.\
+                                extend([x.id for x in partner.agents])
                     self.agents = [(6, 0, agent_ids)]
                     if partners[0].user_id:
                         self.user_id = partners[0].user_id.id
+                else:
+                    self.agents = [(6, 0, [])]
 
     @api.model
     def create(self, vals):

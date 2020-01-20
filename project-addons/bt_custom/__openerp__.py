@@ -23,9 +23,13 @@
         "l10n_es_aeat_mod340",
         "l10n_es_account_invoice_sequence",
         "account_invoice_merge",
-        "openerp_sale_promotions"
+        "openerp_sale_promotions",
+        "sale_store",
+        "sale_display_stock",
+        "sale_commission",
     ],
     "data": [
+        'data/res_groups.xml',
         'views/payment_method.xml',
         'views/product.xml',
         'views/sale.xml',

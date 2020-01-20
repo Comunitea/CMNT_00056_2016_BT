@@ -11,13 +11,16 @@
             <field name="inherit_id" ref="sale.view_order_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='order_line']/tree//field[@name='product_uom']" position="after">
-                    <field name="takes" context="{'orig_uom': product_uom, 'updated_takes': True}"/>
+                    <field name="takes" context="{'orig_uom': product_uom, 'updated_takes': True}" groups="bt_custom.group_interno"/>
                     <field name="takes_change_flag" invisible="1"/>
                 </xpath>
                 <xpath expr="//field[@name='order_line']/form//field[@name='product_uom']" position="after">
-                    <field name="takes"/>
+                    <field name="takes" groups="bt_custom.group_interno"/>
                     <field name="takes_change_flag" invisible="1"/>
                 </xpath>
+                <field name="user_id" position="attributes">
+                    <attribute name="groups">bt_custom.group_interno</attribute>
+                </field>
             </field>
         </record>
 
@@ -29,6 +32,60 @@
                 <filter name="Customer" position="after">
                     <filter string="Fed. state" name="Fed_State" context="{'group_by':'state_id'}"/>
                 </filter>
+            </field>
+        </record>
+
+        <record id="sale_order_add_store" model="ir.ui.view">
+            <field name="name">sale.order.inherit.view.form</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale_store.sale_order_add_store"/>
+            <field name="arch" type="xml">
+                <field name="sale_store_id" position="attributes">
+                    <attribute name="groups">bt_custom.group_interno</attribute>
+                </field>
+            </field>
+        </record>
+
+        <record id="view_order_form_add_dispaly_stock" model="ir.ui.view">
+            <field name="name">sale.order.inherit.view.form</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale_display_stock.view_order_form_add_dispaly_stock"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='order_line']/form/group/group/field[@name='qty_available']" position="attributes">
+                    <attribute name="groups">bt_custom.group_interno</attribute>
+                </xpath>
+                <xpath expr="//field[@name='order_line']/tree/field[@name='qty_available']" position="attributes">
+                    <attribute name="groups">bt_custom.group_interno</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="sale_commission.view_order_agent_form_inherit" model="ir.ui.view">
+            <field name="groups_id" eval="[(4, ref('bt_custom.group_interno'))]"/>
+        </record>
+
+        <record id="view_order_form_inherit" model="ir.ui.view">
+            <field name="name">sale.order.inherit.view.form</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale_stock.view_order_form_inherit"/>
+            <field name="arch" type="xml">
+                <field name="picking_policy" position="attributes">
+                    <attribute name="groups">bt_custom.group_interno</attribute>
+                </field>
+                <field name="order_policy" position="attributes">
+                    <attribute name="groups">bt_custom.group_interno</attribute>
+                </field>
+            </field>
+        </record>
+
+        <record id="sale_order_view_form" model="ir.ui.view">
+            <field name="name">sale.order.inherit.view.form</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale_automatic_workflow.sale_order_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//page[@name='automation_information']" position="attributes">
+                    <attribute name="groups">bt_custom.group_interno</attribute>
+                </xpath>
             </field>
         </record>
 

@@ -22,5 +22,55 @@
             </field>
         </record>
 
+        <record id="product_product_tree_view" model="ir.ui.view">
+            <field name="name">product.product.inherit.view.tree</field>
+            <field name="model">product.product</field>
+            <field name="inherit_id" ref="product.product_product_tree_view"/>
+            <field name="groups_id" eval="[(4, ref('bt_custom.group_externo'))]"/>
+            <field name="priority">1000</field>
+            <field name="arch" type="xml">
+                <tree position="replace">
+                    <tree string="Product Variants">
+                        <field name="default_code"/>
+                        <field name="name"/>
+                        <field name="attribute_value_ids" widget="many2many_tags"/>
+                        <field name="lst_price"/>
+                        <field name="price" invisible="not context.get('pricelist',False)"/>
+                        <field name="uom_id"/>
+                        <field name="ean13"/>
+                        <field name="state" invisible="1"/>
+                        <field name="product_tmpl_id" invisible="1"/>
+                    </tree>
+                </tree>
+            </field>
+        </record>
+
+        <record id="product_normal_form_view" model="ir.ui.view">
+            <field name="name">product.product.inherit.view.form</field>
+            <field name="model">product.product</field>
+            <field name="inherit_id" ref="product.product_normal_form_view"/>
+            <field name="groups_id" eval="[(4, ref('bt_custom.group_externo'))]"/>
+            <field name="priority">1000</field>
+            <field name="arch" type="xml">
+                <form position="replace">
+                    <form string="Product">
+                        <sheet>
+                            <group>
+                                <field name="name"/>
+                                <field name="default_code"/>
+                                <field name="ean13"/>
+                                <field name="ean14"/>
+                            </group>
+                        </sheet>
+                    </form>
+                </form>
+            </field>
+        </record>
+
+
+        <record id="stock.product_template_kanban_stock_view" model="ir.ui.view">
+            <field name="groups_id" eval="[(4, ref('bt_custom.group_interno'))]"/>
+        </record>
+
     </data>
 </openerp>
