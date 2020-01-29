@@ -32,5 +32,6 @@ class MagentoResPartner(models.Model):
     @api.multi
     def write(self, vals):
         if vals.get('taxvat'):
-            res.openerp_id.vat = vals.get('taxvat')
+            for res in self:
+                res.openerp_id.vat = vals.get('taxvat')
         return super(MagentoResPartner, self).write(vals)
