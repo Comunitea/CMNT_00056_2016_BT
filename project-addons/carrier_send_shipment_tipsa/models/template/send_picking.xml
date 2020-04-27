@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+   xmlns:py="http://genshi.edgewall.org/">
+   <soap:Header>
+      <ROClientIDHeader xmlns="http://tempuri.org/">
+         <ID>${token}</ID>
+      </ROClientIDHeader>
+   </soap:Header>
+   <soap:Body>
+      <WebServService___GrabaEnvio18 xmlns="http://tempuri.org/">
+         <strCodAgeOri>${codigo_agencia}</strCodAgeOri>
+         <dtFecha>${RecogidaFecha}</dtFecha>
+         <strCodTipoServ>${RecogidaCodigoTipoServicio}</strCodTipoServ>
+         <strCodCli>${codigo_usuario}</strCodCli>
+         <strNomOri>${remitente_nombre}</strNomOri>
+         <strDirOri>${RecogidaDireccion}</strDirOri>
+         <strPobOri>${RecogidaPoblacion}</strPobOri>
+         <strCPOri>${RecogidaCodigoPostal}</strCPOri>
+         <strTlfOri>${RecogidaTelefono}</strTlfOri>
+         <strNomDes>${destinatario_nombre}</strNomDes>
+         <strDirDes>${EntregaDireccion}</strDirDes>
+         <strPobDes>${EntregaPoblacion}</strPobDes>
+         <strCPDes>${EntregaCodigoPostal}</strCPDes>
+         <strTlfDes>${EntregaTelefono}</strTlfDes>
+         <intPaq>${total_bultos}</intPaq>
+         <dPesoOri>${total_peso}</dPesoOri>
+         <py:if test="reembolso">
+            <dReembolso>${reembolso}</dReembolso>
+         </py:if>
+         <strObs>${RecogidaObservacion}</strObs>
+         <boDesEmail>1</boDesEmail>
+         <strDesDirEmails>${EntregaEmail}</strDesDirEmails>
+         <boInsert>1</boInsert>
+      </WebServService___GrabaEnvio18>
+   </soap:Body>
+</soap:Envelope>
