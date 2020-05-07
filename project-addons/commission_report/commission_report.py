@@ -61,16 +61,12 @@ class particular_report(models.AbstractModel):
         def render_html(self, data=None):
                 report_obj = self.env['report']
                 report = report_obj._get_report_from_name('commission_report.commission_report_document')
-
-                # import ipdb; ipdb.set_trace()
-
                 commission_settlement = {}
                 facturasComisionistas4 = {}
                 desglosePorComision = {}
                 for docu in self.env[report.model].browse(self._ids):
                         dic3 = {}
                         dic_perc = {}
-                        # import ipdb; ipdb.set_trace()
                         settlement = self.env['sale.commission.settlement'].search([('invoice', '=', docu.id)]) # unha factura de comisionista ten un commission.settlement
                         commission_settlement[docu.id] = settlement
 
@@ -121,9 +117,6 @@ class particular_report(models.AbstractModel):
 
                                 # print "dic3__________________: ", dic3
 
-
-
-                        # import ipdb; ipdb.set_trace()
                         facturasComisionistas4[docu.id] = dic3
                         desglosePorComision[docu.id] = dic_perc
                 # print "facturasComisionistas4: ", facturasComisionistas4

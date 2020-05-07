@@ -20,5 +20,6 @@
     "data": [
         'views/magento_store_view.xml',
         'views/prestashop_store_view.xml',
+        'views/magento_model.xml'
     ],
 }

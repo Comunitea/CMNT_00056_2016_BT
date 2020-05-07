@@ -15,7 +15,15 @@ class CustomCompanyImportMapper(CompanyImportMapper):
 
 @magento(replacing=PartnerImportMapperStoreACcount)
 class PartnerImportMapperMedical(PartnerImportMapperStoreACcount):
-    direct = PartnerImportMapperStoreACcount.direct + [('codigo_prescriptor', 'medical_code')]
+    # direct = PartnerImportMapperStoreACcount.direct + [('codigo_prescriptor', 'medical_code')]
+
+    @mapping
+    def medical_code(self, record):
+        [{u'attribute_code': u'codigo_prescriptor', u'value': u'ACQ-5012'}]
+        if record.get('custom_attributes'):
+            for attribute in record.get('custom_attributes'):
+                if attribute.get('attribute_code') == 'codigo_prescriptor':
+                    return {'medical_code': attribute.get('value')}
 
 
 class MagentoResPartner(models.Model):

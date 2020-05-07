@@ -42,6 +42,10 @@ class ResPartner(models.Model):
             obj.on_change_medical_code()
         return obj
 
+    @api.multi
+    def write(self, vals):
+        return super(ResPartner, self).write(vals)
+
     def name_get(self, cr, uid, ids, context=None):
         if context is None:
             context = {}
