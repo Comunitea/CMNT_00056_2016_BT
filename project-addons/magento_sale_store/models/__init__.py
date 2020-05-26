@@ -5,3 +5,4 @@ from . import magento_store
 from . import prestashop_store
 from . import sale
 from . import sale_prestashop
+from . import magento_model
