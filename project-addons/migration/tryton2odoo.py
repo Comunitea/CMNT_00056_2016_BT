@@ -27,7 +27,6 @@ class Tryton2Odoo(object):
 
     def __init__(self):
         """método incial"""
-        import ipdb; ipdb.set_trace()
         try:
             self.odoo = OdooConnect()
             #~ self.connOdoo = psycopg2.\

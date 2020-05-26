@@ -3,7 +3,9 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 from openerp import models, api, exceptions, _
 from openerp.addons.magentoerpconnect_product_tax.models.product import TaxProductImportMapper
+from openerp.addons.magentoerpconnect_product_tax.models.product import TaxProductImportMapper2000
 from openerp.addons.magentoerpconnect.backend import magento
+from openerp.addons.magentoerpconnect.backend import magento2000
 from openerp.addons.connector.unit.mapper import mapping
 
 
@@ -50,3 +52,37 @@ class ProductPackMapper(TaxProductImportMapper):
         if record['type_id'] == 'bundle':
             return {'type': 'consu'}
         return super(ProductPackMapper, self).type(record)
+
+@magento2000(replacing=TaxProductImportMapper2000)
+class ProductPackMapper2000(TaxProductImportMapper2000):
+
+    @mapping
+    def pack_line_ids(self, record):
+        pack_components = [(5,)]
+        if record['type_id'] == 'bundle':
+            binder = self.binder_for('magento.product.product')
+            for component in record['extension_attributes']['bundle_product_options'][0]['product_links']:
+                mag_product_id = component['sku']
+                component_product = binder.to_openerp(mag_product_id,
+                                                      unwrap=True)
+                if not component_product:
+                    raise exceptions.Warning(
+                        _('Import error'),
+                        _('Product not imported %s') % component['sku'])
+                quantity = float(component['qty'])
+                pack_components.append((0, 0,
+                                        {'product_id': component_product,
+                                         'quantity': quantity}))
+        product = self.env['product.product'].search(
+            [('default_code', '=', record['sku']), '|',
+             ('active', '=', False), ('active', '=', True)], order='active desc', limit=1)
+        if not product:
+            return {'pack_line_ids': pack_components}
+        else:
+            return {}
+
+    @mapping
+    def type(self, record):
+        if record['type_id'] == 'bundle':
+            return {'type': 'consu'}
+        return super(ProductPackMapper2000, self).type(record)
