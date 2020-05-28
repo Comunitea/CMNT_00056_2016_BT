@@ -14,8 +14,8 @@
                         <group>
                             <group>
                                 <field name="tipsa_agencia"/>
-                                <field name="tipsa_token_validity"/>
-                                <field name="tipsa_token"/>
+                                <field name="tipsa_token_validity" invisible="1"/>
+                                <field name="tipsa_token" invisible="1"/>
                             </group>
                         </group>
                     </page>
