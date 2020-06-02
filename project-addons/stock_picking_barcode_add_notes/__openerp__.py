@@ -11,12 +11,7 @@
     "license": "AGPL-3",
     "application": False,
     "installable": True,
-    "depends": [
-        "base",
-        "stock"
-    ],
-    "data": [
-        'views/assets.xml'
-    ],
-    'qweb': ['static/src/xml/picking.xml'],
+    "depends": ["base", "stock"],
+    "data": ["views/assets.xml"],
+    "qweb": ["static/src/xml/picking.xml"],
 }

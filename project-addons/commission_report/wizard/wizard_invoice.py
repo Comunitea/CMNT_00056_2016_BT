@@ -24,8 +24,8 @@ from openerp import models, fields
 
 class SaleCommissionMakeInvoice(models.TransientModel):
 
-    _inherit = 'sale.commission.make.invoice'
+    _inherit = "sale.commission.make.invoice"
 
     settlements = fields.Many2many(
-        domain=[('state', 'in', ['settled', 'except_invoice']),
-                ('invoice', '=', False)])
+        domain=[("state", "in", ["settled", "except_invoice"]), ("invoice", "=", False)]
+    )

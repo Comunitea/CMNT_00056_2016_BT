@@ -23,19 +23,23 @@
 ##############################################################################
 
 {
-    'name': 'Invoice bank usability',
-    'version': '0.1',
-    'license': 'AGPL-3',
-    'author': 'Banking addons community',
-    'website': 'https://github.com/OCA/banking',
-    'category': 'Banking addons',
-    'depends': ['account', 'account_banking_mandate', 'stock_account',
-                'account_payment_sale_stock',
-                'account_payment_partner',
-                'l10n_es_account_bank_statement_import_n43'],
-    'data': ['views/account_invoice_view.xml'],
-    'description': '''Allow to select customer bank accounts on customer
-    invoices.''',
-    'auto_install': False,
-    'installable': True,
+    "name": "Invoice bank usability",
+    "version": "0.1",
+    "license": "AGPL-3",
+    "author": "Banking addons community",
+    "website": "https://github.com/OCA/banking",
+    "category": "Banking addons",
+    "depends": [
+        "account",
+        "account_banking_mandate",
+        "stock_account",
+        "account_payment_sale_stock",
+        "account_payment_partner",
+        "l10n_es_account_bank_statement_import_n43",
+    ],
+    "data": ["views/account_invoice_view.xml"],
+    "description": """Allow to select customer bank accounts on customer
+    invoices.""",
+    "auto_install": False,
+    "installable": True,
 }

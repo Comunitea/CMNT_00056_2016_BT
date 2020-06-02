@@ -11,14 +11,7 @@
     "license": "AGPL-3",
     "application": False,
     "installable": True,
-    "external_dependencies": {
-        "python": ['envialia'],
-    },
-    "depends": [
-        "base",
-        "carrier_send_shipment"
-    ],
-    "data": [
-        "views/carrier_api.xml"
-    ],
+    "external_dependencies": {"python": ["envialia"]},
+    "depends": ["base", "carrier_send_shipment"],
+    "data": ["views/carrier_api.xml"],
 }

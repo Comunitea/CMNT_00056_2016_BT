@@ -19,15 +19,9 @@
 {
     "name": "Sale - Proforma Report",
     "version": "1.0",
-    "depends": [
-        "sale",
-    ],
-    "author": "OdooMRP team,"
-              "AvanzOSC,"
-              "Serv. Tecnol. Avanzados - Pedro M. Baeza",
-    "contributors": [
-        "Juan Ignacio Úbeda <juanignacioubeda@avanzosc.es>",
-    ],
+    "depends": ["sale"],
+    "author": "OdooMRP team," "AvanzOSC," "Serv. Tecnol. Avanzados - Pedro M. Baeza",
+    "contributors": ["Juan Ignacio Úbeda <juanignacioubeda@avanzosc.es>"],
     "category": "Custom Module",
     "website": "http://www.odoomrp.com",
     "summary": "Proforma report option in sale orders",
@@ -37,9 +31,6 @@ This module creates:
     * Proforma header on sale order report if checkbox is clicked
 
     """,
-    "data": [
-        "views/sale_order_view.xml",
-        "views/report_saleorder.xml",
-    ],
+    "data": ["views/sale_order_view.xml", "views/report_saleorder.xml"],
     "installable": True,
 }

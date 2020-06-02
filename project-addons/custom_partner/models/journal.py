@@ -7,7 +7,8 @@ from openerp import models, fields
 
 class AccountJournal(models.Model):
 
-    _inherit = 'account.journal'
+    _inherit = "account.journal"
 
-    code = fields.Char('Code', size=12, required=True,
-                       help="The code will be displayed on reports.")
+    code = fields.Char(
+        "Code", size=12, required=True, help="The code will be displayed on reports."
+    )

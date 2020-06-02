@@ -24,10 +24,11 @@ import openerp.addons.decimal_precision as dp
 
 
 class sale_order_line(models.Model):
-    _inherit = 'sale.order.line'
+    _inherit = "sale.order.line"
 
-    qty_available = fields.\
-        Float('Qty available', readonly=True,
-              related='product_id.virtual_stock_conservative',
-              digits_compute=dp.get_precision('Product Unit of Measure'))
-
+    qty_available = fields.Float(
+        "Qty available",
+        readonly=True,
+        related="product_id.virtual_stock_conservative",
+        digits_compute=dp.get_precision("Product Unit of Measure"),
+    )

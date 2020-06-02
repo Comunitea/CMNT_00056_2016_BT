@@ -11,11 +11,6 @@
     "license": "AGPL-3",
     "application": False,
     "installable": True,
-    "depends": [
-        "base",
-        "carrier_send_shipment"
-    ],
-    "data": [
-        'views/carrier_api.xml'
-    ],
+    "depends": ["base", "carrier_send_shipment"],
+    "data": ["views/carrier_api.xml"],
 }

@@ -30,9 +30,7 @@ class StockPicking(models.Model):
         default_service = carrier_api.get_default_carrier_service()
         for picking in self:
             service = (
-                picking.carrier_service
-                or picking.carrier_id.service
-                or default_service
+                picking.carrier_service or picking.carrier_id.service or default_service
             )
             if not service:
                 raise exceptions.Warning(
@@ -81,9 +79,7 @@ class StockPicking(models.Model):
                 if not price:
                     raise exceptions.Warning(
                         _("Picking error"),
-                        _(
-                            'Shipment "%s" not have price and send cashondelivery'
-                        )
+                        _('Shipment "%s" not have price and send cashondelivery')
                         % picking.name,
                     )
             if self.cash_on_delivery and price:
@@ -115,9 +111,7 @@ class StockPicking(models.Model):
         for picking in self:
             reference = picking.carrier_tracking_ref
             if not reference:
-                logger.error(
-                    "Picking %s has not been sent by tipsa." % (picking.name)
-                )
+                logger.error("Picking %s has not been sent by tipsa." % (picking.name))
                 continue
 
             vals = {"picking_ref": reference}
@@ -125,14 +119,11 @@ class StockPicking(models.Model):
             label = carrier_api.label_tipsa(vals)
             if not label:
                 logger.error(
-                    "Label for picking %s is not available from tipsa."
-                    % picking.name
+                    "Label for picking %s is not available from tipsa." % picking.name
                 )
                 continue
             with tempfile.NamedTemporaryFile(
-                prefix="%s-tipsa-%s-" % (dbname, reference),
-                suffix=".pdf",
-                delete=False,
+                prefix="%s-tipsa-%s-" % (dbname, reference), suffix=".pdf", delete=False
             ) as temp:
                 temp.write(decodestring(label))  # tipsa PDF file
             logger.info("Generated tmp label %s" % (temp.name))

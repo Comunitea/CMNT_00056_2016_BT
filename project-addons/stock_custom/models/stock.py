@@ -22,7 +22,5 @@ class StockProductionLot(models.Model):
                 use_date_datetime_utc = pytz.timezone("UTC").localize(
                     use_date_datetime, is_dst=False
                 )  # UTC = no DST
-                use_date_tz = use_date_datetime_utc.astimezone(
-                    pytz.timezone(tz_name)
-                )
+                use_date_tz = use_date_datetime_utc.astimezone(pytz.timezone(tz_name))
                 lot.use_date_date = fields.Date.to_string(use_date_tz.date())

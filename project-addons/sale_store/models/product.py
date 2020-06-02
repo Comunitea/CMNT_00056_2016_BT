@@ -9,5 +9,10 @@ class ProductProduct(models.Model):
 
     _inherit = "product.product"
 
-    store_ids = fields.Many2many("sale.store", "sale_store_product_rel",
-                                 "product_id", "store_id", string="Stores")
+    store_ids = fields.Many2many(
+        "sale.store",
+        "sale_store_product_rel",
+        "product_id",
+        "store_id",
+        string="Stores",
+    )

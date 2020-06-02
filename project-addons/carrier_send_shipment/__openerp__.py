@@ -18,14 +18,14 @@
         "stock",
         "hr",
         "stock_cashondelivery",
-        "custom_partner"
+        "custom_partner",
     ],
     "data": [
-        'views/stock.xml',
-        'views/assets.xml',
-        'wizard/send_shipment_view.xml',
-        'wizard/carrier_print.xml',
-        'wizard/get_label.xml'
+        "views/stock.xml",
+        "views/assets.xml",
+        "wizard/send_shipment_view.xml",
+        "wizard/carrier_print.xml",
+        "wizard/get_label.xml",
     ],
-    'qweb': ['static/src/xml/picking.xml'],
+    "qweb": ["static/src/xml/picking.xml"],
 }

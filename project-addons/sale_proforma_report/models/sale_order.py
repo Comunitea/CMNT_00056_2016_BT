@@ -20,6 +20,6 @@ from openerp import models, fields
 
 
 class SaleOrder(models.Model):
-    _inherit = 'sale.order'
+    _inherit = "sale.order"
 
-    proforma = fields.Boolean(string='Proforma')
+    proforma = fields.Boolean(string="Proforma")

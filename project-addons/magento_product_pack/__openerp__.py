@@ -15,8 +15,7 @@
         "base",
         "magentoerpconnect",
         "product_pack",
-        "magentoerpconnect_product_tax"
+        "magentoerpconnect_product_tax",
     ],
-    "data": [
-    ],
+    "data": [],
 }

@@ -34,37 +34,51 @@ class sale_order_line(models.Model):
         self.purchase_price = 0.0
 
         if not self.pack_depth:
-            margin = round((self.price_unit * self.product_uom_qty *
-                            ((100.0 - self.discount) / 100.0)) -
-                           (self.purchase_price * self.product_uom_qty), 2)
-            self.margin_perc = round((margin * 100) /
-                                     ((self.purchase_price *
-                                       self.product_uom_qty)
-                                      or 1.0), 2)
+            margin = round(
+                (
+                    self.price_unit
+                    * self.product_uom_qty
+                    * ((100.0 - self.discount) / 100.0)
+                )
+                - (self.purchase_price * self.product_uom_qty),
+                2,
+            )
+            self.margin_perc = round(
+                (margin * 100) / ((self.purchase_price * self.product_uom_qty) or 1.0),
+                2,
+            )
             self.margin = margin
 
-    margin = fields.Float(compute="_product_margin", string='Margin',
-                          store=True, multi='marg', readonly=True)
-    margin_perc = fields.Float(compute="_product_margin", string='Margin %',
-                               store=True, multi='marg', readonly=True)
+    margin = fields.Float(
+        compute="_product_margin",
+        string="Margin",
+        store=True,
+        multi="marg",
+        readonly=True,
+    )
+    margin_perc = fields.Float(
+        compute="_product_margin",
+        string="Margin %",
+        store=True,
+        multi="marg",
+        readonly=True,
+    )
     purchase_price = fields.Float(readonly=True, string="Purchase price")
 
     @api.model
     def create(self, vals):
-        if vals.get('product_id', False) and \
-                not vals.get('purchase_price', False):
-            product = self.env["product.product"].browse(vals['product_id'])
-            vals['purchase_price'] = product.standard_price
+        if vals.get("product_id", False) and not vals.get("purchase_price", False):
+            product = self.env["product.product"].browse(vals["product_id"])
+            vals["purchase_price"] = product.standard_price
         return super(sale_order_line, self).create(vals)
 
     @api.multi
     def write(self, vals):
-        if vals.get('product_id', False):
+        if vals.get("product_id", False):
             for line in self:
-                if line.product_id.id != vals['product_id']:
-                    product = self.env["product.product"].\
-                        browse(vals['product_id'])
-                    vals['purchase_price'] = product.standard_price
+                if line.product_id.id != vals["product_id"]:
+                    product = self.env["product.product"].browse(vals["product_id"])
+                    vals["purchase_price"] = product.standard_price
         return super(sale_order_line, self).write(vals)
 
 
@@ -91,15 +105,18 @@ class sale_order(models.Model):
         for line in self.order_line:
             if not line.pack_depth:
                 if line.purchase_price:
-                    self.total_purchase += line.purchase_price * \
-                        line.product_uom_qty
+                    self.total_purchase += line.purchase_price * line.product_uom_qty
                 elif line.product_id:
                     cost_price = line.product_id.standard_price
-                    self.total_purchase += cost_price * \
-                        line.product_uom_qty
+                    self.total_purchase += cost_price * line.product_uom_qty
 
-    total_purchase = fields.Float(compute="_get_total_price_purchase",
-                                  string='Price purchase', readonly=True)
-    margin = fields.Float(compute="_product_margin", string='Margin',
-                          help="It gives profitability by calculating "
-                               "percentage.", store=True, readonly=True)
+    total_purchase = fields.Float(
+        compute="_get_total_price_purchase", string="Price purchase", readonly=True
+    )
+    margin = fields.Float(
+        compute="_product_margin",
+        string="Margin",
+        help="It gives profitability by calculating " "percentage.",
+        store=True,
+        readonly=True,
+    )

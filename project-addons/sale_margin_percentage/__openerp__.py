@@ -20,14 +20,14 @@
 ##############################################################################
 
 {
-    'name': 'Percentage of margins in Sales Orders',
-    'version':'1.0',
-    'category' : 'Sales Management',
-    'description': """
+    "name": "Percentage of margins in Sales Orders",
+    "version": "1.0",
+    "category": "Sales Management",
+    "description": """
     """,
-    'author':'Comunitea',
-    'depends':['sale_stock','product_pack'],
-    'data':["sale_view.xml", "sale_report_view.xml"],
-    'auto_install': False,
-    'installable': True,
+    "author": "Comunitea",
+    "depends": ["sale_stock", "product_pack"],
+    "data": ["sale_view.xml", "sale_report_view.xml"],
+    "auto_install": False,
+    "installable": True,
 }

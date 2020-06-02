@@ -20,14 +20,19 @@
 ##############################################################################
 
 {
-    'name': "Commission report",
-    'version': '1.0',
-    'category': 'sale',
-    'description': """Adds analysis view for sale commissions""",
-    'author': 'Pexego',
-    'website': 'www.pexego.es',
-    "depends": ['base', 'sale_commission', 'sale_stock_commission'],
-    "data": ['commission_report_view.xml', 'commission_report.xml', 'security/ir.model.access.csv',
-             'sale_commission_view.xml', 'settlement_view.xml'],
-    "installable": True
+    "name": "Commission report",
+    "version": "1.0",
+    "category": "sale",
+    "description": """Adds analysis view for sale commissions""",
+    "author": "Pexego",
+    "website": "www.pexego.es",
+    "depends": ["base", "sale_commission", "sale_stock_commission"],
+    "data": [
+        "commission_report_view.xml",
+        "commission_report.xml",
+        "security/ir.model.access.csv",
+        "sale_commission_view.xml",
+        "settlement_view.xml",
+    ],
+    "installable": True,
 }

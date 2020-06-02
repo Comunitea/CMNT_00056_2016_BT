@@ -11,15 +11,10 @@
     "license": "AGPL-3",
     "application": False,
     "installable": True,
-    "depends": [
-        "base",
-        "magentoerpconnect",
-        "sale_store",
-        "prestashoperpconnect"
-    ],
+    "depends": ["base", "magentoerpconnect", "sale_store", "prestashoperpconnect"],
     "data": [
-        'views/magento_store_view.xml',
-        'views/prestashop_store_view.xml',
-        'views/magento_model.xml'
+        "views/magento_store_view.xml",
+        "views/prestashop_store_view.xml",
+        "views/magento_model.xml",
     ],
 }

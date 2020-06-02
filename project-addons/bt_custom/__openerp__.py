@@ -29,14 +29,14 @@
         "sale_commission",
     ],
     "data": [
-        'data/res_groups.xml',
-        'views/payment_method.xml',
-        'views/product.xml',
-        'views/sale.xml',
-        'views/stock.xml',
-        'views/report_autoinvoice.xml',
-        'views/hr_holidays_view.xml',
-        'wizard/account_invoice_mass_cancel_wizard.xml',
-        'wizard/account_invoice_mass_draft_wizard.xml'
+        "data/res_groups.xml",
+        "views/payment_method.xml",
+        "views/product.xml",
+        "views/sale.xml",
+        "views/stock.xml",
+        "views/report_autoinvoice.xml",
+        "views/hr_holidays_view.xml",
+        "wizard/account_invoice_mass_cancel_wizard.xml",
+        "wizard/account_invoice_mass_draft_wizard.xml",
     ],
 }

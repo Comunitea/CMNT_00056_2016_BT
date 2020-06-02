@@ -20,11 +20,7 @@
         "l10n_es_partner",
         "account_due_dates_str",
         "sale",
-        "sale_commission"
+        "sale_commission",
     ],
-    "data": [
-        "views/partner_view.xml",
-        "views/sale.xml",
-        "views/invoice.xml",
-    ],
+    "data": ["views/partner_view.xml", "views/sale.xml", "views/invoice.xml"],
 }

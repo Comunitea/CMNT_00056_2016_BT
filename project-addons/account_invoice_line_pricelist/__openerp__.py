@@ -3,21 +3,14 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
 {
-    'name': 'Account Invoice Line Pricelist',
-    'images': [],
-    'summary': """Prices on invoice products based on partner pricelists""",
-    'version': '8.0.1.0.0',
-    'category': 'Accounting & Finance',
-    'author': 'ONESTEiN BV',
-    'website': 'http://www.onestein.eu',
-    'license': 'AGPL-3',
-    'depends': [
-        'account',
-        'product',
-        'sale',
-        'sale_stock'
-    ],
-    'data': [
-        'views/account_invoice.xml',
-    ],
+    "name": "Account Invoice Line Pricelist",
+    "images": [],
+    "summary": """Prices on invoice products based on partner pricelists""",
+    "version": "8.0.1.0.0",
+    "category": "Accounting & Finance",
+    "author": "ONESTEiN BV",
+    "website": "http://www.onestein.eu",
+    "license": "AGPL-3",
+    "depends": ["account", "product", "sale", "sale_stock"],
+    "data": ["views/account_invoice.xml"],
 }

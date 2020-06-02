@@ -6,6 +6,6 @@ from openerp import models, fields
 
 
 class AccountTax(models.Model):
-    _inherit = 'account.tax'
+    _inherit = "account.tax"
 
-    magento_tax_id = fields.Integer('Magento Tax ID')
+    magento_tax_id = fields.Integer("Magento Tax ID")

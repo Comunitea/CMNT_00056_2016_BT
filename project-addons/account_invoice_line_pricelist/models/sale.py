@@ -7,10 +7,10 @@ from openerp import models, fields, api, exceptions, _
 
 class SaleOrder(models.Model):
 
-    _inherit = 'sale.order'
+    _inherit = "sale.order"
 
     @api.model
     def _prepare_invoice(self, order, lines):
-        vals = super(SaleOrder,self)._prepare_invoice(order, lines)
-        vals['pricelist_id'] = order.pricelist_id.id
+        vals = super(SaleOrder, self)._prepare_invoice(order, lines)
+        vals["pricelist_id"] = order.pricelist_id.id
         return vals

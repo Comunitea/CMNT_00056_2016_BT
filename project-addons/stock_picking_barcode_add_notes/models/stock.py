@@ -7,7 +7,7 @@ from openerp import models, fields, api, exceptions, _
 
 class StockPicking(models.Model):
 
-    _inherit = 'stock.picking'
+    _inherit = "stock.picking"
 
     @api.multi
     def do_print_invoice(self):
@@ -16,6 +16,10 @@ class StockPicking(models.Model):
         elif not self.sale_id.invoice_ids:
             raise exceptions.Warning(_("Any invoice related to this picking"))
         else:
-            raise exceptions.Warning(_("It was found more than one invoice "
-                                       "related to this picking, please "
-                                       "print your choice from backend"))
+            raise exceptions.Warning(
+                _(
+                    "It was found more than one invoice "
+                    "related to this picking, please "
+                    "print your choice from backend"
+                )
+            )

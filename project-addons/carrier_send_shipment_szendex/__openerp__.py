@@ -11,10 +11,6 @@
     "license": "AGPL-3",
     "application": False,
     "installable": True,
-    "depends": [
-        "base",
-        "carrier_send_shipment"
-    ],
-    "data": [
-    ],
+    "depends": ["base", "carrier_send_shipment"],
+    "data": [],
 }

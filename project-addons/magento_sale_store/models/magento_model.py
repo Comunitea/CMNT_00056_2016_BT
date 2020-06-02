@@ -5,6 +5,6 @@ from openerp import models, fields
 
 
 class MagentoBackend(models.Model):
-    _inherit = 'magento.backend'
+    _inherit = "magento.backend"
 
-    default_user_id = fields.Many2one('res.users', 'Comercial por defecto')
+    default_user_id = fields.Many2one("res.users", "Comercial por defecto")

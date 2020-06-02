@@ -3,10 +3,16 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 from openerp import models, api
-from openerp.addons.magentoerpconnect.partner import BaseAddressImportMapper, CompanyImportMapper
+from openerp.addons.magentoerpconnect.partner import (
+    BaseAddressImportMapper,
+    CompanyImportMapper,
+)
 from openerp.addons.magentoerpconnect.backend import magento
 from openerp.addons.connector.unit.mapper import mapping
-from openerp.addons.magento_sale_store.models.magento_store import PartnerImportMapperStoreACcount
+from openerp.addons.magento_sale_store.models.magento_store import (
+    PartnerImportMapperStoreACcount,
+)
+
 
 @magento(replacing=CompanyImportMapper)
 class CustomCompanyImportMapper(CompanyImportMapper):
@@ -19,16 +25,16 @@ class PartnerImportMapperMedical(PartnerImportMapperStoreACcount):
 
     @mapping
     def medical_code(self, record):
-        [{u'attribute_code': u'codigo_prescriptor', u'value': u'ACQ-5012'}]
-        if record.get('custom_attributes'):
-            for attribute in record.get('custom_attributes'):
-                if attribute.get('attribute_code') == 'codigo_prescriptor':
-                    return {'medical_code': attribute.get('value')}
+        [{u"attribute_code": u"codigo_prescriptor", u"value": u"ACQ-5012"}]
+        if record.get("custom_attributes"):
+            for attribute in record.get("custom_attributes"):
+                if attribute.get("attribute_code") == "codigo_prescriptor":
+                    return {"medical_code": attribute.get("value")}
 
 
 class MagentoResPartner(models.Model):
 
-    _inherit = 'magento.res.partner'
+    _inherit = "magento.res.partner"
 
     @api.model
     def create(self, vals):
@@ -39,7 +45,7 @@ class MagentoResPartner(models.Model):
 
     @api.multi
     def write(self, vals):
-        if vals.get('taxvat'):
+        if vals.get("taxvat"):
             for res in self:
-                res.openerp_id.vat = vals.get('taxvat').upper()
+                res.openerp_id.vat = vals.get("taxvat").upper()
         return super(MagentoResPartner, self).write(vals)

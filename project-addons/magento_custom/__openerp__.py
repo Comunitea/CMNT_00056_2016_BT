@@ -11,11 +11,6 @@
     "license": "AGPL-3",
     "application": False,
     "installable": True,
-    "depends": [
-        "base",
-        "magento_sale_store",
-        "custom_partner"
-    ],
-    "data": ["views/sale_view.xml"
-    ],
+    "depends": ["base", "magento_sale_store", "custom_partner"],
+    "data": ["views/sale_view.xml"],
 }

@@ -11,15 +11,7 @@
     "license": "AGPL-3",
     "application": False,
     "installable": True,
-    "external_dependencies": {
-        "python": ['asm'],
-    },
-    "depends": [
-        "base",
-        "carrier_send_shipment",
-        "sale_store"
-    ],
-    "data": [
-        'views/stock.xml'
-    ],
+    "external_dependencies": {"python": ["asm"]},
+    "depends": ["base", "carrier_send_shipment", "sale_store"],
+    "data": ["views/stock.xml"],
 }

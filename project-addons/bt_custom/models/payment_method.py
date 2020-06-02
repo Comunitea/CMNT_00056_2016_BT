@@ -7,6 +7,6 @@ from openerp import models, fields, api, exceptions, _
 
 class PaymentMethod(models.Model):
 
-    _inherit = 'payment.method'
+    _inherit = "payment.method"
 
-    payment_mode_id = fields.Many2one('payment.mode', 'Payment mode')
+    payment_mode_id = fields.Many2one("payment.mode", "Payment mode")

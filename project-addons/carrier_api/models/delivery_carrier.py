@@ -7,9 +7,11 @@ import openerp.addons.decimal_precision as dp
 
 
 class Carrier(models.Model):
-    _inherit = 'delivery.carrier'
-    service = fields.Many2one('carrier.api.service', 'Service')
-    normal_price = fields.\
-        Float('Normal Price', digits=dp.get_precision('Product Price'),
-              help="Keep empty if the pricing depends on the advanced "
-                   "pricing per destination")
+    _inherit = "delivery.carrier"
+    service = fields.Many2one("carrier.api.service", "Service")
+    normal_price = fields.Float(
+        "Normal Price",
+        digits=dp.get_precision("Product Price"),
+        help="Keep empty if the pricing depends on the advanced "
+        "pricing per destination",
+    )

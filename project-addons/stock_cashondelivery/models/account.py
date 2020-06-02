@@ -7,5 +7,5 @@ from openerp import models, fields
 
 class PaymentMode(models.Model):
 
-    _inherit = 'payment.mode'
-    cash_on_delivery = fields.Boolean('Cash on delivery')
+    _inherit = "payment.mode"
+    cash_on_delivery = fields.Boolean("Cash on delivery")

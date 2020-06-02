@@ -27,14 +27,12 @@ class sale_report(osv.osv):
     _inherit = "sale.report"
 
     _columns = {
-        'state_id': fields.many2one('res.country.state', 'Fed. state',
-                                    readonly=True)
+        "state_id": fields.many2one("res.country.state", "Fed. state", readonly=True)
     }
 
     def _select(self):
         select_str = super(sale_report, self)._select()
-        this_str = \
-            """,rp.state_id"""
+        this_str = """,rp.state_id"""
         return select_str + this_str
 
     def _from(self):
@@ -43,6 +41,6 @@ class sale_report(osv.osv):
         return from_str + this_str
 
     def _group_by(self):
-        group_by_str =  super(sale_report, self)._group_by()
+        group_by_str = super(sale_report, self)._group_by()
         this_str = """,rp.state_id"""
         return group_by_str + this_str

@@ -102,9 +102,7 @@ class CarrierApi(models.Model):
         vals["codigo_agencia"] = self.tipsa_agencia
         vals["codigo_usuario"] = self.username
         xml = tmpl.generate(**vals).render()
-        response = self.connect_tipsa(
-            self.tipsa_url()["grabar"], xml.encode("utf-8")
-        )
+        response = self.connect_tipsa(self.tipsa_url()["grabar"], xml.encode("utf-8"))
         response_xml = parseString(response)
         picking_ref = response_xml.getElementsByTagName("v1:strAlbaranOut")
         if picking_ref:

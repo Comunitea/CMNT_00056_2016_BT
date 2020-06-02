@@ -24,50 +24,59 @@ from openerp import api
 
 class stock_pciking(orm.Model):
 
-    _inherit = 'stock.picking'
+    _inherit = "stock.picking"
 
     @api.model
-    def process_product_id_from_ui(self, picking_id, product_id, op_id,
-                                   increment=True):
-        product = self.env['product.product'].browse(product_id)
+    def process_product_id_from_ui(self, picking_id, product_id, op_id, increment=True):
+        product = self.env["product.product"].browse(product_id)
         pack = product.get_pack()
         for product_pack in pack.keys():
             for i in range(int(pack[product_pack])):
-                self.env['stock.pack.operation']._search_and_increment(
-                    picking_id, [('product_id', '=', product_pack)],
-                    increment=increment)
-        return self.env['stock.pack.operation']._search_and_increment(
+                self.env["stock.pack.operation"]._search_and_increment(
+                    picking_id, [("product_id", "=", product_pack)], increment=increment
+                )
+        return self.env["stock.pack.operation"]._search_and_increment(
             picking_id,
-            [('product_id', '=', product_id),('id', '=', op_id)],
-            increment=increment)
+            [("product_id", "=", product_id), ("id", "=", op_id)],
+            increment=increment,
+        )
 
     @api.model
     def process_barcode_from_ui(self, picking_id, barcode_str, visible_op_ids):
-        answer = {'filter_loc': False, 'operation_id': []}
-        #check if the barcode correspond to a product pack
-        matching_product_ids = self.env['product.product'].search(
-            ['|', '|', ('ean13', '=', barcode_str),
-             ('ean14', '=', barcode_str),
-             ('default_code', '=', barcode_str)])
+        answer = {"filter_loc": False, "operation_id": []}
+        # check if the barcode correspond to a product pack
+        matching_product_ids = self.env["product.product"].search(
+            [
+                "|",
+                "|",
+                ("ean13", "=", barcode_str),
+                ("ean14", "=", barcode_str),
+                ("default_code", "=", barcode_str),
+            ]
+        )
         if matching_product_ids:
             for product in matching_product_ids:
                 pack = product.get_pack()
                 for product_pack in pack.keys():
                     for i in range(int(pack[product_pack])):
-                        op_id = self.env['stock.pack.operation'].\
-                            _search_and_increment(
-                            picking_id, [('product_id', '=', product_pack)],
-                            filter_visible=True, visible_op_ids=visible_op_ids,
-                            increment=True)
-                        answer['operation_id'].append(op_id)
+                        op_id = self.env["stock.pack.operation"]._search_and_increment(
+                            picking_id,
+                            [("product_id", "=", product_pack)],
+                            filter_visible=True,
+                            visible_op_ids=visible_op_ids,
+                            increment=True,
+                        )
+                        answer["operation_id"].append(op_id)
         res = super(stock_pciking, self).process_barcode_from_ui(
-            picking_id, barcode_str, visible_op_ids)
-        answer['operation_id'].append(res['operation_id'])
-        answer['filter_loc'] = res['filter_loc']
+            picking_id, barcode_str, visible_op_ids
+        )
+        answer["operation_id"].append(res["operation_id"])
+        answer["filter_loc"] = res["filter_loc"]
         return answer
 
-    def action_invoice_create(self, cr, uid, ids, journal_id, group=False,
-                              type='out_invoice', context=None):
+    def action_invoice_create(
+        self, cr, uid, ids, journal_id, group=False, type="out_invoice", context=None
+    ):
         """ Creates invoice based on the invoice state selected for picking.
         @param journal_id: Id of journal
         @param group: Whether to create a group invoice or not
@@ -75,18 +84,18 @@ class stock_pciking(orm.Model):
         @return: Ids of created invoices for the pickings
         """
         context = context or {}
-        inv_line_obj = self.pool.get('account.invoice.line')
+        inv_line_obj = self.pool.get("account.invoice.line")
         todo = {}
         for picking in self.browse(cr, uid, ids, context=context):
             partner = self._get_partner_to_invoice(cr, uid, picking, context)
-            #grouping is based on the invoiced partner
+            # grouping is based on the invoiced partner
             if group:
                 key = partner
             else:
                 key = picking.id
             for move in picking.move_lines:
-                if move.invoice_state == '2binvoiced':
-                    if (move.state != 'cancel') and not move.scrapped:
+                if move.invoice_state == "2binvoiced":
+                    if (move.state != "cancel") and not move.scrapped:
                         todo.setdefault(key, [])
                         todo[key].append(move)
         invoices = []
@@ -99,57 +108,70 @@ class stock_pciking(orm.Model):
                 else:
                     pack_moves.append(move)
             if final_moves:
-                invoices += self._invoice_create_line(cr, uid, final_moves,
-                                                      journal_id, type,
-                                                      context=context)
+                invoices += self._invoice_create_line(
+                    cr, uid, final_moves, journal_id, type, context=context
+                )
             else:
                 # Si el albarán no tiene ningun movimiento facturable se crea
                 # una factura con uno de los movimientos y se borran las lineas.
-                invoice = self._invoice_create_line(cr, uid, [moves[0]], journal_id, type,
-                                                    context=context)
-                search_vals = [('invoice_id', '=', invoice),
-                               ('product_id', '=', moves[0].product_id.id)]
+                invoice = self._invoice_create_line(
+                    cr, uid, [moves[0]], journal_id, type, context=context
+                )
+                search_vals = [
+                    ("invoice_id", "=", invoice),
+                    ("product_id", "=", moves[0].product_id.id),
+                ]
                 to_delete = inv_line_obj.search(cr, uid, search_vals, context=context)
                 inv_line_obj.unlink(cr, uid, to_delete, context)
                 invoices += invoice
             if pack_moves:
-                self.pool.get('stock.move').write(cr, uid, [x.id for x in pack_moves],
-                                                  {'invoice_state': 'invoiced'}, context)
+                self.pool.get("stock.move").write(
+                    cr,
+                    uid,
+                    [x.id for x in pack_moves],
+                    {"invoice_state": "invoiced"},
+                    context,
+                )
         return invoices
 
     def _create_invoice_from_picking(self, cr, uid, picking, vals, context=None):
-        sale_obj = self.pool.get('sale.order')
-        sale_line_obj = self.pool.get('sale.order.line')
-        invoice_line_obj = self.pool.get('account.invoice.line')
+        sale_obj = self.pool.get("sale.order")
+        sale_line_obj = self.pool.get("sale.order.line")
+        invoice_line_obj = self.pool.get("account.invoice.line")
         invoice_id = super(stock_pciking, self)._create_invoice_from_picking(
-            cr, uid, picking, vals, context=context)
+            cr, uid, picking, vals, context=context
+        )
         picking_product_ids = [x.product_id.id for x in picking.move_lines]
         if picking.group_id:
-            search_vals = [('procurement_group_id', '=', picking.group_id.id)]
+            search_vals = [("procurement_group_id", "=", picking.group_id.id)]
             sale_ids = sale_obj.search(cr, uid, search_vals, context=context)
             if sale_ids:
                 sale_line_ids = sale_line_obj.search(
-                    cr, uid, [('order_id', 'in', sale_ids),
-                              ('product_id.type', '=', 'service')],
-                    context=context)
+                    cr,
+                    uid,
+                    [("order_id", "in", sale_ids), ("product_id.type", "=", "service")],
+                    context=context,
+                )
                 if sale_line_ids:
-                    for line in sale_line_obj.browse(cr, uid, sale_line_ids,
-                                                     context):
-                        if line.pack_child_line_ids and not \
-                                line.pack_parent_line_id and line.invoiced:
+                    for line in sale_line_obj.browse(cr, uid, sale_line_ids, context):
+                        if (
+                            line.pack_child_line_ids
+                            and not line.pack_parent_line_id
+                            and line.invoiced
+                        ):
                             if not line.pack_in_moves(picking_product_ids):
                                 invoice_line_obj.unlink(
-                                    cr, uid, [x.id for x in line.invoice_lines],
-                                    context)
-                                sale_line_obj.write(cr, uid, line.id,
-                                                    {'invoice_lines': False},
-                                                    context)
+                                    cr, uid, [x.id for x in line.invoice_lines], context
+                                )
+                                sale_line_obj.write(
+                                    cr, uid, line.id, {"invoice_lines": False}, context
+                                )
         return invoice_id
 
 
 class stock_move(orm.Model):
 
-    _inherit = 'stock.move'
+    _inherit = "stock.move"
 
     @api.multi
     def get_sale_line_id(self):
@@ -168,16 +190,15 @@ class stock_move(orm.Model):
         return res
 
     _columns = {
-        'pack_component': fields.function(_pack_component,
-                                          string='pack component',
-                                          type='boolean',
-                                          store=False),
+        "pack_component": fields.function(
+            _pack_component, string="pack component", type="boolean", store=False
+        )
     }
 
 
 class stock_pack_operation(orm.Model):
 
-    _inherit = 'stock.pack.operation'
+    _inherit = "stock.pack.operation"
 
     def _pack_component(self, cr, uid, ids, field_name, arg, context=None):
         res = {}
@@ -189,8 +210,7 @@ class stock_pack_operation(orm.Model):
         return res
 
     _columns = {
-        'pack_component': fields.function(_pack_component,
-                                          string='pack component',
-                                          type='boolean',
-                                          store=True),
+        "pack_component": fields.function(
+            _pack_component, string="pack component", type="boolean", store=True
+        )
     }

@@ -7,6 +7,9 @@ from openerp import models, fields
 
 class StockPicking(models.Model):
 
-    _inherit = 'stock.picking'
+    _inherit = "stock.picking"
     cash_on_delivery = fields.Boolean(
-        'Cash on delivery', related='sale_id.payment_mode_id.cash_on_delivery', readonly=True)
+        "Cash on delivery",
+        related="sale_id.payment_mode_id.cash_on_delivery",
+        readonly=True,
+    )

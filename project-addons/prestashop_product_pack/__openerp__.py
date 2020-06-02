@@ -11,12 +11,6 @@
     "license": "AGPL-3",
     "application": False,
     "installable": True,
-    "depends": [
-        "base",
-        "magentoerpconnect",
-        "product_pack"
-    ],
-    "data": [
-        'security/ir.model.access.csv'
-    ],
+    "depends": ["base", "magentoerpconnect", "product_pack"],
+    "data": ["security/ir.model.access.csv"],
 }

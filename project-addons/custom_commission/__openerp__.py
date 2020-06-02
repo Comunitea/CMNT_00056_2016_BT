@@ -11,10 +11,7 @@
     "license": "AGPL-3",
     "application": False,
     "installable": True,
-    "depends": [
-        "base",
-        "sale_commission_product_plan"
-    ],
+    "depends": ["base", "sale_commission_product_plan"],
     "data": [
         "wizard/add_line_to_settlement_wzd_view.xml",
         "wizard/plan_add_category_wizard.xml",

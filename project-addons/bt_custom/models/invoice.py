@@ -16,8 +16,9 @@ class AccountInvoice(models.Model):
 
     _inherit = "account.invoice"
 
-    autoinvoice = fields.Boolean("Autoinvoice", readonly=True,
-                                 related="journal_id.autoinvoice")
+    autoinvoice = fields.Boolean(
+        "Autoinvoice", readonly=True, related="journal_id.autoinvoice"
+    )
 
     @api.multi
     def action_number(self):
@@ -38,5 +39,5 @@ class AccountInvoice(models.Model):
     @api.model
     def _get_invoice_line_key_cols(self):
         res = super(AccountInvoice, self)._get_invoice_line_key_cols()
-        res.remove('origin')
+        res.remove("origin")
         return res

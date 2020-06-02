@@ -6,22 +6,24 @@ from openerp import models, fields, exceptions, _
 import os
 import urllib2
 import socket
+
 try:
     import genshi
     import genshi.template
 except (ImportError, IOError) as err:
     import logging
-    logging.getLogger(__name__).warn('Module genshi is not available')
+
+    logging.getLogger(__name__).warn("Module genshi is not available")
 
 loader = genshi.template.TemplateLoader(
-    os.path.join(os.path.dirname(__file__), 'template'),
-    auto_reload=True)
+    os.path.join(os.path.dirname(__file__), "template"), auto_reload=True
+)
 
 
 class CarrierApi(models.Model):
-    _inherit = 'carrier.api'
+    _inherit = "carrier.api"
 
-    method = fields.Selection(selection_add=[('szendex', 'Szendex')])
+    method = fields.Selection(selection_add=[("szendex", "Szendex")])
 
     def szendex_url(self):
         """
@@ -30,9 +32,9 @@ class CarrierApi(models.Model):
         :param debug: If set to true, use Envialia test URL
         """
         if self.debug:
-            return 'http://81.46.230.160/WSNexus/ControladorWSCliente.asmx?WSDL'
+            return "http://81.46.230.160/WSNexus/ControladorWSCliente.asmx?WSDL"
         else:
-            return 'http://81.46.230.160/WSNexus/ControladorWSCliente.asmx?WSDL'
+            return "http://81.46.230.160/WSNexus/ControladorWSCliente.asmx?WSDL"
 
     def connect_szendex(self, url, xml):
         """
@@ -44,9 +46,9 @@ class CarrierApi(models.Model):
             Return XML object
         """
         headers = {
-            'Content-Type': 'application/soap+xml; charset=utf-8',
-            'Content-Type': 'text/xml; charset=utf-8',
-            'Content-Length': len(xml),
+            "Content-Type": "application/soap+xml; charset=utf-8",
+            "Content-Type": "text/xml; charset=utf-8",
+            "Content-Length": len(xml),
         }
         request = urllib2.Request(url, xml, headers)
         try:
@@ -58,60 +60,54 @@ class CarrierApi(models.Model):
             return
 
     def validate_user_szendex(self, retry=False):
-        vals = {
-            'Nombre': self.username,
-            'Password': self.password,
-        }
-        tmpl = loader.load('login.xml')
+        vals = {"Nombre": self.username, "Password": self.password}
+        tmpl = loader.load("login.xml")
         xml = tmpl.generate(**vals).render()
         result = self.connect_szendex(self.szendex_url(), xml)
-        if len(result.split('GUID')) == 3:
-            guid_node = result.split('GUID')[1][4:-5]
+        if len(result.split("GUID")) == 3:
+            guid_node = result.split("GUID")[1][4:-5]
             return guid_node
         else:
             if retry:
-                raise Exception('Unkown error: %s' % result)
+                raise Exception("Unkown error: %s" % result)
             self.disconnect_user_szendex()
             return self.validate_user_szendex(retry=True)
 
     def disconnect_user_szendex(self):
-        vals = {
-            'Nombre': self.username,
-            'Password': self.password,
-        }
-        tmpl = loader.load('logout.xml')
+        vals = {"Nombre": self.username, "Password": self.password}
+        tmpl = loader.load("logout.xml")
         xml = tmpl.generate(**vals).render()
         self.connect_szendex(self.szendex_url(), xml)
         return True
 
     def send_picking_szendex(self, vals):
-        tmpl = loader.load('send_picking.xml')
+        tmpl = loader.load("send_picking.xml")
         xml = tmpl.generate(**vals).render()
-        xml = xml.replace('&lt;', '<').replace('&gt;', '>')
-        response = self.connect_szendex(self.szendex_url(), xml.encode('utf-8'))
-        if len(response.split('REFERENCIAENTREGA')) == 3:
-            return response.split('REFERENCIAENTREGA')[1][4:-5]
+        xml = xml.replace("&lt;", "<").replace("&gt;", ">")
+        response = self.connect_szendex(self.szendex_url(), xml.encode("utf-8"))
+        if len(response.split("REFERENCIAENTREGA")) == 3:
+            return response.split("REFERENCIAENTREGA")[1][4:-5]
         else:
             raise Exception(response)
 
     def label_szendex(self, vals):
-        tmpl = loader.load('print_label.xml')
+        tmpl = loader.load("print_label.xml")
         xml = tmpl.generate(**vals).render()
         response = self.connect_szendex(self.szendex_url(), xml)
-        if len(response.split('ImprimirEtiquetaResult')) == 3:
-            return response.split('ImprimirEtiquetaResult')[1][74:-27]
+        if len(response.split("ImprimirEtiquetaResult")) == 3:
+            return response.split("ImprimirEtiquetaResult")[1][74:-27]
         else:
             raise Exception(response)
 
     def test_szendex(self):
-        '''
+        """
         Test Envialia connection
-        '''
+        """
         self.ensure_one()
-        message = 'Connection unknown result'
+        message = "Connection unknown result"
         try:
             self.validate_user_szendex()
-            message = 'Correct'
+            message = "Correct"
         except Exception:
-            message = 'Fail'
-        raise exceptions.Warning(_('Connection test'), message)
+            message = "Fail"
+        raise exceptions.Warning(_("Connection test"), message)

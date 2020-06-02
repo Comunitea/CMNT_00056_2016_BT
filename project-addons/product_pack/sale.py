@@ -23,29 +23,31 @@ from openerp import api
 
 
 class sale_order_line(orm.Model):
-    _inherit = 'sale.order.line'
+    _inherit = "sale.order.line"
     _columns = {
-        'pack_depth': fields.integer(
-            'Depth', required=True,
-            help='Depth of the product if it is part of a pack.'
+        "pack_depth": fields.integer(
+            "Depth", required=True, help="Depth of the product if it is part of a pack."
         ),
-        'pack_parent_line_id': fields.many2one(
-            'sale.order.line', 'Pack',
-            help='The pack that contains this product.', ondelete="cascade"
+        "pack_parent_line_id": fields.many2one(
+            "sale.order.line",
+            "Pack",
+            help="The pack that contains this product.",
+            ondelete="cascade",
         ),
-        'pack_child_line_ids': fields.one2many(
-            'sale.order.line', 'pack_parent_line_id', 'Lines in pack'),
+        "pack_child_line_ids": fields.one2many(
+            "sale.order.line", "pack_parent_line_id", "Lines in pack"
+        ),
     }
-    _defaults = {
-        'pack_depth': 0,
-    }
+    _defaults = {"pack_depth": 0}
 
     def invoice_line_create(self, cr, uid, ids, context=None):
         no_pack_ids = []
         for line in self.browse(cr, uid, ids, context):
             if not line.pack_depth > 0:
                 no_pack_ids.append(line.id)
-        return super(sale_order_line, self).invoice_line_create(cr, uid, no_pack_ids, context)
+        return super(sale_order_line, self).invoice_line_create(
+            cr, uid, no_pack_ids, context
+        )
 
     @api.multi
     def pack_in_moves(self, product_ids):
@@ -61,7 +63,7 @@ class sale_order_line(orm.Model):
 
 
 class sale_order(orm.Model):
-    _inherit = 'sale.order'
+    _inherit = "sale.order"
 
     def create(self, cr, uid, vals, context=None):
         result = super(sale_order, self).create(cr, uid, vals, context)
@@ -74,7 +76,7 @@ class sale_order(orm.Model):
         return result
 
     def copy(self, cr, uid, id, default={}, context=None):
-        line_obj = self.pool.get('sale.order.line')
+        line_obj = self.pool.get("sale.order.line")
         result = super(sale_order, self).copy(cr, uid, id, default, context)
         sale = self.browse(cr, uid, result, context)
         self.unlink_pack_components(cr, uid, sale.id, context)
@@ -82,12 +84,16 @@ class sale_order(orm.Model):
         return result
 
     def unlink_pack_components(self, cr, uid, sale_id, context=None):
-        search_vals = [('order_id', '=', sale_id), ('pack_parent_line_id', '!=', None),
-                       ('pack_child_line_ids', '=', False)]
-        unlink_lines = self.pool.get('sale.order.line').search(cr, uid,  search_vals,
-                                                               context=context)
+        search_vals = [
+            ("order_id", "=", sale_id),
+            ("pack_parent_line_id", "!=", None),
+            ("pack_child_line_ids", "=", False),
+        ]
+        unlink_lines = self.pool.get("sale.order.line").search(
+            cr, uid, search_vals, context=context
+        )
         if unlink_lines:
-            self.pool.get('sale.order.line').unlink(cr, uid, unlink_lines, context)
+            self.pool.get("sale.order.line").unlink(cr, uid, unlink_lines, context)
             self.unlink_pack_components(cr, uid, sale_id, context)
         else:
             return
@@ -95,7 +101,7 @@ class sale_order(orm.Model):
     def expand_packs(self, cr, uid, ids, context=None, depth=1):
         if context is None:
             context = {}
-        if context.get('not_expand', False):
+        if context.get("not_expand", False):
             return
         if type(ids) in [int, long]:
             ids = [ids]
@@ -106,7 +112,7 @@ class sale_order(orm.Model):
 
             fiscal_position = (
                 order.fiscal_position
-                and self.pool.get('account.fiscal.position').browse(
+                and self.pool.get("account.fiscal.position").browse(
                     cr, uid, order.fiscal_position.id, context
                 )
                 or False
@@ -131,22 +137,20 @@ class sale_order(orm.Model):
             for line in order.order_line:
                 if last_had_children and not line.pack_parent_line_id:
                     reorder.append(line.id)
-                    if (
-                        line.product_id.pack_line_ids
-                        and order.id not in updated_orders
-                    ):
+                    if line.product_id.pack_line_ids and order.id not in updated_orders:
                         updated_orders.append(order.id)
                     continue
 
                 sequence += 1
 
                 if sequence > line.sequence:
-                    self.pool.get('sale.order.line').write(
-                        cr, uid, [line.id], {'sequence': sequence, }, context)
+                    self.pool.get("sale.order.line").write(
+                        cr, uid, [line.id], {"sequence": sequence}, context
+                    )
                 else:
                     sequence = line.sequence
 
-                if line.state != 'draft':
+                if line.state != "draft":
                     continue
                 if not line.product_id:
                     continue
@@ -169,22 +173,28 @@ class sale_order(orm.Model):
                         discount = 0.0
                     else:
                         pricelist = order.pricelist_id.id
-                        price = self.pool.get('product.pricelist').price_get(
-                            cr, uid, [pricelist], subproduct.id, quantity,
-                            order.partner_id.id, {
-                                'uom': subproduct.uom_id.id,
-                                'date': order.date_order,
-                                }
-                            )[pricelist]
+                        price = self.pool.get("product.pricelist").price_get(
+                            cr,
+                            uid,
+                            [pricelist],
+                            subproduct.id,
+                            quantity,
+                            order.partner_id.id,
+                            {"uom": subproduct.uom_id.id, "date": order.date_order},
+                        )[pricelist]
                         discount = line.discount
 
                     # Obtain product name in partner's language
-                    ctx = {'lang': order.partner_id.lang}
-                    subproduct_name = self.pool.get('product.product').browse(
-                        cr, uid, subproduct.id, ctx).name
+                    ctx = {"lang": order.partner_id.lang}
+                    subproduct_name = (
+                        self.pool.get("product.product")
+                        .browse(cr, uid, subproduct.id, ctx)
+                        .name
+                    )
 
-                    tax_ids = self.pool.get('account.fiscal.position').map_tax(
-                        cr, uid, fiscal_position, subproduct.taxes_id)
+                    tax_ids = self.pool.get("account.fiscal.position").map_tax(
+                        cr, uid, fiscal_position, subproduct.taxes_id
+                    )
 
                     if subproduct.uos_id:
                         uos_id = subproduct.uos_id.id
@@ -194,46 +204,43 @@ class sale_order(orm.Model):
                         uos_qty = quantity
 
                     vals = {
-                        'order_id': order.id,
-                        'name': '%s%s' % (
-                            '> ' * (line.pack_depth+1), subproduct_name
-                        ),
-                        'sequence': sequence,
-                        'delay': subproduct.sale_delay or 0.0,
-                        'product_id': subproduct.id,
-                        'procurement_ids': (
-                            [(4, x.id) for x in line.procurement_ids]
-                        ),
-                        'price_unit': price,
-                        'tax_id': [(6, 0, tax_ids)],
-                        'address_allotment_id': False,
-                        'product_uom_qty': quantity,
-                        'product_uom': subproduct.uom_id.id,
-                        'product_uos_qty': uos_qty,
-                        'product_uos': uos_id,
-                        'product_packaging': False,
-                        'discount': discount,
-                        'number_packages': False,
-                        'th_weight': False,
-                        'state': 'draft',
-                        'pack_parent_line_id': line.id,
-                        'pack_depth': line.pack_depth + 1,
+                        "order_id": order.id,
+                        "name": "%s%s"
+                        % ("> " * (line.pack_depth + 1), subproduct_name),
+                        "sequence": sequence,
+                        "delay": subproduct.sale_delay or 0.0,
+                        "product_id": subproduct.id,
+                        "procurement_ids": ([(4, x.id) for x in line.procurement_ids]),
+                        "price_unit": price,
+                        "tax_id": [(6, 0, tax_ids)],
+                        "address_allotment_id": False,
+                        "product_uom_qty": quantity,
+                        "product_uom": subproduct.uom_id.id,
+                        "product_uos_qty": uos_qty,
+                        "product_uos": uos_id,
+                        "product_packaging": False,
+                        "discount": discount,
+                        "number_packages": False,
+                        "th_weight": False,
+                        "state": "draft",
+                        "pack_parent_line_id": line.id,
+                        "pack_depth": line.pack_depth + 1,
                     }
 
                     """ It's a control for the case that the
                     nan_external_prices was installed with the product pack """
-                    if 'prices_used' in line:
-                        vals['prices_used'] = line.prices_used
+                    if "prices_used" in line:
+                        vals["prices_used"] = line.prices_used
 
-                    self.pool.get('sale.order.line').create(
-                        cr, uid, vals, context)
+                    self.pool.get("sale.order.line").create(cr, uid, vals, context)
                     if order.id not in updated_orders:
                         updated_orders.append(order.id)
 
                 for id in reorder:
                     sequence += 1
-                    self.pool.get('sale.order.line').write(
-                        cr, uid, [id], {'sequence': sequence, }, context)
+                    self.pool.get("sale.order.line").write(
+                        cr, uid, [id], {"sequence": sequence}, context
+                    )
 
         if updated_orders:
             """ Try to expand again all those orders that had a pack in this
