@@ -50,7 +50,7 @@ class StockPicking(models.Model):
                 or self.company_id.partner_id
             )
             data = {
-                "remitente_nombre": company_partner.name,
+                "remitente_nombre": company_partner.commercial_partner_id.name,
                 "RecogidaDireccion": company_partner.street,
                 "RecogidaCodigoPostal": company_partner.zip,
                 "RecogidaPais": company_partner.country_id.name,
