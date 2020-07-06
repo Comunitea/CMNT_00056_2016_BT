@@ -90,6 +90,8 @@ class particular_report(models.AbstractModel):
                     default_commission = commission_perc
 
             for sett_line in settlement.lines:  # para cada liña do asentamento
+                if not sett_line.invoice_line:
+                    continue
                 plan_line = self.env["sale.agent.plan.line"].search(
                     [
                         ("product", "=", sett_line.invoice_line.product_id.id),
