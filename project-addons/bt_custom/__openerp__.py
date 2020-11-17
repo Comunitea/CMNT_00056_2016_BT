@@ -27,6 +27,7 @@
         "sale_store",
         "sale_display_stock",
         "sale_commission",
+        "mrp"
     ],
     "data": [
         "data/res_groups.xml",

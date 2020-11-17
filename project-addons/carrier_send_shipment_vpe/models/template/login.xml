@@ -1,0 +1,9 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/">
+   <soapenv:Body>
+      <tem:LoginWSService___LoginCli>
+         <tem:strCodAge>${codigo_agencia}</tem:strCodAge>
+         <tem:strCod>${codigo_usuario}</tem:strCod>
+         <tem:strPass>${password}</tem:strPass>
+      </tem:LoginWSService___LoginCli>
+   </soapenv:Body>
+</soapenv:Envelope>

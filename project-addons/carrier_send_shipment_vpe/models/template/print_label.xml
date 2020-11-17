@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+   <soap:Header>
+      <ROClientIDHeader xmlns="http://tempuri.org/">
+         <ID>${token}</ID>
+      </ROClientIDHeader>
+   </soap:Header>
+   <soap:Body>
+      <WebServService___ConsEtiquetaEnvio4>
+         <strCodAgeOri>${codigo_agencia}</strCodAgeOri>
+         <strAlbaran>${picking_ref}</strAlbaran>
+         <intIdRepDet>0</intIdRepDet>
+         <strFormato>pdf</strFormato>
+      </WebServService___ConsEtiquetaEnvio4>
+   </soap:Body>
+</soap:Envelope>
