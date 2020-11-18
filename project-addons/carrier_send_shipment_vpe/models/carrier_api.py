@@ -113,7 +113,6 @@ class CarrierApi(models.Model):
         vals["codigo_agencia"] = self.vpe_agencia
         xml = tmpl.generate(**vals).render()
         response = self.connect_vpe(self.vpe_url()["grabar"], xml)
-        import pdb; pdb.set_trace()
         response_xml = parseString(response)
         tag_data = response_xml.getElementsByTagName("v1:strEtiqueta")
         if tag_data:
