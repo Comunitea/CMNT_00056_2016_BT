@@ -11,6 +11,6 @@
     "license": "AGPL-3",
     "application": False,
     "installable": True,
-    "depends": ["base", "stock"],
-    "data": ["stock.xml"],
+    "depends": ["base", "stock", "purchase"],
+    "data": ["views/stock.xml", "views/purchase_order.xml"],
 }
