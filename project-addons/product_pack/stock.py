@@ -175,6 +175,8 @@ class stock_move(orm.Model):
 
     @api.multi
     def get_sale_line_id(self):
+        if self.picking_id.picking_type_code == 'incoming':
+            return False
         sale_id = self.procurement_id.sale_line_id
         if not sale_id and self.move_dest_id:
             sale_id = self.move_dest_id.get_sale_line_id()
