@@ -2,6 +2,7 @@
 # © 2021 Comunitea
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 from openerp import _, fields, models, SUPERUSER_ID
+from datetime import datetime
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT
 
 
