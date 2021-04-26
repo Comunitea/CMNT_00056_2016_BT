@@ -31,3 +31,9 @@ class SaleOrderStoreImportMapper(SaleOrderImportMapper):
             return {"user_id": self.backend_record.default_user_id.id}
         else:
             return super(SaleOrderStoreImportMapper, self).user_id(record)
+
+    @mapping
+    def fiscal_position_id(self, record):
+        if record.get('base_tax_amount') == 0:
+            intracommunity = self.env['account.fiscal.position'].search([('intracommunity_operations', '=', True)])
+            return {'fiscal_position': intracommunity.id}

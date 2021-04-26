@@ -9,6 +9,7 @@ from openerp.addons.connector.unit.mapper import mapping
 
 @prestashop(replacing=SaleOrderMapper)
 class SaleOrderMapperAddStore(SaleOrderMapper):
+
     @mapping
     def store_id(self, record):
         binder = self.binder_for("prestashop.shop")
