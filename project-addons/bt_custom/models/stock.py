@@ -3,6 +3,9 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 from openerp import models, fields, api, exceptions, _
+from openerp.addons.connector.session import ConnectorSession
+
+from openerp.addons.connector.queue.job import job
 
 
 class StockPicking(models.Model):
@@ -28,3 +31,25 @@ class StockPicking(models.Model):
             answer["operation_id"] = op_id
             return answer
         return answer
+
+
+class StockInventory(models.Model):
+
+    _inherit = 'stock.inventory'
+
+    @api.multi
+    def launch_action_done_job(self):
+
+        session = ConnectorSession(
+            self.env.cr, self.env.user.id, context=self.env.context,
+        )
+        for inv in self:
+            action_done_job.delay(session, 'stock.inventory', inv.id)
+
+
+@job()
+def action_done_job(session, model_name, inventory_id):
+    model = session.env[model_name]
+    inventory = model.browse(inventory_id)
+    if inventory.exists():
+        inventory.action_done()
