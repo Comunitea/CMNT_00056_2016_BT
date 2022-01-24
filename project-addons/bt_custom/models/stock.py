@@ -32,6 +32,13 @@ class StockPicking(models.Model):
             return answer
         return answer
 
+    def _prepare_values_extra_move(self, cr, uid, op, product, remaining_qty, context=None):
+        res = super(StockPicking, self)._prepare_values_extra_move(cr, uid, op, product, remaining_qty, context=context)
+        if op.linked_move_operation_ids:
+            res.update({'date_expected': op.linked_move_operation_ids[-1].move_id.date_expected})
+        return res
+
+
 
 class StockInventory(models.Model):
 
