@@ -42,11 +42,13 @@ class ProductProduct(models.Model):
 
 
 class ProductProductOldApi(osv.osv):
-    _inherit = 'product.product'
+    _inherit = "product.product"
 
     def _product_available(self, cr, uid, ids, name, arg, context=None):
-        res = super(ProductProductOldApi, self)._product_available(cr, uid, ids, name, arg, context)
-        if context.get('skip_stock'):
+        res = super(ProductProductOldApi, self)._product_available(
+            cr, uid, ids, name, arg, context
+        )
+        if context.get("skip_stock"):
             # Devolvemos una cantidad para evitar aviso de stock
             for key in res.keys():
                 res[key] = {
@@ -54,15 +56,21 @@ class ProductProductOldApi(osv.osv):
                     "virtual_available": 999999999999,
                     "incoming_qty": 999999999999,
                     "outgoing_qty": 0,
-
                 }
         return res
 
     def _search_product_quantity(self, cr, uid, obj, name, domain, context):
-        return super(ProductProductOldApi, self)._search_product_quantity(cr, uid, obj, name, domain, context)
+        return super(ProductProductOldApi, self)._search_product_quantity(
+            cr, uid, obj, name, domain, context
+        )
 
     _columns = {
-        'virtual_available': fields_old_api.function(_product_available, multi='qty_available', digits_compute=dp.get_precision('Product Unit of Measure'),
-        fnct_search=_search_product_quantity, type='float', string='Forecast Quantity'),
+        "virtual_available": fields_old_api.function(
+            _product_available,
+            multi="qty_available",
+            digits_compute=dp.get_precision("Product Unit of Measure"),
+            fnct_search=_search_product_quantity,
+            type="float",
+            string="Forecast Quantity",
+        ),
     }
-

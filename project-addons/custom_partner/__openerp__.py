@@ -22,5 +22,10 @@
         "sale",
         "sale_commission",
     ],
-    "data": ["views/partner_view.xml", "views/sale.xml", "views/invoice.xml", "views/purchase_view.xml"],
+    "data": [
+        "views/partner_view.xml",
+        "views/sale.xml",
+        "views/invoice.xml",
+        "views/purchase_view.xml",
+    ],
 }

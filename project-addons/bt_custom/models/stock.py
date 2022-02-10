@@ -32,26 +32,37 @@ class StockPicking(models.Model):
             return answer
         return answer
 
-    def _prepare_values_extra_move(self, cr, uid, op, product, remaining_qty, context=None):
-        res = super(StockPicking, self)._prepare_values_extra_move(cr, uid, op, product, remaining_qty, context=context)
+    def _prepare_values_extra_move(
+        self, cr, uid, op, product, remaining_qty, context=None
+    ):
+        res = super(StockPicking, self)._prepare_values_extra_move(
+            cr, uid, op, product, remaining_qty, context=context
+        )
         if op.linked_move_operation_ids:
-            res.update({'date_expected': op.linked_move_operation_ids[-1].move_id.date_expected})
+            res.update(
+                {
+                    "date_expected": op.linked_move_operation_ids[
+                        -1
+                    ].move_id.date_expected
+                }
+            )
         return res
-
 
 
 class StockInventory(models.Model):
 
-    _inherit = 'stock.inventory'
+    _inherit = "stock.inventory"
 
     @api.multi
     def launch_action_done_job(self):
 
         session = ConnectorSession(
-            self.env.cr, self.env.user.id, context=self.env.context,
+            self.env.cr,
+            self.env.user.id,
+            context=self.env.context,
         )
         for inv in self:
-            action_done_job.delay(session, 'stock.inventory', inv.id)
+            action_done_job.delay(session, "stock.inventory", inv.id)
 
 
 @job()

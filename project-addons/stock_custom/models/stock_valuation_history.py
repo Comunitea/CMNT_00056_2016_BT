@@ -6,12 +6,13 @@ from openerp import tools
 
 
 class StockHistory(models.Model):
-    _inherit = 'stock.history'
+    _inherit = "stock.history"
 
     def init(self, cr):
         # Eliminaos la parte de los quants, y ponemos coste en el quant a 0, ya que no se utiliza.
-        tools.drop_view_if_exists(cr, 'stock_history')
-        cr.execute("""
+        tools.drop_view_if_exists(cr, "stock_history")
+        cr.execute(
+            """
             CREATE OR REPLACE VIEW stock_history AS (
               SELECT MIN(id) as id,
                 move_id,
@@ -78,4 +79,5 @@ class StockHistory(models.Model):
                 ))
                 AS foo
                 GROUP BY move_id, location_id, company_id, product_id, product_categ_id, date, source
-            )""")
+            )"""
+        )

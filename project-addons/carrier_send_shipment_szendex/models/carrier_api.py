@@ -38,12 +38,12 @@ class CarrierApi(models.Model):
 
     def connect_szendex(self, url, xml):
         """
-            Connect to the Webservices and return XML data from szendex
+        Connect to the Webservices and return XML data from szendex
 
-            :param url: url service.
-            :param xml: XML data.
+        :param url: url service.
+        :param xml: XML data.
 
-            Return XML object
+        Return XML object
         """
         headers = {
             "Content-Type": "application/soap+xml; charset=utf-8",

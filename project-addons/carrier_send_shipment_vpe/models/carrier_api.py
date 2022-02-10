@@ -48,12 +48,12 @@ class CarrierApi(models.Model):
 
     def connect_vpe(self, url, xml):
         """
-            Connect to the Webservices and return XML data from vpe
+        Connect to the Webservices and return XML data from vpe
 
-            :param url: url service.
-            :param xml: XML data.
+        :param url: url service.
+        :param xml: XML data.
 
-            Return XML object
+        Return XML object
         """
         headers = {
             "Content-Type": "application/soap+xml; charset=utf-8",
@@ -117,7 +117,7 @@ class CarrierApi(models.Model):
         tag_data = response_xml.getElementsByTagName("v1:strEtiqueta")
         if tag_data:
             tag_xml = parseString(tag_data[0].firstChild.data)
-            return tag_xml.getElementsByTagName('ENVIO')[0].getAttribute('V_ETIQUETA')
+            return tag_xml.getElementsByTagName("ENVIO")[0].getAttribute("V_ETIQUETA")
         else:
             raise Exception(response)
 

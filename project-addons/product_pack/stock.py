@@ -77,7 +77,7 @@ class stock_pciking(orm.Model):
     def action_invoice_create(
         self, cr, uid, ids, journal_id, group=False, type="out_invoice", context=None
     ):
-        """ Creates invoice based on the invoice state selected for picking.
+        """Creates invoice based on the invoice state selected for picking.
         @param journal_id: Id of journal
         @param group: Whether to create a group invoice or not
         @param type: Type invoice to be created
@@ -175,7 +175,7 @@ class stock_move(orm.Model):
 
     @api.multi
     def get_sale_line_id(self):
-        if self.picking_id.picking_type_code == 'incoming':
+        if self.picking_id.picking_type_code == "incoming":
             return False
         sale_id = self.procurement_id.sale_line_id
         if not sale_id and self.move_dest_id:

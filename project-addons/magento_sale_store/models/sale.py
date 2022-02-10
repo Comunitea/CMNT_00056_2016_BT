@@ -34,6 +34,8 @@ class SaleOrderStoreImportMapper(SaleOrderImportMapper):
 
     @mapping
     def fiscal_position_id(self, record):
-        if record.get('base_tax_amount') == 0:
-            intracommunity = self.env['account.fiscal.position'].search([('intracommunity_operations', '=', True)])
-            return {'fiscal_position': intracommunity.id}
+        if record.get("base_tax_amount") == 0:
+            intracommunity = self.env["account.fiscal.position"].search(
+                [("intracommunity_operations", "=", True)]
+            )
+            return {"fiscal_position": intracommunity.id}

@@ -51,12 +51,12 @@ class CarrierApi(models.Model):
 
     def connect_tipsa(self, url, xml):
         """
-            Connect to the Webservices and return XML data from tipsa
+        Connect to the Webservices and return XML data from tipsa
 
-            :param url: url service.
-            :param xml: XML data.
+        :param url: url service.
+        :param xml: XML data.
 
-            Return XML object
+        Return XML object
         """
         headers = {
             "Content-Type": "application/soap+xml; charset=utf-8",

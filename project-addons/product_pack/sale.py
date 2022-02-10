@@ -243,7 +243,7 @@ class sale_order(orm.Model):
                     )
 
         if updated_orders:
-            """ Try to expand again all those orders that had a pack in this
-            iteration. This way we support packs inside other packs. """
+            """Try to expand again all those orders that had a pack in this
+            iteration. This way we support packs inside other packs."""
             self.expand_packs(cr, uid, ids, context, depth + 1)
         return

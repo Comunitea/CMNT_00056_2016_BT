@@ -76,8 +76,8 @@ class product_product(orm.Model):
 
             # Check if product stock depends on it's subproducts stock.
             if product.pack_line_ids:
-                """ Go over all subproducts, take quantity needed for the pack
-                and its available stock """
+                """Go over all subproducts, take quantity needed for the pack
+                and its available stock"""
                 for subproduct in product.pack_line_ids:
 
                     # if subproduct is a service don't calculate the stock
