@@ -3,6 +3,8 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 from openerp import models, fields, api
+import openerp.addons.decimal_precision as dp
+from openerp.osv import osv, fields as fields_old_api
 
 
 class ProductProduct(models.Model):
@@ -37,3 +39,30 @@ class ProductProduct(models.Model):
                 if boms:
                     boms.update_standard_price_production()
         return res
+
+
+class ProductProductOldApi(osv.osv):
+    _inherit = 'product.product'
+
+    def _product_available(self, cr, uid, ids, name, arg, context=None):
+        res = super(ProductProductOldApi, self)._product_available(cr, uid, ids, name, arg, context)
+        if context.get('skip_stock'):
+            # Devolvemos una cantidad para evitar aviso de stock
+            for key in res.keys():
+                res[key] = {
+                    "qty_available": 999999999999,
+                    "virtual_available": 999999999999,
+                    "incoming_qty": 999999999999,
+                    "outgoing_qty": 0,
+
+                }
+        return res
+
+    def _search_product_quantity(self, cr, uid, obj, name, domain, context):
+        return super(ProductProductOldApi, self)._search_product_quantity(cr, uid, obj, name, domain, context)
+
+    _columns = {
+        'virtual_available': fields_old_api.function(_product_available, multi='qty_available', digits_compute=dp.get_precision('Product Unit of Measure'),
+        fnct_search=_search_product_quantity, type='float', string='Forecast Quantity'),
+    }
+
